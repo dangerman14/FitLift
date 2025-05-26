@@ -520,7 +520,9 @@ export default function WorkoutSession() {
             <div className="text-neutral-500">Duration</div>
             <Select value={Math.floor(elapsedTime / 60).toString()} onValueChange={updateWorkoutDuration}>
               <SelectTrigger className="bg-transparent border-0 font-medium text-blue-600 h-auto p-0 focus:ring-0 [&>svg]:text-blue-600">
-                <SelectValue placeholder={formatTime(elapsedTime)} />
+                <SelectValue>
+                  {formatTime(elapsedTime)}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {Array.from({ length: 120 }, (_, i) => i + 1).map(minute => (
