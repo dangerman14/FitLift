@@ -251,14 +251,60 @@ export default function ExerciseDetailsModal({
                   <FormItem>
                     <FormLabel className="flex items-center">
                       <Upload className="h-4 w-4 mr-2" />
-                      Exercise Image URL
+                      Exercise Image
                     </FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="https://example.com/image.jpg" 
-                        className="rounded-xl border-2"
-                        {...field} 
-                      />
+                      <div className="space-y-4">
+                        {/* Drag and Drop Zone */}
+                        <div 
+                          className="border-2 border-dashed border-purple-300 rounded-xl p-8 text-center hover:border-purple-500 transition-colors cursor-pointer bg-purple-50/50"
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            const files = Array.from(e.dataTransfer.files);
+                            if (files.length > 0) {
+                              // For now, show instructions since we'd need image hosting
+                              alert("Drag & drop detected! For now, please use an image URL. Image hosting will be added soon.");
+                            }
+                          }}
+                          onDragOver={(e) => e.preventDefault()}
+                          onDragEnter={(e) => e.preventDefault()}
+                        >
+                          <Upload className="h-12 w-12 text-purple-400 mx-auto mb-4" />
+                          <div className="text-lg font-medium text-neutral-700 mb-2">
+                            Drop exercise image here
+                          </div>
+                          <div className="text-sm text-neutral-500 mb-4">
+                            or paste an image URL below
+                          </div>
+                          <div className="text-xs text-neutral-400">
+                            PNG, JPG, GIF up to 10MB
+                          </div>
+                        </div>
+                        
+                        {/* URL Input */}
+                        <Input 
+                          placeholder="https://example.com/exercise-image.jpg" 
+                          {...field} 
+                          className="rounded-xl border-2"
+                        />
+                        
+                        {/* Preview */}
+                        {field.value && (
+                          <div className="mt-4">
+                            <img 
+                              src={field.value} 
+                              alt="Exercise preview" 
+                              className="w-full max-w-md mx-auto rounded-xl shadow-lg"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                              onLoad={(e) => {
+                                e.currentTarget.style.display = 'block';
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
