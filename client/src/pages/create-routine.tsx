@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,11 @@ interface RoutineExercise {
 }
 
 export default function CreateRoutine() {
+  // Check if we're in edit mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const editId = urlParams.get('edit');
+  const isEditMode = !!editId;
+
   const [routineName, setRoutineName] = useState("");
   const [routineDescription, setRoutineDescription] = useState("");
   const [selectedFolderId, setSelectedFolderId] = useState<string>("");
@@ -62,6 +67,25 @@ export default function CreateRoutine() {
     queryKey: ["/api/routine-folders"],
   });
 
+  // Fetch existing routine data when in edit mode
+  const { data: existingRoutine } = useQuery({
+    queryKey: ["/api/workout-templates", editId],
+    enabled: isEditMode && !!editId,
+  });
+
+  // Populate form fields when existing routine data is loaded
+  useEffect(() => {
+    if (existingRoutine && isEditMode) {
+      setRoutineName(existingRoutine.name || "");
+      setRoutineDescription(existingRoutine.description || "");
+      setSelectedFolderId(existingRoutine.folderId?.toString() || "");
+      
+      // Load routine exercises if they exist
+      // Note: This would require fetching template exercises from the backend
+      // For now, we'll just set the basic routine info
+    }
+  }, [existingRoutine, isEditMode]);
+
   // Filter exercises based on search and filters
   const filteredExercises = exercises.filter((exercise: any) => {
     const matchesSearch = exerciseSearch === "" || 
@@ -78,17 +102,22 @@ export default function CreateRoutine() {
     return matchesSearch && matchesMuscleGroup && matchesEquipment;
   });
 
-  // Create routine mutation
-  const createRoutineMutation = useMutation({
+  // Create/Update routine mutation
+  const saveRoutineMutation = useMutation({
     mutationFn: async (routineData: any) => {
-      const response = await apiRequest("POST", "/api/workout-templates", routineData);
-      return response.json();
+      if (isEditMode && editId) {
+        const response = await apiRequest("PUT", `/api/workout-templates/${editId}`, routineData);
+        return response.json();
+      } else {
+        const response = await apiRequest("POST", "/api/workout-templates", routineData);
+        return response.json();
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/workout-templates"] });
       toast({
         title: "Success!",
-        description: "Your workout routine has been created.",
+        description: `Your workout routine has been ${isEditMode ? 'updated' : 'created'}.`,
       });
       // Navigate back to routines page
       window.location.href = "/routines";
@@ -96,7 +125,7 @@ export default function CreateRoutine() {
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to create routine. Please try again.",
+        description: `Failed to ${isEditMode ? 'update' : 'create'} routine. Please try again.`,
         variant: "destructive",
       });
     },
@@ -167,7 +196,7 @@ export default function CreateRoutine() {
       exercises: selectedExercises,
     };
 
-    createRoutineMutation.mutate(routineData);
+    saveRoutineMutation.mutate(routineData);
   };
 
   const goBack = () => {
@@ -188,10 +217,10 @@ export default function CreateRoutine() {
           </Button>
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Create New Routine
+              {isEditMode ? 'Edit Routine' : 'Create New Routine'}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Build your custom workout routine by adding exercises with specific sets and reps
+              {isEditMode ? 'Update your workout routine by modifying exercises, sets and reps' : 'Build your custom workout routine by adding exercises with specific sets and reps'}
             </p>
           </div>
         </div>
