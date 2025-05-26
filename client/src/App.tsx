@@ -15,6 +15,7 @@ import Profile from "@/pages/profile";
 import Settings from "@/pages/settings";
 import WorkoutSession from "@/pages/workout-session";
 import WorkoutComplete from "@/pages/workout-complete";
+import RoutineDetails from "@/pages/routine-details";
 import NotFound from "@/pages/not-found";
 import Navigation from "@/components/navigation";
 
@@ -48,6 +49,7 @@ function Router() {
                 <Route path="/workouts" component={Workouts} />
                 <Route path="/exercises" component={Exercises} />
                 <Route path="/routines" component={Routines} />
+                <Route path="/routine/:id" component={RoutineDetails} />
                 <Route path="/create-routine" component={CreateRoutine} />
                 <Route path="/progress" component={Progress} />
                 <Route path="/profile" component={Profile} />
