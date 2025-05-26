@@ -66,11 +66,27 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-8">
       {/* Header Section */}
-      <section className="text-center pt-4 pb-2">
-        <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-3">
-          Hello {user?.firstName || 'User'}!
-        </h1>
-        <p className="text-neutral-600 text-lg">Ready for a challenge?</p>
+      <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 text-white mx-4 rounded-3xl shadow-large p-8 mb-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
+            Hello {user?.firstName || 'User'}!
+          </h1>
+          <p className="text-blue-100 text-lg mb-6">Ready for a challenge?</p>
+          <div className="flex justify-center space-x-8 text-center">
+            <div className="bg-white bg-opacity-20 rounded-xl p-4 backdrop-blur-sm">
+              <div className="text-2xl font-bold text-white">{workoutStats?.totalWorkouts || 0}</div>
+              <div className="text-blue-100 text-sm">Workouts</div>
+            </div>
+            <div className="bg-white bg-opacity-20 rounded-xl p-4 backdrop-blur-sm">
+              <div className="text-2xl font-bold text-white">{Math.round(Number(workoutStats?.totalVolume) || 0)}kg</div>
+              <div className="text-blue-100 text-sm">Volume</div>
+            </div>
+            <div className="bg-white bg-opacity-20 rounded-xl p-4 backdrop-blur-sm">
+              <div className="text-2xl font-bold text-white">{workoutStats?.avgDuration || 0}min</div>
+              <div className="text-blue-100 text-sm">Avg Time</div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Quick Actions Section */}

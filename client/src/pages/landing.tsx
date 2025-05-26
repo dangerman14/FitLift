@@ -11,23 +11,25 @@ export default function Landing() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-20">
         {/* Hero Section */}
-        <div className="text-center mb-20">
-          <div className="flex items-center justify-center mb-8">
-            <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-xl-colored mr-4">
-              <Dumbbell className="h-8 w-8 text-white" />
+        <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-600 text-white rounded-3xl shadow-large p-12 mb-20">
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-8">
+              <div className="w-20 h-20 bg-white bg-opacity-20 rounded-3xl flex items-center justify-center shadow-xl backdrop-blur-sm mr-6">
+                <Dumbbell className="h-12 w-12 text-white" />
+              </div>
+              <h1 className="text-6xl font-bold text-white drop-shadow-lg">FitTrack Pro</h1>
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent">FitTrack Pro</h1>
+            <p className="text-2xl text-orange-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Transform your fitness journey with intelligent tracking and personalized insights
+            </p>
+            <Button 
+              onClick={handleLogin}
+              size="lg"
+              className="bg-white text-orange-600 hover:bg-orange-50 px-12 py-4 text-xl font-bold rounded-xl shadow-large transform hover:scale-105 transition-all duration-200"
+            >
+              Start Your Journey
+            </Button>
           </div>
-          <p className="text-2xl text-neutral-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Transform your fitness journey with intelligent tracking and personalized insights
-          </p>
-          <Button 
-            onClick={handleLogin}
-            size="lg"
-            className="bg-gradient-primary hover:shadow-xl-colored text-white px-12 py-4 text-xl font-semibold rounded-xl shadow-large transform hover:scale-105 transition-all duration-200"
-          >
-            Start Your Journey
-          </Button>
         </div>
 
         {/* Features Grid */}

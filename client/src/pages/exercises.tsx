@@ -66,15 +66,17 @@ export default function Exercises() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 space-y-8">
       {/* Header */}
-      <div className="text-center pt-4 pb-2">
-        <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-3">
-          Exercise Library
-        </h1>
-        <p className="text-neutral-600 text-lg mb-6">Discover and master new movements</p>
-        <Button className="bg-gradient-green text-white shadow-medium hover:shadow-large border-0 px-6 py-3 rounded-xl font-medium transform hover:scale-105 transition-all duration-200">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Exercise
-        </Button>
+      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white mx-4 rounded-3xl shadow-large p-8 mb-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
+            Exercise Library
+          </h1>
+          <p className="text-purple-100 text-lg mb-6">Discover and master new movements</p>
+          <Button className="bg-white text-purple-600 hover:bg-purple-50 shadow-medium border-0 px-8 py-3 rounded-xl font-bold transform hover:scale-105 transition-all duration-200">
+            <Plus className="h-5 w-5 mr-2" />
+            Add Exercise
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}

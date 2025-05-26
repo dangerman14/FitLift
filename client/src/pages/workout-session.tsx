@@ -266,21 +266,21 @@ export default function WorkoutSession() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="bg-white shadow-soft border-b px-6 py-4 sticky top-0 z-10">
+      <div className="bg-gradient-to-r from-green-500 via-teal-500 to-cyan-600 text-white px-6 py-6 sticky top-0 z-10 shadow-large">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" onClick={() => setLocation("/")} className="hover:bg-blue-50 rounded-xl">
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/")} className="hover:bg-white hover:bg-opacity-20 rounded-xl text-white">
               <X className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">Workout Session</h1>
-              <p className="text-sm text-neutral-600">Push your limits today</p>
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">Workout Session</h1>
+              <p className="text-green-100">Push your limits today</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl shadow-soft">
-              <Timer className="h-4 w-4 text-blue-600" />
-              <span className="font-medium text-blue-900">{formatTime(elapsedTime)}</span>
+            <div className="flex items-center space-x-3 bg-white bg-opacity-20 px-6 py-3 rounded-2xl backdrop-blur-sm">
+              <Timer className="h-5 w-5 text-white" />
+              <span className="font-bold text-white text-lg">{formatTime(elapsedTime)}</span>
             </div>
             <Button 
               onClick={finishWorkout}
