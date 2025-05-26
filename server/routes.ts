@@ -54,6 +54,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Custom exercise creation - moved before generic route
   app.post('/api/exercises/custom', isAuthenticated, async (req, res) => {
+    console.log("🎯 CUSTOM EXERCISE ROUTE HIT!");
     try {
       const userId = (req as any).user?.claims?.sub;
       console.log("Creating custom exercise for user:", userId);
@@ -78,6 +79,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/exercises', isAuthenticated, async (req: any, res) => {
+    console.log("⚠️ GENERIC EXERCISE ROUTE HIT - THIS SHOULD NOT HAPPEN FOR CUSTOM EXERCISES");
     try {
       const exerciseData = insertExerciseSchema.parse({
         ...req.body,

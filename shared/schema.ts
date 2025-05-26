@@ -98,6 +98,24 @@ export const exercises = pgTable("exercises", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Custom exercises table - separate from system exercises
+export const customExercises = pgTable("custom_exercises", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  instructions: text("instructions"),
+  imageUrl: varchar("image_url"),
+  youtubeUrl: varchar("youtube_url"),
+  equipmentType: varchar("equipment_type"), // None, Barbell, Dumbbell, etc.
+  primaryMuscleGroups: jsonb("primary_muscle_groups").default([]),
+  secondaryMuscleGroups: jsonb("secondary_muscle_groups").default([]),
+  exerciseType: varchar("exercise_type").default("weight_reps"),
+  difficultyLevel: varchar("difficulty_level").default("beginner"),
+  createdBy: varchar("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const workoutTemplates = pgTable("workout_templates", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -173,7 +191,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   fitnessGoals: many(fitnessGoals),
   workoutTemplates: many(workoutTemplates),
   workouts: many(workouts),
-  customExercises: many(exercises),
+  customExercises: many(customExercises),
 }));
 
 export const bodyMeasurementsRelations = relations(bodyMeasurements, ({ one }) => ({
@@ -250,6 +268,13 @@ export const exerciseSetsRelations = relations(exerciseSets, ({ one }) => ({
   }),
 }));
 
+export const customExercisesRelations = relations(customExercises, ({ one }) => ({
+  creator: one(users, {
+    fields: [customExercises.createdBy],
+    references: [users.id],
+  }),
+}));
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -277,6 +302,9 @@ export type WorkoutExercise = typeof workoutExercises.$inferSelect;
 
 export type InsertExerciseSet = typeof exerciseSets.$inferInsert;
 export type ExerciseSet = typeof exerciseSets.$inferSelect;
+
+export type InsertCustomExercise = typeof customExercises.$inferInsert;
+export type CustomExercise = typeof customExercises.$inferSelect;
 
 // Insert schemas
 export const insertBodyMeasurementSchema = createInsertSchema(bodyMeasurements).omit({
