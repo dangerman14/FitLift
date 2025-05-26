@@ -27,13 +27,13 @@ import { useToast } from "@/hooks/use-toast";
 interface RoutineSet {
   reps: string; // Will store as "10-12" format
   weight?: string;
-  restDuration: number; // Rest time in seconds
 }
 
 interface RoutineExercise {
   exerciseId: number;
   exerciseName: string;
   sets: RoutineSet[];
+  restDuration: number; // Rest time in seconds for all sets
   notes?: string;
 }
 
@@ -93,8 +93,8 @@ export default function CreateRoutine() {
           sets: Array.from({ length: exercise.setsTarget || 3 }, () => ({
             reps: exercise.repsTarget || "10",
             weight: exercise.weightTarget || "",
-            restDuration: exercise.restDuration || 120,
           })),
+          restDuration: exercise.restDuration || 120,
           notes: exercise.notes || "",
         }));
         setSelectedExercises(routineExercises);
@@ -170,8 +170,8 @@ export default function CreateRoutine() {
       sets: Array.from({ length: parseInt(sets) }, () => ({
         reps: repsValue,
         weight: weight || undefined,
-        restDuration: parseInt(restDuration),
       })),
+      restDuration: parseInt(restDuration),
       notes: notes || undefined,
     };
 
@@ -205,7 +205,6 @@ export default function CreateRoutine() {
     updatedExercises[exerciseIndex].sets.push({
       reps: lastSet.reps,
       weight: lastSet.weight,
-      restDuration: lastSet.restDuration
     });
     setSelectedExercises(updatedExercises);
   };
@@ -213,6 +212,12 @@ export default function CreateRoutine() {
   const removeSet = (exerciseIndex: number, setIndex: number) => {
     const updatedExercises = [...selectedExercises];
     updatedExercises[exerciseIndex].sets = updatedExercises[exerciseIndex].sets.filter((_, i) => i !== setIndex);
+    setSelectedExercises(updatedExercises);
+  };
+
+  const updateExerciseRestTime = (exerciseIndex: number, restDuration: number) => {
+    const updatedExercises = [...selectedExercises];
+    updatedExercises[exerciseIndex].restDuration = restDuration;
     setSelectedExercises(updatedExercises);
   };
 
@@ -646,20 +651,60 @@ export default function CreateRoutine() {
                     >
                       {/* Exercise Header */}
                       <div className="flex items-center justify-between p-4 border-b bg-gray-50">
-                        <div>
+                        <div className="flex-1">
                           <div className="font-medium text-lg">{exercise.exerciseName}</div>
                           <div className="text-sm text-gray-600">
-                            {exercise.sets.length} sets
+                            {exercise.sets.length} sets • Rest: {(() => {
+                              const seconds = exercise.restDuration;
+                              const mins = Math.floor(seconds / 60);
+                              const secs = seconds % 60;
+                              return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+                            })()}
                           </div>
                         </div>
-                        <Button
-                          onClick={() => removeExerciseFromRoutine(exerciseIndex)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        
+                        {/* Rest Time Selector */}
+                        <div className="flex items-center gap-2">
+                          <Select 
+                            value={exercise.restDuration.toString()} 
+                            onValueChange={(value) => updateExerciseRestTime(exerciseIndex, parseInt(value))}
+                          >
+                            <SelectTrigger className="w-24 h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-40">
+                              {/* 5 second intervals up to 2 minutes */}
+                              {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
+                                <SelectItem key={seconds} value={seconds.toString()}>
+                                  {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
+                                </SelectItem>
+                              ))}
+                              
+                              {/* 15 second intervals from 2m 15s to 5 minutes */}
+                              {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
+                                <SelectItem key={seconds} value={seconds.toString()}>
+                                  {Math.floor(seconds / 60)}m {seconds % 60}s
+                                </SelectItem>
+                              ))}
+                              
+                              {/* 30 second intervals from 5m 30s to 15 minutes */}
+                              {Array.from({ length: 19 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
+                                <SelectItem key={seconds} value={seconds.toString()}>
+                                  {Math.floor(seconds / 60)}m {seconds % 60}s
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          
+                          <Button
+                            onClick={() => removeExerciseFromRoutine(exerciseIndex)}
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       
                       {/* Sets List */}
@@ -693,48 +738,6 @@ export default function CreateRoutine() {
                                 className="h-8 text-sm"
                               />
                               <span className="text-xs text-gray-500">weight</span>
-                            </div>
-                            
-                            {/* Rest Time Select */}
-                            <div className="flex-1">
-                              <Select 
-                                value={set.restDuration.toString()} 
-                                onValueChange={(value) => updateSetField(exerciseIndex, setIndex, 'restDuration', parseInt(value))}
-                              >
-                                <SelectTrigger className="h-8 text-sm">
-                                  <SelectValue>
-                                    {(() => {
-                                      const seconds = set.restDuration;
-                                      const mins = Math.floor(seconds / 60);
-                                      const secs = seconds % 60;
-                                      return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-                                    })()}
-                                  </SelectValue>
-                                </SelectTrigger>
-                                <SelectContent className="max-h-40">
-                                  {/* 5 second intervals up to 2 minutes */}
-                                  {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
-                                    <SelectItem key={seconds} value={seconds.toString()}>
-                                      {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
-                                    </SelectItem>
-                                  ))}
-                                  
-                                  {/* 15 second intervals from 2m 15s to 5 minutes */}
-                                  {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
-                                    <SelectItem key={seconds} value={seconds.toString()}>
-                                      {Math.floor(seconds / 60)}m {seconds % 60}s
-                                    </SelectItem>
-                                  ))}
-                                  
-                                  {/* 30 second intervals from 5m 30s to 15 minutes */}
-                                  {Array.from({ length: 19 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
-                                    <SelectItem key={seconds} value={seconds.toString()}>
-                                      {Math.floor(seconds / 60)}m {seconds % 60}s
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <span className="text-xs text-gray-500">rest</span>
                             </div>
                             
                             {/* Remove Set Button */}
