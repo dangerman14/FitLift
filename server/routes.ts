@@ -483,6 +483,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routines routes
+  app.get('/api/routines', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const routines = await storage.getRoutines(userId);
+      res.json(routines);
+    } catch (error) {
+      console.error("Error fetching routines:", error);
+      res.status(500).json({ message: "Failed to fetch routines" });
+    }
+  });
+
+  app.post('/api/routines/generate', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { goal, experience, duration, daysPerWeek, equipment } = req.body;
+      
+      // Create a simple routine without AI for now
+      const routine = await storage.createRoutine({
+        userId,
+        name: `${goal} Routine`,
+        description: `A ${experience} level ${goal} routine for ${daysPerWeek} days per week`,
+        goal,
+        experience,
+        duration: parseInt(duration),
+        daysPerWeek: parseInt(daysPerWeek),
+        equipment,
+        totalExercises: 6
+      });
+
+      res.json(routine);
+    } catch (error) {
+      console.error("Error generating routine:", error);
+      res.status(500).json({ message: "Failed to generate routine" });
+    }
+  });
+
+  app.delete('/api/routines/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const routineId = parseInt(req.params.id);
+      await storage.deleteRoutine(routineId, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting routine:", error);
+      res.status(500).json({ message: "Failed to delete routine" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

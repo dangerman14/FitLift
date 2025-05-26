@@ -29,6 +29,12 @@ import {
   type InsertFitnessGoal,
   type BodyMeasurement,
   type InsertBodyMeasurement,
+  routines,
+  routineExercises,
+  type Routine,
+  type InsertRoutine,
+  type RoutineExercise,
+  type InsertRoutineExercise,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql, count, sum, max, or } from "drizzle-orm";
