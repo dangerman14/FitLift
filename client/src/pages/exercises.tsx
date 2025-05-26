@@ -19,12 +19,14 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import ExerciseCard from "@/components/exercise-card";
+import AddCustomExerciseModal from "@/components/add-custom-exercise-modal";
 
 export default function Exercises() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMuscleGroup, setSelectedMuscleGroup] = useState("");
   const [selectedEquipment, setSelectedEquipment] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
+  const [showCustomExerciseModal, setShowCustomExerciseModal] = useState(false);
 
   const { data: exercises, isLoading } = useQuery({
     queryKey: [
@@ -72,9 +74,12 @@ export default function Exercises() {
             Exercise Library
           </h1>
           <p className="text-purple-100 text-lg mb-6">Discover and master new movements</p>
-          <Button className="bg-white text-purple-600 hover:bg-purple-50 shadow-medium border-0 px-8 py-3 rounded-xl font-bold transform hover:scale-105 transition-all duration-200">
+          <Button 
+            onClick={() => setShowCustomExerciseModal(true)}
+            className="bg-white text-purple-600 hover:bg-purple-50 shadow-medium border-0 px-8 py-3 rounded-xl font-bold transform hover:scale-105 transition-all duration-200"
+          >
             <Plus className="h-5 w-5 mr-2" />
-            Add Exercise
+            Add Custom Exercise
           </Button>
         </div>
       </div>
@@ -178,6 +183,12 @@ export default function Exercises() {
           </CardContent>
         </Card>
       )}
+
+      {/* Custom Exercise Modal */}
+      <AddCustomExerciseModal 
+        isOpen={showCustomExerciseModal}
+        onClose={() => setShowCustomExerciseModal(false)}
+      />
     </div>
   );
 }

@@ -111,8 +111,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Exercise operations
-  async getExercises(): Promise<Exercise[]> {
-    return await db.select().from(exercises).orderBy(exercises.name);
+  async getExercises(userId?: string): Promise<Exercise[]> {
+    if (userId) {
+      // Return system exercises + user's custom exercises
+      return await db.select().from(exercises).where(
+        or(eq(exercises.isCustom, false), eq(exercises.createdBy, userId))
+      ).orderBy(exercises.name);
+    }
+    // Return only system exercises if no user ID provided
+    return await db.select().from(exercises).where(eq(exercises.isCustom, false)).orderBy(exercises.name);
   }
 
   async getExercisesByMuscleGroup(muscleGroup: string): Promise<Exercise[]> {

@@ -41,7 +41,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (equipment) {
         exercises = await storage.getExercisesByEquipment(equipment as string);
       } else {
-        exercises = await storage.getExercises();
+        const userId = (req as any).user?.claims?.sub;
+        exercises = await storage.getExercises(userId);
       }
       
       res.json(exercises);
@@ -68,6 +69,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ message: "Failed to create exercise" });
       }
+    }
+  });
+
+  // Custom exercise creation
+  app.post('/api/exercises/custom', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req as any).user?.claims?.sub;
+      const exerciseData = {
+        ...req.body,
+        isCustom: true,
+        createdBy: userId,
+      };
+      
+      const exercise = await storage.createExercise(exerciseData);
+      res.status(201).json(exercise);
+    } catch (error) {
+      console.error("Error creating custom exercise:", error);
+      res.status(500).json({ message: "Failed to create custom exercise" });
     }
   });
 
