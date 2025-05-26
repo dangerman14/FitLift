@@ -13,7 +13,10 @@ import {
   Trophy, 
   TrendingUp,
   Calendar,
-  Target
+  Target,
+  Heart,
+  MessageCircle,
+  Share
 } from "lucide-react";
 
 export default function Dashboard() {
