@@ -11,7 +11,6 @@ import {
   Eye
 } from "lucide-react";
 import { useState } from "react";
-import WorkoutModal from "@/components/workout-modal";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -22,8 +21,6 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Workouts() {
-  const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -60,13 +57,13 @@ export default function Workouts() {
   }) || [];
 
   const handleStartWorkout = (template: any) => {
-    setSelectedTemplate(template);
-    setIsWorkoutModalOpen(true);
+    // Navigate to workout session with template
+    window.location.href = `/workout-session?template=${template.id}`;
   };
 
   const handleCreateWorkout = () => {
-    setSelectedTemplate(null);
-    setIsWorkoutModalOpen(true);
+    // Navigate directly to workout session for creating workouts on the fly
+    window.location.href = `/workout-session`;
   };
 
   const handleDeleteTemplate = (id: number) => {
@@ -215,13 +212,6 @@ export default function Workouts() {
           </CardContent>
         </Card>
       )}
-
-      {/* Workout Modal */}
-      <WorkoutModal
-        isOpen={isWorkoutModalOpen}
-        onClose={() => setIsWorkoutModalOpen(false)}
-        template={selectedTemplate}
-      />
     </div>
   );
 }
