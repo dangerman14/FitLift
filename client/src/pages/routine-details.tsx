@@ -3,7 +3,7 @@ import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Clock, Hash, Weight } from "lucide-react";
+import { ArrowLeft, Edit, Clock, Hash, Weight, Plus } from "lucide-react";
 import { Link } from "wouter";
 
 export default function RoutineDetails() {
@@ -233,8 +233,18 @@ export default function RoutineDetails() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500 dark:text-gray-400">No exercises found in this routine.</p>
+              <div className="text-center py-12">
+                <div className="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                  <Weight className="h-8 w-8 text-gray-400 dark:text-gray-500" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No exercises yet</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                  This routine is empty. Add some exercises to get started with your workout.
+                </p>
+                <Button onClick={() => setLocation(`/create-routine?edit=${id}`)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Exercises
+                </Button>
               </div>
             )}
           </CardContent>
