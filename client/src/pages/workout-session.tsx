@@ -90,14 +90,18 @@ export default function WorkoutSession() {
       return response.json();
     },
     onSuccess: (workoutExercise) => {
+      // Find the full exercise data from the exercises list
+      const fullExercise = exercises?.find((ex: any) => ex.id === workoutExercise.exerciseId);
+      
       const newExercise: WorkoutExercise = {
         ...workoutExercise,
+        exercise: fullExercise || { id: workoutExercise.exerciseId, name: "Unknown Exercise", muscleGroups: [] },
         sets: [{
           setNumber: 1,
           weight: 0,
           reps: 0,
           completed: false,
-          previousWeight: 75, // Mock previous data
+          previousWeight: 75,
           previousReps: 12
         }]
       };
@@ -173,9 +177,9 @@ export default function WorkoutSession() {
     createSetMutation.mutate({
       workoutExerciseId: exercise.id,
       setNumber: set.setNumber,
-      weight: set.weight,
-      reps: set.reps,
-      rpe: set.rpe
+      weight: set.weight.toString(),
+      reps: set.reps.toString(),
+      rpe: set.rpe?.toString()
     });
 
     toast({
