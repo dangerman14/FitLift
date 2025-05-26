@@ -76,13 +76,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/exercises/custom', isAuthenticated, async (req, res) => {
     try {
       const userId = (req as any).user?.claims?.sub;
+      console.log("Creating custom exercise for user:", userId);
+      console.log("Request body:", req.body);
+      
       const exerciseData = {
         ...req.body,
+        muscleGroups: [...req.body.primaryMuscleGroups, ...req.body.secondaryMuscleGroups],
+        equipmentRequired: req.body.equipmentType ? [req.body.equipmentType] : [],
         isCustom: true,
         createdBy: userId,
       };
       
+      console.log("Final exercise data:", exerciseData);
       const exercise = await storage.createExercise(exerciseData);
+      console.log("Created exercise:", exercise);
       res.status(201).json(exercise);
     } catch (error) {
       console.error("Error creating custom exercise:", error);
