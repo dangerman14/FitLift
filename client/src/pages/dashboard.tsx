@@ -16,7 +16,10 @@ import {
   Target,
   Heart,
   MessageCircle,
-  Share
+  Share,
+  Zap,
+  Disc,
+  Square
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -59,6 +62,25 @@ export default function Dashboard() {
   const formatVolume = (volume: number) => {
     const unit = user?.weightUnit || 'lbs';
     return `${Math.round(volume)} ${unit}`;
+  };
+
+  const getExerciseIcon = (exerciseName: string) => {
+    const name = exerciseName.toLowerCase();
+    
+    // Cable exercises
+    if (name.includes('cable') || name.includes('pulldown') || name.includes('cable')) {
+      return <Zap className="h-4 w-4 text-blue-500" />;
+    }
+    // Machine exercises
+    if (name.includes('machine') || name.includes('press')) {
+      return <Square className="h-4 w-4 text-green-500" />;
+    }
+    // Dumbbell/Barbell exercises
+    if (name.includes('dumbbell') || name.includes('barbell') || name.includes('shoulder')) {
+      return <Dumbbell className="h-4 w-4 text-orange-500" />;
+    }
+    // Default exercise icon
+    return <Disc className="h-4 w-4 text-gray-500" />;
   };
 
   const formatDuration = (minutes: number) => {
@@ -254,19 +276,22 @@ export default function Dashboard() {
                   {/* Exercise List */}
                   <div className="mb-4">
                     <div className="space-y-2">
-                      {/* Sample exercises - in real implementation, these would come from workout.exercises */}
-                      <div className="text-sm text-neutral-700">
-                        3 × Lat Pulldown (Cable)
+                      {/* Sample exercises with icons */}
+                      <div className="flex items-center gap-2 text-sm text-neutral-700">
+                        {getExerciseIcon("Lat Pulldown (Cable)")}
+                        <span>3 × Lat Pulldown (Cable)</span>
                       </div>
-                      <div className="text-sm text-neutral-700">
-                        3 × Incline Chest Press (Machine)
+                      <div className="flex items-center gap-2 text-sm text-neutral-700">
+                        {getExerciseIcon("Incline Chest Press (Machine)")}
+                        <span>3 × Incline Chest Press (Machine)</span>
                       </div>
-                      <div className="text-sm text-neutral-700">
-                        3 × Shoulder Press (Dumbbell)
+                      <div className="flex items-center gap-2 text-sm text-neutral-700">
+                        {getExerciseIcon("Shoulder Press (Dumbbell)")}
+                        <span>3 × Shoulder Press (Dumbbell)</span>
                       </div>
                       {/* Show more exercises indicator */}
                       {workout.exerciseCount > 3 && (
-                        <div className="text-sm text-neutral-500 italic">
+                        <div className="text-sm text-neutral-500 italic pl-6">
                           see {workout.exerciseCount - 3} more exercises
                         </div>
                       )}
