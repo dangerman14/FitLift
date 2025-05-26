@@ -15,10 +15,9 @@ export default function RoutineDetails() {
     enabled: !!id,
   });
 
-  const { data: exercises, isLoading: exercisesLoading } = useQuery({
-    queryKey: ['/api/template-exercises', id],
-    enabled: !!id,
-  });
+  // Extract exercises from the routine data (they're included in the workout template response)
+  const exercises = routine?.exercises || [];
+  const exercisesLoading = routineLoading;
 
   const { data: user } = useQuery({
     queryKey: ['/api/auth/user'],
