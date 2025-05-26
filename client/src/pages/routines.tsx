@@ -48,11 +48,8 @@ export default function Routines() {
   // Create folder mutation
   const createFolderMutation = useMutation({
     mutationFn: async (name: string) => {
-      return await apiRequest({
-        method: "POST",
-        url: "/api/routine-folders",
-        body: { name },
-      });
+      const response = await apiRequest("POST", "/api/routine-folders", { name });
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/routine-folders"] });
