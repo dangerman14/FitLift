@@ -37,6 +37,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const userId = (req as any).user?.claims?.sub;
       let exercises;
+      let customExercises = [];
+      
       if (muscleGroup) {
         exercises = await storage.getExercisesByMuscleGroup(muscleGroup as string, userId);
       } else if (equipment) {
@@ -45,7 +47,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         exercises = await storage.getExercises(userId);
       }
       
-      res.json(exercises);
+      // Always get custom exercises for the user
+      if (userId) {
+        customExercises = await storage.getCustomExercises(userId);
+      }
+      
+      // Combine system exercises with custom exercises
+      const allExercises = [...exercises, ...customExercises];
+      
+      res.json(allExercises);
     } catch (error) {
       console.error("Error fetching exercises:", error);
       res.status(500).json({ message: "Failed to fetch exercises" });
