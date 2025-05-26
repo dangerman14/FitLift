@@ -55,6 +55,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Combine system exercises with custom exercises
       const allExercises = [...exercises, ...customExercises];
       
+      // Add cache-busting header to ensure fresh data
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.json(allExercises);
     } catch (error) {
       console.error("Error fetching exercises:", error);
