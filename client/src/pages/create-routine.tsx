@@ -240,10 +240,24 @@ export default function CreateRoutine() {
       return;
     }
 
+    // Transform exercises data for backend compatibility
+    const exercisesForBackend = selectedExercises.map(exercise => {
+      // Use first set's data as template for now (backend expects flat structure)
+      const firstSet = exercise.sets[0];
+      return {
+        exerciseId: exercise.exerciseId,
+        setsTarget: exercise.sets.length,
+        repsTarget: firstSet.reps,
+        weightTarget: firstSet.weight || null,
+        restDuration: exercise.restDuration,
+        notes: exercise.notes || null,
+      };
+    });
+
     const routineData = {
       name: routineName,
       description: routineDescription,
-      exercises: selectedExercises,
+      exercises: exercisesForBackend,
     };
 
     saveRoutineMutation.mutate(routineData);
