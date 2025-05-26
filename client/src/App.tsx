@@ -10,6 +10,7 @@ import Workouts from "@/pages/workouts";
 import Exercises from "@/pages/exercises";
 import Progress from "@/pages/progress";
 import Profile from "@/pages/profile";
+import WorkoutSession from "@/pages/workout-session";
 import NotFound from "@/pages/not-found";
 import Navigation from "@/components/navigation";
 
@@ -38,6 +39,7 @@ function Router() {
             <main className="p-4 pb-20">
               <Switch>
                 <Route path="/" component={Dashboard} />
+                <Route path="/workout-session" component={WorkoutSession} />
                 <Route path="/workouts" component={Workouts} />
                 <Route path="/exercises" component={Exercises} />
                 <Route path="/progress" component={Progress} />

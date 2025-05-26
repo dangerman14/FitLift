@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -13,12 +14,9 @@ import {
   Calendar,
   Target
 } from "lucide-react";
-import { useState } from "react";
-import WorkoutModal from "@/components/workout-modal";
 
 export default function Dashboard() {
-  const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [, setLocation] = useLocation();
 
   const { data: workoutStats } = useQuery({
     queryKey: ["/api/analytics/stats"],
@@ -240,12 +238,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Workout Modal */}
-      <WorkoutModal
-        isOpen={isWorkoutModalOpen}
-        onClose={() => setIsWorkoutModalOpen(false)}
-        template={selectedTemplate}
-      />
+
     </div>
   );
 }
