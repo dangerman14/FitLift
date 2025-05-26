@@ -108,7 +108,7 @@ export default function Exercises() {
               <SelectValue placeholder="All Muscle Groups" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Muscle Groups</SelectItem>
+              <SelectItem value="all">All Muscle Groups</SelectItem>
               {muscleGroups.map((group) => (
                 <SelectItem key={group} value={group.toLowerCase()}>
                   {group}
@@ -122,7 +122,7 @@ export default function Exercises() {
               <SelectValue placeholder="All Equipment" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Equipment</SelectItem>
+              <SelectItem value="all">All Equipment</SelectItem>
               {equipmentTypes.map((equipment) => (
                 <SelectItem key={equipment} value={equipment.toLowerCase()}>
                   {equipment}
@@ -136,7 +136,7 @@ export default function Exercises() {
               <SelectValue placeholder="All Difficulties" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Difficulties</SelectItem>
+              <SelectItem value="all">All Difficulties</SelectItem>
               {difficulties.map((difficulty) => (
                 <SelectItem key={difficulty} value={difficulty}>
                   {difficulty}
