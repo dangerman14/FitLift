@@ -186,6 +186,18 @@ export class DatabaseStorage implements IStorage {
     return newCustomExercise;
   }
 
+  async updateCustomExercise(id: number, userId: string, updateData: Partial<InsertCustomExercise>): Promise<CustomExercise> {
+    const [updatedExercise] = await db
+      .update(customExercises)
+      .set({
+        ...updateData,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(customExercises.id, id), eq(customExercises.createdBy, userId)))
+      .returning();
+    return updatedExercise;
+  }
+
   // Workout template operations
   async getWorkoutTemplates(userId: string): Promise<WorkoutTemplate[]> {
     return await db

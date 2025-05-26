@@ -91,6 +91,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Custom exercise update
+  app.patch("/api/exercises/custom/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const exerciseId = parseInt(req.params.id);
+      
+      const updateData = insertCustomExerciseSchema.partial().parse(req.body);
+      const updatedExercise = await storage.updateCustomExercise(exerciseId, userId, updateData);
+      
+      res.json(updatedExercise);
+    } catch (error) {
+      console.error("Error updating custom exercise:", error);
+      res.status(500).json({ message: "Failed to update custom exercise" });
+    }
+  });
+
   app.post('/api/exercises', isAuthenticated, async (req: any, res) => {
     console.log("⚠️ GENERIC EXERCISE ROUTE HIT - THIS SHOULD NOT HAPPEN FOR CUSTOM EXERCISES");
     try {

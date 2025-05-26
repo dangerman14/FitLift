@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 import ExerciseCard from "@/components/exercise-card";
 import AddCustomExerciseModal from "@/components/add-custom-exercise-modal";
+import ExerciseDetailsModal from "@/components/exercise-details-modal";
 
 export default function Exercises() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,6 +28,8 @@ export default function Exercises() {
   const [selectedEquipment, setSelectedEquipment] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const [showCustomExerciseModal, setShowCustomExerciseModal] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   const { data: exercises, isLoading } = useQuery({
     queryKey: ["/api/exercises"],
@@ -50,6 +53,16 @@ export default function Exercises() {
     
     return matchesSearch && matchesDifficulty;
   }) || [];
+
+  const handleViewDetails = (exercise: any) => {
+    setSelectedExercise(exercise);
+    setShowDetailsModal(true);
+  };
+
+  const handleCloseDetailsModal = () => {
+    setSelectedExercise(null);
+    setShowDetailsModal(false);
+  };
 
   if (isLoading) {
     return (
