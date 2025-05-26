@@ -203,13 +203,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const updateData = { ...req.body };
       
+      console.log("Update data received:", updateData);
+      
       // Convert date strings to Date objects if they exist
       if (updateData.endTime) {
-        updateData.endTime = new Date(updateData.endTime);
+        console.log("Converting endTime:", updateData.endTime, typeof updateData.endTime);
+        updateData.endTime = updateData.endTime instanceof Date ? updateData.endTime : new Date(updateData.endTime);
       }
       if (updateData.startTime) {
-        updateData.startTime = new Date(updateData.startTime);
+        console.log("Converting startTime:", updateData.startTime, typeof updateData.startTime);
+        updateData.startTime = updateData.startTime instanceof Date ? updateData.startTime : new Date(updateData.startTime);
       }
+      
+      console.log("Final update data:", updateData);
       
       const workout = await storage.updateWorkout(id, updateData);
       res.json(workout);
