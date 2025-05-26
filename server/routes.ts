@@ -264,6 +264,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const userId = req.user.claims.sub;
       
+      console.log("Updating routine with data:", req.body);
+      
       // Check if template exists and belongs to user
       const existingTemplate = await storage.getWorkoutTemplateById(id);
       if (!existingTemplate || existingTemplate.userId !== userId) {
@@ -271,11 +273,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update the template with new data
-      const updatedTemplate = await storage.updateWorkoutTemplate(id, {
+      const updateData = {
         name: req.body.name,
         description: req.body.description,
         folderId: req.body.folderId,
-      });
+      };
+      console.log("Update data:", updateData);
+      
+      const updatedTemplate = await storage.updateWorkoutTemplate(id, updateData);
       
       // Remove existing template exercises
       const existingExercises = await storage.getTemplateExercises(id);
