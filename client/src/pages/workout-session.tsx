@@ -264,20 +264,23 @@ export default function WorkoutSession() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b px-4 py-3 sticky top-0 z-10">
+      <div className="bg-white shadow-soft border-b px-6 py-4 sticky top-0 z-10">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" onClick={() => setLocation("/")}>
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/")} className="hover:bg-blue-50 rounded-xl">
               <X className="h-5 w-5" />
             </Button>
-            <h1 className="text-lg font-medium text-neutral-900">Log Workout</h1>
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">Workout Session</h1>
+              <p className="text-sm text-neutral-600">Push your limits today</p>
+            </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1 text-sm text-neutral-600">
-              <Timer className="h-4 w-4" />
-              <span>{formatTime(elapsedTime)}</span>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl shadow-soft">
+              <Timer className="h-4 w-4 text-blue-600" />
+              <span className="font-medium text-blue-900">{formatTime(elapsedTime)}</span>
             </div>
             <Button 
               onClick={finishWorkout}
