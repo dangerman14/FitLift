@@ -116,13 +116,22 @@ export default function AddCustomExerciseModal({ isOpen, onClose }: AddCustomExe
 
   const createExerciseMutation = useMutation({
     mutationFn: async (data: CustomExerciseForm) => {
+      console.log("Creating exercise with data:", data);
       const response = await apiRequest("POST", "/api/exercises/custom", {
         ...data,
         isCustom: true,
       });
-      return response.json();
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log("Exercise created successfully:", result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Success callback triggered:", data);
       toast({
         title: "Exercise Created!",
         description: "Your custom exercise has been added successfully.",
@@ -132,9 +141,10 @@ export default function AddCustomExerciseModal({ isOpen, onClose }: AddCustomExe
       onClose();
     },
     onError: (error: any) => {
+      console.error("Error creating exercise:", error);
       toast({
         title: "Error",
-        description: "Failed to create exercise. Please try again.",
+        description: error.message || "Failed to create exercise. Please try again.",
         variant: "destructive",
       });
     },
