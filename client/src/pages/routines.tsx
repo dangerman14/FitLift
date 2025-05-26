@@ -70,11 +70,8 @@ export default function Routines() {
   };
 
   const getExerciseCount = (routine: any) => {
-    // Count exercises from the routine's exercise array if available
-    if (routine.exercises && Array.isArray(routine.exercises)) {
-      return routine.exercises.length;
-    }
-    return 0;
+    // Use the exerciseCount from the backend API response
+    return routine.exerciseCount || 0;
   };
 
   // Create folder mutation

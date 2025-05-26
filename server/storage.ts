@@ -252,12 +252,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Workout template operations
-  async getWorkoutTemplates(userId: string): Promise<WorkoutTemplate[]> {
-    return await db
-      .select()
+  async getWorkoutTemplates(userId: string): Promise<(WorkoutTemplate & { exerciseCount: number })[]> {
+    const templates = await db
+      .select({
+        id: workoutTemplates.id,
+        userId: workoutTemplates.userId,
+        name: workoutTemplates.name,
+        slug: workoutTemplates.slug,
+        description: workoutTemplates.description,
+        folderId: workoutTemplates.folderId,
+        estimatedDuration: workoutTemplates.estimatedDuration,
+        targetMuscleGroups: workoutTemplates.targetMuscleGroups,
+        isPublic: workoutTemplates.isPublic,
+        timesUsed: workoutTemplates.timesUsed,
+        createdAt: workoutTemplates.createdAt,
+        updatedAt: workoutTemplates.updatedAt,
+        exerciseCount: count(templateExercises.id)
+      })
       .from(workoutTemplates)
+      .leftJoin(templateExercises, eq(workoutTemplates.id, templateExercises.templateId))
       .where(eq(workoutTemplates.userId, userId))
+      .groupBy(workoutTemplates.id)
       .orderBy(desc(workoutTemplates.updatedAt));
+    
+    return templates;
   }
 
   async getWorkoutTemplateById(id: number): Promise<WorkoutTemplate | undefined> {
