@@ -392,7 +392,13 @@ export default function WorkoutSession() {
               <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
                 <div>SET</div>
                 <div>PREVIOUS</div>
-                <div>{getWeightUnit().toUpperCase()}</div>
+                <div 
+                  onClick={toggleWeightUnit}
+                  className="cursor-pointer hover:text-blue-600 hover:bg-blue-50 px-1 py-1 rounded transition-colors"
+                  title="Click to toggle weight unit"
+                >
+                  {getWeightUnitDisplay()}
+                </div>
                 <div>REPS</div>
                 <div>RPE</div>
                 <div className="text-center">✓</div>
