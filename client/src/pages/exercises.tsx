@@ -158,7 +158,11 @@ export default function Exercises() {
       {filteredExercises.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredExercises.map((exercise: any) => (
-            <ExerciseCard key={exercise.id} exercise={exercise} />
+            <ExerciseCard 
+              key={exercise.createdBy ? `custom-${exercise.id}` : `system-${exercise.id}`} 
+              exercise={exercise} 
+              onViewDetails={handleViewDetails}
+            />
           ))}
         </div>
       ) : exercises?.length === 0 ? (
@@ -199,6 +203,13 @@ export default function Exercises() {
       <AddCustomExerciseModal 
         isOpen={showCustomExerciseModal}
         onClose={() => setShowCustomExerciseModal(false)}
+      />
+
+      {/* Exercise Details Modal */}
+      <ExerciseDetailsModal 
+        exercise={selectedExercise}
+        isOpen={showDetailsModal}
+        onClose={handleCloseDetailsModal}
       />
     </div>
   );
