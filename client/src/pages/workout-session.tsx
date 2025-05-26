@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X, Plus, Timer, MoreVertical, Check } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -70,11 +71,8 @@ export default function WorkoutSession() {
     return displayWeight;
   };
 
-  const toggleWeightUnit = () => {
-    const units: ('default' | 'kg' | 'lbs')[] = ['default', 'kg', 'lbs'];
-    const currentIndex = units.indexOf(weightUnitOverride);
-    const nextIndex = (currentIndex + 1) % units.length;
-    setWeightUnitOverride(units[nextIndex]);
+  const handleWeightUnitChange = (value: 'default' | 'kg' | 'lbs') => {
+    setWeightUnitOverride(value);
   };
 
   const getWeightUnitDisplay = () => {
@@ -392,12 +390,21 @@ export default function WorkoutSession() {
               <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
                 <div>SET</div>
                 <div>PREVIOUS</div>
-                <div 
-                  onClick={toggleWeightUnit}
-                  className="cursor-pointer hover:text-blue-600 hover:bg-blue-50 px-1 py-1 rounded transition-colors"
-                  title="Click to toggle weight unit"
-                >
-                  {getWeightUnitDisplay()}
+                <div>
+                  <Select value={weightUnitOverride} onValueChange={handleWeightUnitChange}>
+                    <SelectTrigger className="h-6 text-xs border-0 shadow-none p-0 bg-transparent hover:bg-blue-50 focus:ring-0">
+                      <SelectValue className="text-xs font-medium">
+                        {getWeightUnitDisplay()}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="min-w-fit">
+                      <SelectItem value="default" className="text-xs">
+                        {(user?.weightUnit || 'kg').toUpperCase()} (Default)
+                      </SelectItem>
+                      <SelectItem value="kg" className="text-xs">KG</SelectItem>
+                      <SelectItem value="lbs" className="text-xs">LBS</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>REPS</div>
                 <div>RPE</div>
