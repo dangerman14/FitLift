@@ -43,7 +43,7 @@ export default function WorkoutSession() {
   const [, setLocation] = useLocation();
   const [activeWorkout, setActiveWorkout] = useState<any>(null);
   const [workoutExercises, setWorkoutExercises] = useState<WorkoutExercise[]>([]);
-  const [startTime, setStartTime] = useState<Date>(new Date());
+  const [startTime, setStartTime] = useState<number>(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
@@ -254,7 +254,7 @@ export default function WorkoutSession() {
   // Main workout timer
   useEffect(() => {
     const interval = setInterval(() => {
-      setElapsedTime(Math.floor((new Date().getTime() - startTime.getTime()) / 1000));
+      setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
     return () => clearInterval(interval);
   }, [startTime]);
