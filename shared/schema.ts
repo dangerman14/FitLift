@@ -123,6 +123,7 @@ export const workoutTemplates = pgTable("workout_templates", {
   name: varchar("name").notNull(),
   slug: varchar("slug").notNull().unique(),
   description: text("description"),
+  folderId: integer("folder_id").references(() => routineFolders.id, { onDelete: "set null" }),
   estimatedDuration: integer("estimated_duration"), // in minutes
   targetMuscleGroups: jsonb("target_muscle_groups").default([]),
   isPublic: boolean("is_public").default(false),
