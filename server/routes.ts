@@ -343,11 +343,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const workouts = await storage.getWorkouts(userId);
-      const recentWorkouts = workouts.slice(0, 3);
       
-      // For each workout, get the template exercises if it has a templateId
+      // Filter only completed workouts (those with endTime)
+      const completedWorkouts = workouts.filter(workout => workout.endTime);
+      const recentCompletedWorkouts = completedWorkouts.slice(0, 3);
+      
+      // For each completed workout, get the template exercises if it has a templateId
       const workoutsWithExercises = await Promise.all(
-        recentWorkouts.map(async (workout) => {
+        recentCompletedWorkouts.map(async (workout) => {
           let exercises = [];
           let totalExercises = 0;
           
