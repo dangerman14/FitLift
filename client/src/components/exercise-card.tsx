@@ -55,9 +55,9 @@ export default function ExerciseCard({
     <Card className="shadow-material-1 border border-neutral-200 overflow-hidden hover:shadow-material-2 transition-shadow">
       {/* Exercise demonstration placeholder */}
       <div className="relative h-48 bg-neutral-200">
-        {exercise.thumbnailUrl ? (
+        {(exercise.thumbnailUrl || exercise.imageUrl) ? (
           <img 
-            src={exercise.thumbnailUrl} 
+            src={exercise.thumbnailUrl || exercise.imageUrl} 
             alt={`${exercise.name} demonstration`}
             className="w-full h-full object-cover" 
           />
@@ -68,7 +68,7 @@ export default function ExerciseCard({
         )}
         
         <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-          {exercise.videoUrl ? (
+          {(exercise.videoUrl || exercise.youtubeUrl) ? (
             <Button 
               size="lg"
               className="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center hover:bg-opacity-100 transition-all text-primary-600 hover:text-primary-700" 
@@ -110,33 +110,45 @@ export default function ExerciseCard({
         </div>
         
         {/* Muscle Groups */}
-        {exercise.muscleGroups && Array.isArray(exercise.muscleGroups) && exercise.muscleGroups.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {exercise.muscleGroups.slice(0, 3).map((group: string) => (
-              <Badge 
-                key={group} 
-                variant="secondary" 
-                className="bg-secondary-100 text-secondary-700 text-xs"
-              >
-                {group}
-              </Badge>
-            ))}
-            {exercise.muscleGroups.length > 3 && (
-              <Badge variant="secondary" className="bg-secondary-100 text-secondary-700 text-xs">
-                +{exercise.muscleGroups.length - 3}
-              </Badge>
-            )}
-          </div>
-        )}
+        {(() => {
+          // Handle both system exercises (muscleGroups) and custom exercises (primaryMuscleGroups + secondaryMuscleGroups)
+          const allMuscleGroups = exercise.muscleGroups || 
+            [...(exercise.primaryMuscleGroups || []), ...(exercise.secondaryMuscleGroups || [])];
+          
+          return allMuscleGroups && Array.isArray(allMuscleGroups) && allMuscleGroups.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-3">
+              {allMuscleGroups.slice(0, 3).map((group: string) => (
+                <Badge 
+                  key={group} 
+                  variant="secondary" 
+                  className="bg-secondary-100 text-secondary-700 text-xs capitalize"
+                >
+                  {group}
+                </Badge>
+              ))}
+              {allMuscleGroups.length > 3 && (
+                <Badge variant="secondary" className="bg-secondary-100 text-secondary-700 text-xs">
+                  +{allMuscleGroups.length - 3}
+                </Badge>
+              )}
+            </div>
+          );
+        })()}
         
         {/* Equipment */}
         <div className="flex items-center text-sm text-neutral-600 mb-3">
           <Dumbbell className="h-4 w-4 mr-2" />
-          <span>
-            {exercise.equipmentRequired && Array.isArray(exercise.equipmentRequired) && exercise.equipmentRequired.length > 0
-              ? exercise.equipmentRequired.join(', ')
-              : 'No equipment specified'
-            }
+          <span className="capitalize">
+            {(() => {
+              // Handle both system exercises (equipmentRequired) and custom exercises (equipmentType)
+              if (exercise.equipmentRequired && Array.isArray(exercise.equipmentRequired) && exercise.equipmentRequired.length > 0) {
+                return exercise.equipmentRequired.join(', ');
+              } else if (exercise.equipmentType) {
+                return exercise.equipmentType.replace(/_/g, ' ');
+              } else {
+                return 'No equipment specified';
+              }
+            })()}
           </span>
         </div>
         

@@ -427,44 +427,26 @@ export default function AddCustomExerciseModal({ isOpen, onClose }: AddCustomExe
               <FormField
                 control={form.control}
                 name="primaryMuscleGroups"
-                render={() => (
+                render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Primary Muscle Groups *</FormLabel>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {muscleGroups.map((muscle) => (
-                        <FormField
-                          key={muscle}
-                          control={form.control}
-                          name="primaryMuscleGroups"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={muscle}
-                                className="flex flex-row items-start space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(muscle.toLowerCase())}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([...field.value, muscle.toLowerCase()])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== muscle.toLowerCase()
-                                            )
-                                          )
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="text-sm font-normal">
-                                  {muscle}
-                                </FormLabel>
-                              </FormItem>
-                            )
-                          }}
-                        />
-                      ))}
-                    </div>
+                    <FormLabel>Primary Muscle Group * (Select One)</FormLabel>
+                    <Select 
+                      onValueChange={(value) => field.onChange([value])} 
+                      defaultValue={field.value?.[0] || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="rounded-xl border-2">
+                          <SelectValue placeholder="Select primary muscle group" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {muscleGroups.map((muscle) => (
+                          <SelectItem key={muscle} value={muscle.toLowerCase()}>
+                            {muscle}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
