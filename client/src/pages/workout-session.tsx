@@ -320,8 +320,8 @@ function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: Exercis
           />
         )}
         
-        {/* Add Set Button - only show if we have sets and not currently adding */}
-        {(workoutExercise.sets?.length || 0) > 0 && !showAddSet && (
+        {/* Add Set Button - always show when not actively adding a set */}
+        {!showAddSet && (
           <Button
             variant="outline"
             className="w-full mt-3"
