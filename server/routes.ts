@@ -534,6 +534,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Routine folder routes
+  app.get('/api/routine-folders', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const folders = await storage.getRoutineFolders(userId);
+      res.json(folders);
+    } catch (error) {
+      console.error("Error fetching routine folders:", error);
+      res.status(500).json({ message: "Failed to fetch routine folders" });
+    }
+  });
+
+  app.post('/api/routine-folders', isAuthenticated, async (req: any, res) => {
+    try {
+      const folderData = insertRoutineFolderSchema.parse({
+        ...req.body,
+        userId: req.user.claims.sub,
+      });
+      
+      const folder = await storage.createRoutineFolder(folderData);
+      res.status(201).json(folder);
+    } catch (error) {
+      console.error("Error creating routine folder:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid folder data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create routine folder" });
+      }
+    }
+  });
+
+  app.put('/api/routine-folders/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const folderId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const folder = await storage.updateRoutineFolder(folderId, userId, updates);
+      res.json(folder);
+    } catch (error) {
+      console.error("Error updating routine folder:", error);
+      res.status(500).json({ message: "Failed to update routine folder" });
+    }
+  });
+
+  app.delete('/api/routine-folders/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const folderId = parseInt(req.params.id);
+      await storage.deleteRoutineFolder(folderId, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting routine folder:", error);
+      res.status(500).json({ message: "Failed to delete routine folder" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

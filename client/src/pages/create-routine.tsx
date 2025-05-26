@@ -247,6 +247,23 @@ export default function CreateRoutine() {
                   rows={3}
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label>Folder (Optional)</Label>
+                <Select value={selectedFolderId} onValueChange={setSelectedFolderId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a folder or leave unorganized" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">No Folder (Unorganized)</SelectItem>
+                    {Array.isArray(folders) && folders.map((folder: any) => (
+                      <SelectItem key={folder.id} value={folder.id.toString()}>
+                        {folder.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </CardContent>
           </Card>
 
