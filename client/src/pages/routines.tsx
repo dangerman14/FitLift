@@ -49,7 +49,7 @@ export default function Routines() {
   const createFolderMutation = useMutation({
     mutationFn: async (name: string) => {
       const response = await apiRequest("POST", "/api/routine-folders", { name });
-      return await response.json();
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/routine-folders"] });
@@ -62,9 +62,10 @@ export default function Routines() {
     },
     onError: (error: any) => {
       console.error("Folder creation mutation error:", error);
+      const errorMessage = error?.message || "Unknown error occurred";
       toast({
         title: "Error",
-        description: `Failed to create folder: ${error.message}`,
+        description: `Failed to create folder: ${errorMessage}`,
         variant: "destructive",
       });
     },
