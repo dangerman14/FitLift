@@ -309,7 +309,7 @@ function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: Exercis
         ))}
 
         {/* Add Set Input */}
-        {showAddSet ? (
+        {showAddSet && (
           <SetInput
             setNumber={(workoutExercise.sets?.length || 0) + 1}
             onComplete={(setData) => {
@@ -318,16 +318,17 @@ function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: Exercis
             }}
             onCancel={() => setShowAddSet(false)}
           />
-        ) : (
-          <Button
-            variant="outline"
-            className="w-full mt-3"
-            onClick={() => setShowAddSet(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Set
-          </Button>
         )}
+        
+        {/* Always visible Add Set Button */}
+        <Button
+          variant="outline"
+          className="w-full mt-3"
+          onClick={() => setShowAddSet(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Set
+        </Button>
       </CardContent>
     </Card>
   );
