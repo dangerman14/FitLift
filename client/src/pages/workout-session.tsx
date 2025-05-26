@@ -500,7 +500,7 @@ export default function WorkoutSession() {
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-white drop-shadow-lg">{workoutName || "Workout Session"}</h1>
-              <p className="text-green-100">{workoutDescription || "Push your limits today"}</p>
+              {workoutDescription && <p className="text-green-100">{workoutDescription}</p>}
             </div>
           </div>
           <div className="flex items-center space-x-4">
