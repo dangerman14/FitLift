@@ -605,8 +605,11 @@ export default function WorkoutSession() {
                   
                   <Input
                     type="number"
-                    value={set.weight ? getDisplayWeight(set.weight).toString() : ""}
-                    onChange={(e) => updateSetWeight(exerciseIndex, setIndex, e.target.value)}
+                    value={set.weight || ""}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value) || 0;
+                      updateSetValue(exerciseIndex, setIndex, 'weight', value);
+                    }}
                     className="h-10 text-center font-medium text-lg"
                     placeholder={getWeightUnit() === 'lbs' ? "165" : "75"}
                     disabled={set.completed}
