@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -94,18 +94,43 @@ export default function ExerciseDetailsModal({
   const form = useForm<CustomExerciseForm>({
     resolver: zodResolver(insertCustomExerciseSchema),
     defaultValues: {
-      name: exercise?.name || "",
-      description: exercise?.description || "",
-      instructions: exercise?.instructions || "",
-      imageUrl: exercise?.imageUrl || "",
-      youtubeUrl: exercise?.youtubeUrl || "",
-      equipmentType: exercise?.equipmentType || "",
-      exerciseType: exercise?.exerciseType || "weight_reps",
-      primaryMuscleGroups: exercise?.primaryMuscleGroups || [],
-      secondaryMuscleGroups: exercise?.secondaryMuscleGroups || [],
-      difficultyLevel: exercise?.difficultyLevel || "beginner",
+      name: "",
+      description: "",
+      instructions: "",
+      imageUrl: "",
+      youtubeUrl: "",
+      equipmentType: "",
+      exerciseType: "weight_reps",
+      primaryMuscleGroups: [],
+      secondaryMuscleGroups: [],
+      difficultyLevel: "beginner",
     },
   });
+
+  // Reset form values when exercise changes
+  useEffect(() => {
+    if (exercise) {
+      form.reset({
+        name: exercise.name || "",
+        description: exercise.description || "",
+        instructions: exercise.instructions || "",
+        imageUrl: exercise.imageUrl || "",
+        youtubeUrl: exercise.youtubeUrl || "",
+        equipmentType: exercise.equipmentType || "",
+        exerciseType: exercise.exerciseType || "weight_reps",
+        primaryMuscleGroups: exercise.primaryMuscleGroups || [],
+        secondaryMuscleGroups: exercise.secondaryMuscleGroups || [],
+        difficultyLevel: exercise.difficultyLevel || "beginner",
+      });
+    }
+  }, [exercise, form]);
+
+  // Reset editing state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsEditing(false);
+    }
+  }, [isOpen]);
 
   const updateExerciseMutation = useMutation({
     mutationFn: async (data: CustomExerciseForm) => {
