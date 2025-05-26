@@ -87,11 +87,13 @@ export default function WorkoutComplete() {
   // Update workout details mutation
   const updateWorkoutMutation = useMutation({
     mutationFn: async (data: { name: string; description: string; imageUrl: string }) => {
-      return await apiRequest(`/api/workouts/${workoutId}/details`, {
+      const response = await fetch(`/api/workouts/${workoutId}/details`, {
         method: "PATCH",
         body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },
       });
+      if (!response.ok) throw new Error('Failed to update workout');
+      return response.json();
     },
     onSuccess: () => {
       toast({

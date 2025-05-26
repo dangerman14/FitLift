@@ -331,13 +331,29 @@ export default function WorkoutSession() {
       sum + ex.sets.filter(s => s.completed).length, 0);
   };
 
-  const finishWorkout = () => {
-    const duration = Math.round(elapsedTime / 60);
-    toast({
-      title: "Workout Completed!",
-      description: `Duration: ${duration}min • ${getTotalSets()} sets • ${Math.round(getTotalVolume())}kg volume`
-    });
-    setLocation("/");
+  const finishWorkout = async () => {
+    if (!activeWorkout) return;
+    
+    try {
+      // Update workout with end time
+      await apiRequest(`/api/workouts/${activeWorkout.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          endTime: new Date().toISOString(),
+          status: "completed"
+        }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      // Navigate to completion screen
+      setLocation(`/workout-complete/${activeWorkout.id}`);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to finish workout.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
