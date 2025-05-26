@@ -69,31 +69,22 @@ export default function Exercises() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 space-y-8">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white mx-4 rounded-3xl shadow-large p-8 mb-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-            Exercise Library
-          </h1>
-          <p className="text-purple-100 text-lg mb-6">Discover and master new movements</p>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="px-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button 
-            onClick={() => setShowCustomExerciseModal(true)}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-xl shadow-medium border-0 px-8 py-4 rounded-xl font-bold transform hover:scale-105 transition-all duration-200 text-lg"
-          >
-            <Plus className="h-6 w-6 mr-3" />
-            Add Custom Exercise
-          </Button>
-          <Button 
-            variant="outline"
-            className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 px-8 py-4 rounded-xl font-bold text-lg"
-          >
-            <Dumbbell className="h-6 w-6 mr-3" />
-            Browse All Exercises
-          </Button>
+        <div className="flex justify-between items-center">
+          <div className="text-center flex-1">
+            <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
+              Exercise Library
+            </h1>
+            <p className="text-purple-100 text-lg">Discover and master new movements</p>
+          </div>
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => setShowCustomExerciseModal(true)}
+              className="bg-white text-purple-600 hover:bg-purple-50 shadow-medium border-0 px-6 py-3 rounded-xl font-bold transform hover:scale-105 transition-all duration-200"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Add Custom Exercise
+            </Button>
+          </div>
         </div>
       </div>
 
