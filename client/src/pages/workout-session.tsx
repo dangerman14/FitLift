@@ -213,12 +213,10 @@ export default function WorkoutSession() {
                 ))}
 
                 {/* New Set Input */}
-                {sets.length < (currentExercise.setsTarget || 3) && (
-                  <SetInput
-                    setNumber={sets.length + 1}
-                    onComplete={completeSet}
-                  />
-                )}
+                <SetInput
+                  setNumber={sets.length + 1}
+                  onComplete={completeSet}
+                />
 
                 {/* Navigation */}
                 <div className="flex space-x-3 pt-4">
