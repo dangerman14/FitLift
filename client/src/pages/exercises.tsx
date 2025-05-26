@@ -162,6 +162,10 @@ export default function Exercises() {
               key={exercise.createdBy ? `custom-${exercise.id}` : `system-${exercise.id}`} 
               exercise={exercise} 
               onViewDetails={handleViewDetails}
+              onAddToWorkout={() => {
+                // Navigate to workout session and add exercise
+                window.location.href = `/workout-session?addExercise=${exercise.id}`;
+              }}
             />
           ))}
         </div>
