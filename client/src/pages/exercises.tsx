@@ -29,13 +29,7 @@ export default function Exercises() {
   const [showCustomExerciseModal, setShowCustomExerciseModal] = useState(false);
 
   const { data: exercises, isLoading } = useQuery({
-    queryKey: [
-      "/api/exercises",
-      { 
-        muscleGroup: selectedMuscleGroup, 
-        equipment: selectedEquipment 
-      }
-    ],
+    queryKey: ["/api/exercises"],
   });
 
   const muscleGroups = [
