@@ -76,10 +76,17 @@ export default function Settings() {
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to update settings: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to update settings: ${response.status} - ${errorText}`);
       }
       
-      return response.json();
+      // Check if response has content before parsing JSON
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return response.json();
+      } else {
+        return {}; // Return empty object if no JSON content
+      }
     },
     onSuccess: () => {
       toast({
@@ -89,6 +96,7 @@ export default function Settings() {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
     onError: (error: any) => {
+      console.error("Settings update error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to update settings. Please try again.",
@@ -98,6 +106,7 @@ export default function Settings() {
   });
 
   const onSubmit = (data: SettingsForm) => {
+    console.log("Form submitted with data:", data);
     updateSettingsMutation.mutate(data);
   };
 
