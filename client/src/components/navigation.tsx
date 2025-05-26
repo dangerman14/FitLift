@@ -23,7 +23,7 @@ export default function Navigation() {
   ];
 
   return (
-    <header className="bg-primary-500 text-white shadow-material-2 relative z-50">
+    <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-large relative z-50">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center space-x-3">
           <Dumbbell className="h-6 w-6" />
