@@ -36,6 +36,7 @@ interface RoutineExercise {
 export default function CreateRoutine() {
   const [routineName, setRoutineName] = useState("");
   const [routineDescription, setRoutineDescription] = useState("");
+  const [selectedFolderId, setSelectedFolderId] = useState<string>("");
   const [selectedExercises, setSelectedExercises] = useState<RoutineExercise[]>([]);
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
   const [sets, setSets] = useState("3");
@@ -55,6 +56,10 @@ export default function CreateRoutine() {
   // Fetch exercises for the dropdown
   const { data: exercises = [] } = useQuery({
     queryKey: ["/api/exercises"],
+  });
+
+  const { data: folders = [] } = useQuery({
+    queryKey: ["/api/routine-folders"],
   });
 
   // Filter exercises based on search and filters

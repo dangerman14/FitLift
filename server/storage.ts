@@ -552,6 +552,36 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return newRoutineExercise;
   }
+
+  // Folder operations
+  async getRoutineFolders(userId: string): Promise<RoutineFolder[]> {
+    return await db.select().from(routineFolders).where(eq(routineFolders.userId, userId)).orderBy(desc(routineFolders.createdAt));
+  }
+
+  async createRoutineFolder(folder: InsertRoutineFolder): Promise<RoutineFolder> {
+    const [newFolder] = await db.insert(routineFolders).values(folder).returning();
+    return newFolder;
+  }
+
+  async updateRoutineFolder(id: number, userId: string, updates: Partial<InsertRoutineFolder>): Promise<RoutineFolder> {
+    const [updatedFolder] = await db
+      .update(routineFolders)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(and(eq(routineFolders.id, id), eq(routineFolders.userId, userId)))
+      .returning();
+    return updatedFolder;
+  }
+
+  async deleteRoutineFolder(id: number, userId: string): Promise<void> {
+    // First, move all routines from this folder to no folder
+    await db
+      .update(routines)
+      .set({ folderId: null })
+      .where(and(eq(routines.folderId, id), eq(routines.userId, userId)));
+    
+    // Then delete the folder
+    await db.delete(routineFolders).where(and(eq(routineFolders.id, id), eq(routineFolders.userId, userId)));
+  }
 }
 
 export const storage = new DatabaseStorage();

@@ -11,6 +11,8 @@ import {
   insertExerciseSetSchema,
   insertFitnessGoalSchema,
   insertBodyMeasurementSchema,
+  insertCustomExerciseSchema,
+  insertRoutineFolderSchema,
 } from "@shared/schema";
 import { z } from "zod";
 
