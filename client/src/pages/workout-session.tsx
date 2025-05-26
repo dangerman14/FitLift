@@ -3,20 +3,45 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { X, Check, Plus, Timer, MoreVertical } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { X, Plus, Timer, MoreVertical, Check } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+
+interface WorkoutExercise {
+  id: number;
+  exercise: {
+    id: number;
+    name: string;
+    muscleGroups: string[];
+  };
+  sets: WorkoutSet[];
+  restTimer?: number;
+  restStartTime?: Date;
+  comment?: string;
+}
+
+interface WorkoutSet {
+  id?: number;
+  setNumber: number;
+  weight: number;
+  reps: number;
+  rpe?: number;
+  completed: boolean;
+  previousWeight?: number;
+  previousReps?: number;
+}
 
 export default function WorkoutSession() {
   const [, setLocation] = useLocation();
   const [activeWorkout, setActiveWorkout] = useState<any>(null);
-  const [workoutExercises, setWorkoutExercises] = useState<any[]>([]);
+  const [workoutExercises, setWorkoutExercises] = useState<WorkoutExercise[]>([]);
   const [startTime, setStartTime] = useState<Date>(new Date());
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
+  const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -24,13 +49,29 @@ export default function WorkoutSession() {
     queryKey: ["/api/exercises"],
   });
 
-  // Timer effect
+  // Main workout timer
   useEffect(() => {
     const interval = setInterval(() => {
       setElapsedTime(Math.floor((new Date().getTime() - startTime.getTime()) / 1000));
     }, 1000);
     return () => clearInterval(interval);
   }, [startTime]);
+
+  // Rest timers for exercises
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRestTimers(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(key => {
+          if (updated[parseInt(key)] > 0) {
+            updated[parseInt(key)] -= 1;
+          }
+        });
+        return updated;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const createWorkoutMutation = useMutation({
     mutationFn: async (workoutData: any) => {
@@ -49,7 +90,18 @@ export default function WorkoutSession() {
       return response.json();
     },
     onSuccess: (workoutExercise) => {
-      setWorkoutExercises(prev => [...prev, { ...workoutExercise, sets: [] }]);
+      const newExercise: WorkoutExercise = {
+        ...workoutExercise,
+        sets: [{
+          setNumber: 1,
+          weight: 0,
+          reps: 0,
+          completed: false,
+          previousWeight: 75, // Mock previous data
+          previousReps: 12
+        }]
+      };
+      setWorkoutExercises(prev => [...prev, newExercise]);
     },
   });
 
@@ -60,11 +112,11 @@ export default function WorkoutSession() {
     },
   });
 
-  // Initialize workout on page load
+  // Initialize workout
   useEffect(() => {
     if (!activeWorkout) {
       const workoutData = {
-        name: "Quick Workout",
+        name: "Workout Session",
         startTime: new Date().toISOString(),
       };
       createWorkoutMutation.mutate(workoutData);
@@ -77,7 +129,7 @@ export default function WorkoutSession() {
     const exerciseData = {
       exerciseId: exercise.id,
       orderIndex: workoutExercises.length,
-      setsTarget: 3,
+      setsTarget: 1,
       restDuration: 90,
     };
     
@@ -85,51 +137,94 @@ export default function WorkoutSession() {
     setShowExerciseSelector(false);
   };
 
-  const completeSet = (exerciseIndex: number, setData: any) => {
-    if (!activeWorkout) return;
+  const completeSet = (exerciseIndex: number, setIndex: number) => {
+    const exercise = workoutExercises[exerciseIndex];
+    const set = exercise.sets[setIndex];
+    
+    if (!set.weight || !set.reps) {
+      toast({
+        title: "Please enter weight and reps",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    const workoutExercise = workoutExercises[exerciseIndex];
-    if (!workoutExercise) return;
-
-    const currentSets = workoutExercise.sets || [];
-    const newSet = {
-      ...setData,
-      setNumber: currentSets.length + 1,
-      workoutExerciseId: workoutExercise.id,
-    };
-
-    // Update local state
+    // Mark set as completed
     setWorkoutExercises(prev => 
-      prev.map((we, index) => 
-        index === exerciseIndex 
-          ? { ...we, sets: [...(we.sets || []), newSet] }
-          : we
+      prev.map((ex, exIndex) => 
+        exIndex === exerciseIndex 
+          ? {
+              ...ex,
+              sets: ex.sets.map((s, sIndex) => 
+                sIndex === setIndex ? { ...s, completed: true } : s
+              )
+            }
+          : ex
       )
     );
 
-    createSetMutation.mutate(newSet);
+    // Start rest timer
+    setRestTimers(prev => ({
+      ...prev,
+      [exerciseIndex]: 270 // 4min 30s rest timer
+    }));
+
+    // Save to database
+    createSetMutation.mutate({
+      workoutExerciseId: exercise.id,
+      setNumber: set.setNumber,
+      weight: set.weight,
+      reps: set.reps,
+      rpe: set.rpe
+    });
 
     toast({
       title: "Set Completed!",
-      description: `${setData.weight}lbs × ${setData.reps} reps`,
+      description: `${set.weight}kg × ${set.reps} reps`
     });
   };
 
-  const finishWorkout = () => {
-    if (!activeWorkout) return;
+  const addSet = (exerciseIndex: number) => {
+    setWorkoutExercises(prev => 
+      prev.map((ex, exIndex) => 
+        exIndex === exerciseIndex 
+          ? {
+              ...ex,
+              sets: [...ex.sets, {
+                setNumber: ex.sets.length + 1,
+                weight: ex.sets[ex.sets.length - 1]?.weight || 0,
+                reps: ex.sets[ex.sets.length - 1]?.reps || 0,
+                completed: false,
+                previousWeight: 77.5, // Mock previous data
+                previousReps: 10
+              }]
+            }
+          : ex
+      )
+    );
+  };
 
-    const duration = Math.round(elapsedTime / 60);
-    const totalSets = workoutExercises.reduce((sum, ex) => sum + (ex.sets?.length || 0), 0);
-    const totalVolume = workoutExercises.reduce((sum, ex) => 
-      sum + (ex.sets?.reduce((setSum: number, set: any) => 
-        setSum + ((set.weight || 0) * (set.reps || 0)), 0) || 0), 0);
+  const updateSetValue = (exerciseIndex: number, setIndex: number, field: string, value: number) => {
+    setWorkoutExercises(prev => 
+      prev.map((ex, exIndex) => 
+        exIndex === exerciseIndex 
+          ? {
+              ...ex,
+              sets: ex.sets.map((s, sIndex) => 
+                sIndex === setIndex ? { ...s, [field]: value } : s
+              )
+            }
+          : ex
+      )
+    );
+  };
 
-    toast({
-      title: "Workout Completed!",
-      description: `Duration: ${duration}min • ${totalSets} sets • ${Math.round(totalVolume)}lbs volume`,
-    });
-
-    setLocation("/");
+  const updateComment = (exerciseIndex: number, comment: string) => {
+    setWorkoutExercises(prev => 
+      prev.map((ex, exIndex) => 
+        exIndex === exerciseIndex ? { ...ex, comment } : ex
+      )
+    );
   };
 
   const formatTime = (seconds: number) => {
@@ -138,20 +233,36 @@ export default function WorkoutSession() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const formatRestTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}min ${secs}s`;
+  };
+
   const getTotalVolume = () => {
     return workoutExercises.reduce((sum, ex) => 
-      sum + (ex.sets?.reduce((setSum: number, set: any) => 
-        setSum + ((set.weight || 0) * (set.reps || 0)), 0) || 0), 0);
+      sum + ex.sets.filter(s => s.completed).reduce((setSum, set) => 
+        setSum + (set.weight * set.reps), 0), 0);
   };
 
   const getTotalSets = () => {
-    return workoutExercises.reduce((sum, ex) => sum + (ex.sets?.length || 0), 0);
+    return workoutExercises.reduce((sum, ex) => 
+      sum + ex.sets.filter(s => s.completed).length, 0);
+  };
+
+  const finishWorkout = () => {
+    const duration = Math.round(elapsedTime / 60);
+    toast({
+      title: "Workout Completed!",
+      description: `Duration: ${duration}min • ${getTotalSets()} sets • ${Math.round(getTotalVolume())}kg volume`
+    });
+    setLocation("/");
   };
 
   return (
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b px-4 py-3">
+      <div className="bg-white shadow-sm border-b px-4 py-3 sticky top-0 z-10">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <Button variant="ghost" size="sm" onClick={() => setLocation("/")}>
@@ -175,209 +286,175 @@ export default function WorkoutSession() {
         </div>
 
         {/* Stats */}
-        <div className="flex space-x-6 mt-3 text-sm">
+        <div className="flex space-x-8 mt-3 text-sm">
           <div>
-            <span className="text-neutral-500">Duration</span>
+            <div className="text-neutral-500">Duration</div>
             <div className="font-medium text-blue-600">{formatTime(elapsedTime)}</div>
           </div>
           <div>
-            <span className="text-neutral-500">Volume</span>
+            <div className="text-neutral-500">Volume</div>
             <div className="font-medium text-neutral-900">{Math.round(getTotalVolume())} kg</div>
           </div>
           <div>
-            <span className="text-neutral-500">Sets</span>
+            <div className="text-neutral-500">Sets</div>
             <div className="font-medium text-neutral-900">{getTotalSets()}</div>
           </div>
         </div>
       </div>
 
-      {/* Workout Content */}
-      <div className="p-4 space-y-4">
-        {/* Exercise List */}
+      {/* Exercise List */}
+      <div className="p-4 space-y-4 pb-24">
         {workoutExercises.map((workoutExercise, exerciseIndex) => (
-          <ExerciseCard
-            key={workoutExercise.id}
-            workoutExercise={workoutExercise}
-            exerciseIndex={exerciseIndex}
-            onCompleteSet={completeSet}
-          />
-        ))}
+          <Card key={workoutExercise.id} className="shadow-sm">
+            <CardContent className="p-4">
+              {/* Exercise Header */}
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center space-x-3 flex-1">
+                  <div className="w-10 h-10 bg-neutral-100 rounded-lg flex items-center justify-center">
+                    <span className="text-xl">💪</span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-blue-600 text-lg">
+                      {workoutExercise.exercise?.name}
+                    </h3>
+                    <Textarea
+                      placeholder="Add comment for this exercise..."
+                      value={workoutExercise.comment || ""}
+                      onChange={(e) => updateComment(exerciseIndex, e.target.value)}
+                      className="mt-2 text-sm resize-none"
+                      rows={1}
+                    />
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </div>
 
-        {/* Add Exercise Button */}
+              {/* Rest Timer */}
+              {restTimers[exerciseIndex] > 0 && (
+                <div className="flex items-center space-x-2 mb-4 p-2 bg-blue-50 rounded-lg">
+                  <Timer className="h-4 w-4 text-blue-600" />
+                  <span className="text-blue-600 font-medium">
+                    Rest Timer: {formatRestTime(restTimers[exerciseIndex])}
+                  </span>
+                  <span className="text-yellow-500">⚠️</span>
+                </div>
+              )}
+
+              {/* Sets Table Header */}
+              <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
+                <div>SET</div>
+                <div>PREVIOUS</div>
+                <div>KG</div>
+                <div>REPS</div>
+                <div>RPE</div>
+                <div className="text-center">✓</div>
+              </div>
+
+              {/* Sets List */}
+              {workoutExercise.sets.map((set, setIndex) => (
+                <div key={setIndex} className="grid grid-cols-6 gap-2 items-center py-2 px-1">
+                  <div className="font-medium text-lg">{set.setNumber}</div>
+                  
+                  <div className="text-sm text-neutral-500">
+                    {set.previousWeight}kg x {set.previousReps}
+                  </div>
+                  
+                  <Input
+                    type="number"
+                    value={set.weight || ""}
+                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'weight', parseFloat(e.target.value) || 0)}
+                    className="h-10 text-center font-medium text-lg"
+                    placeholder="75"
+                    disabled={set.completed}
+                  />
+                  
+                  <Input
+                    type="number"
+                    value={set.reps || ""}
+                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
+                    className="h-10 text-center font-medium text-lg"
+                    placeholder="12"
+                    disabled={set.completed}
+                  />
+                  
+                  <Input
+                    type="number"
+                    value={set.rpe || ""}
+                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
+                    className="h-10 text-center font-medium text-lg"
+                    placeholder="9"
+                    min="1"
+                    max="10"
+                    disabled={set.completed}
+                  />
+                  
+                  <div className="flex justify-center">
+                    <Checkbox
+                      checked={set.completed}
+                      onCheckedChange={() => completeSet(exerciseIndex, setIndex)}
+                      className="w-6 h-6 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                    />
+                  </div>
+                </div>
+              ))}
+
+              {/* Add Set Button */}
+              <Button
+                variant="outline"
+                className="w-full mt-4 py-3"
+                onClick={() => addSet(exerciseIndex)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Set
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Fixed Add Exercise Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
         <Button
           onClick={() => setShowExerciseSelector(true)}
-          className="w-full py-6"
+          className="w-full py-4 text-lg"
           style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
         >
           <Plus className="h-5 w-5 mr-2" />
           Add Exercise
         </Button>
+      </div>
 
-        {/* Exercise Selector Modal */}
-        {showExerciseSelector && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
-            <div className="bg-white w-full max-h-[80vh] rounded-t-lg p-4">
-              <div className="flex justify-between items-center mb-4">
+      {/* Exercise Selector Modal */}
+      {showExerciseSelector && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
+          <div className="bg-white w-full max-h-[80vh] rounded-t-lg">
+            <div className="p-4 border-b">
+              <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium">Add Exercise</h3>
                 <Button variant="ghost" onClick={() => setShowExerciseSelector(false)}>
                   <X className="h-5 w-5" />
                 </Button>
               </div>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {(exercises && Array.isArray(exercises) ? exercises.slice(0, 15) : []).map((exercise: any) => (
-                  <button
-                    key={exercise.id}
-                    onClick={() => addExerciseToWorkout(exercise)}
-                    className="w-full text-left p-3 rounded-lg border hover:bg-neutral-50 transition-colors"
-                  >
-                    <div className="font-medium">{exercise.name}</div>
-                    <div className="text-sm text-neutral-600">
-                      {exercise.muscleGroups?.join(', ')}
-                    </div>
-                  </button>
-                ))}
-              </div>
+            </div>
+            <div className="p-4 space-y-2 max-h-96 overflow-y-auto">
+              {(exercises && Array.isArray(exercises) ? exercises.slice(0, 20) : []).map((exercise: any) => (
+                <button
+                  key={exercise.id}
+                  onClick={() => addExerciseToWorkout(exercise)}
+                  className="w-full text-left p-4 rounded-lg border hover:bg-neutral-50 transition-colors"
+                >
+                  <div className="font-medium text-lg">{exercise.name}</div>
+                  <div className="text-sm text-neutral-600">
+                    {exercise.muscleGroups?.join(', ')}
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-interface ExerciseCardProps {
-  workoutExercise: any;
-  exerciseIndex: number;
-  onCompleteSet: (exerciseIndex: number, setData: any) => void;
-}
-
-function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: ExerciseCardProps) {
-  const [showAddSet, setShowAddSet] = useState(false); // Start with button enabled
-
-  return (
-    <Card>
-      <CardContent className="p-4">
-        {/* Exercise Header */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-neutral-100 rounded-lg flex items-center justify-center">
-              <span className="text-xl">💪</span>
-            </div>
-            <div>
-              <h3 className="font-medium text-blue-600">
-                {workoutExercise.exercise?.name || "Exercise"}
-              </h3>
-              <p className="text-sm text-neutral-500">Guessing weights</p>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
         </div>
-
-        {/* Rest Timer */}
-        <div className="flex items-center space-x-2 mb-4 text-sm text-blue-600">
-          <Timer className="h-4 w-4" />
-          <span>Rest Timer: 4min 30s</span>
-          <span className="text-yellow-500">⚠️</span>
-        </div>
-
-        {/* Sets Table Header */}
-        <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2">
-          <div>SET</div>
-          <div>PREVIOUS</div>
-          <div>KG</div>
-          <div>REPS</div>
-          <div>RPE</div>
-          <div></div>
-        </div>
-
-        {/* Sets List */}
-        {(workoutExercise.sets || []).map((set: any, setIndex: number) => (
-          <div key={setIndex} className="grid grid-cols-6 gap-2 items-center py-2 border-b border-neutral-100">
-            <div className="font-medium">{set.setNumber}</div>
-            <div className="text-sm text-neutral-500">
-              {set.weight}kg x {set.reps}
-            </div>
-            <div className="font-medium">{set.weight}</div>
-            <div className="font-medium">{set.reps}</div>
-            <div className="font-medium">{set.rpe || '-'}</div>
-            <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
-              <Check className="h-4 w-4 text-white" />
-            </div>
-          </div>
-        ))}
-
-        {/* Set Input Form - show when adding any set */}
-        <SetInput
-          setNumber={(workoutExercise.sets?.length || 0) + 1}
-          onComplete={(setData) => {
-            onCompleteSet(exerciseIndex, setData);
-          }}
-          onCancel={() => {}}
-        />
-      </CardContent>
-    </Card>
-  );
-}
-
-interface SetInputProps {
-  setNumber: number;
-  onComplete: (setData: any) => void;
-  onCancel: () => void;
-}
-
-function SetInput({ setNumber, onComplete, onCancel }: SetInputProps) {
-  const [weight, setWeight] = useState("");
-  const [reps, setReps] = useState("");
-  const [rpe, setRpe] = useState("");
-
-  const handleComplete = () => {
-    if (!weight || !reps) return;
-    
-    onComplete({
-      setNumber,
-      weight: parseFloat(weight),
-      reps: parseInt(reps),
-      rpe: rpe ? parseInt(rpe) : null,
-    });
-  };
-
-  return (
-    <div className="grid grid-cols-6 gap-2 items-center py-3 border-b border-neutral-100 bg-neutral-50 rounded">
-      <div className="font-medium">{setNumber}</div>
-      <div className="text-sm text-neutral-500">-</div>
-      <Input
-        type="number"
-        placeholder="75"
-        value={weight}
-        onChange={(e) => setWeight(e.target.value)}
-        className="h-8 text-center"
-      />
-      <Input
-        type="number"
-        placeholder="10"
-        value={reps}
-        onChange={(e) => setReps(e.target.value)}
-        className="h-8 text-center"
-      />
-      <Input
-        type="number"
-        placeholder="8"
-        min="1"
-        max="10"
-        value={rpe}
-        onChange={(e) => setRpe(e.target.value)}
-        className="h-8 text-center"
-      />
-      <div className="flex space-x-1">
-        <Button size="sm" onClick={handleComplete} disabled={!weight || !reps}>
-          <Check className="h-3 w-3" />
-        </Button>
-        <Button size="sm" variant="outline" onClick={onCancel}>
-          <X className="h-3 w-3" />
-        </Button>
-      </div>
+      )}
     </div>
   );
 }
