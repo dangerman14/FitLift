@@ -274,6 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedTemplate = await storage.updateWorkoutTemplate(id, {
         name: req.body.name,
         description: req.body.description,
+        folderId: req.body.folderId,
       });
       
       // Remove existing template exercises
