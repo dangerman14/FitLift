@@ -255,7 +255,7 @@ export default function CreateRoutine() {
                     <SelectValue placeholder="Choose a folder or leave unorganized" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Folder (Unorganized)</SelectItem>
+                    <SelectItem value="none">No Folder (Unorganized)</SelectItem>
                     {Array.isArray(folders) && folders.map((folder: any) => (
                       <SelectItem key={folder.id} value={folder.id.toString()}>
                         {folder.name}

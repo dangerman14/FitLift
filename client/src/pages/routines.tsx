@@ -1,11 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { 
   Plus, 
   Play,
   MoreVertical,
-  Trash2
+  Trash2,
+  Folder,
+  FolderPlus
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -15,14 +27,49 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export default function Routines() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [newFolderName, setNewFolderName] = useState("");
+  const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
 
   // Fetch routines using workout templates since that's where we're storing them
   const { data: routines = [], isLoading } = useQuery({
     queryKey: ["/api/workout-templates"],
+  });
+
+  // Fetch folders
+  const { data: folders = [] } = useQuery({
+    queryKey: ["/api/routine-folders"],
+  });
+
+  // Create folder mutation
+  const createFolderMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return await apiRequest({
+        method: "POST",
+        url: "/api/routine-folders",
+        body: { name },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/routine-folders"] });
+      toast({
+        title: "Success!",
+        description: "Folder created successfully.",
+      });
+      setNewFolderName("");
+      setIsCreateFolderOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create folder",
+        variant: "destructive",
+      });
+    },
   });
 
   // Delete routine mutation
@@ -48,6 +95,12 @@ export default function Routines() {
       });
     },
   });
+
+  const handleCreateFolder = () => {
+    if (newFolderName.trim()) {
+      createFolderMutation.mutate(newFolderName.trim());
+    }
+  };
 
   const handleDeleteRoutine = (id: number) => {
     if (confirm("Are you sure you want to delete this routine?")) {
@@ -80,13 +133,63 @@ export default function Routines() {
           <h2 className="text-2xl font-bold text-neutral-900">My Workout Routines</h2>
           <p className="text-neutral-600 mt-1">Create and manage your custom workout routines</p>
         </div>
-        <Button 
-          onClick={navigateToCreateRoutine}
-          className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 shadow-material-1"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Create Routine
-        </Button>
+        <div className="flex gap-3">
+          <Dialog open={isCreateFolderOpen} onOpenChange={setIsCreateFolderOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="border-primary-200 text-primary-600 hover:bg-primary-50">
+                <FolderPlus className="h-4 w-4 mr-2" />
+                Create Folder
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Folder</DialogTitle>
+                <DialogDescription>
+                  Create a folder to organize your workout routines (e.g., "Strength Training", "Cardio", "Beginner Workouts")
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="folderName">Folder Name</Label>
+                  <Input
+                    id="folderName"
+                    placeholder="e.g., Strength Training"
+                    value={newFolderName}
+                    onChange={(e) => setNewFolderName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleCreateFolder();
+                      }
+                    }}
+                  />
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <Button 
+                    onClick={handleCreateFolder}
+                    disabled={!newFolderName.trim() || createFolderMutation.isPending}
+                    className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
+                  >
+                    {createFolderMutation.isPending ? "Creating..." : "Create Folder"}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsCreateFolderOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <Button 
+            onClick={navigateToCreateRoutine}
+            className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 shadow-material-1"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Routine
+          </Button>
+        </div>
       </div>
 
       {/* Routines Grid */}
