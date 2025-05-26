@@ -301,6 +301,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update workout details (name, description, image)
+  app.patch('/api/workouts/:id/details', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      // Validate that the workout belongs to the user
+      const existingWorkout = await storage.getWorkoutById(id);
+      if (!existingWorkout || existingWorkout.userId !== userId) {
+        return res.status(404).json({ message: "Workout not found" });
+      }
+      
+      const { name, description, imageUrl } = req.body;
+      
+      const updatedWorkout = await storage.updateWorkout(id, {
+        name,
+        description,
+        imageUrl
+      });
+      
+      res.json(updatedWorkout);
+    } catch (error) {
+      console.error("Error updating workout details:", error);
+      res.status(500).json({ message: "Failed to update workout details" });
+    }
+  });
+
   // Workout exercise routes
   app.post('/api/workouts/:workoutId/exercises', isAuthenticated, async (req, res) => {
     try {

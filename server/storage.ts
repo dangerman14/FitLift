@@ -294,9 +294,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateWorkout(id: number, workout: Partial<InsertWorkout>): Promise<Workout> {
-    // Simplified update - only update the essential fields for workout completion
+    // Update workout fields
     const updateData: any = {};
     
+    if (workout.name !== undefined) {
+      updateData.name = workout.name;
+    }
+    if (workout.description !== undefined) {
+      updateData.description = workout.description;
+    }
+    if (workout.imageUrl !== undefined) {
+      updateData.imageUrl = workout.imageUrl;
+    }
     if (workout.duration !== undefined) {
       updateData.duration = workout.duration;
     }
