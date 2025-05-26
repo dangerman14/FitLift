@@ -204,13 +204,13 @@ export default function Workouts() {
             </h3>
             <p className="text-neutral-600 mb-4">
               {selectedCategory === "All" 
-                ? "Create your first workout template to get started." 
-                : `Create a ${selectedCategory.toLowerCase()} workout template.`
+                ? "Ready to build your workout collection? Create custom workout templates with your favorite exercises." 
+                : `Build a custom ${selectedCategory.toLowerCase()} workout template with your preferred exercises.`
               }
             </p>
             <Button onClick={handleCreateWorkout} className="bg-primary-500 hover:bg-primary-600">
               <Plus className="h-4 w-4 mr-2" />
-              Create Your First Workout
+              Create Workout Template
             </Button>
           </CardContent>
         </Card>
