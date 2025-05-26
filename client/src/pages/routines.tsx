@@ -191,6 +191,38 @@ export default function Routines() {
         </div>
       </div>
 
+      {/* Folders Section */}
+      {folders.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-neutral-900 mb-4">Folders</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {folders.map((folder: any) => (
+              <Card 
+                key={folder.id} 
+                className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200 cursor-pointer"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-8 h-8 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: folder.color }}
+                    >
+                      <Folder className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-neutral-900 truncate">
+                        {folder.name}
+                      </h3>
+                      <p className="text-sm text-neutral-500">0 routines</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Routines Grid */}
       {routines.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
