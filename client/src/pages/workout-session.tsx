@@ -432,9 +432,9 @@ export default function WorkoutSession() {
   };
 
   const updateWorkoutDuration = (minutes: string) => {
-    const newElapsedTime = parseInt(minutes) * 60;
+    const newElapsedTime = parseInt(minutes) * 60; // Convert to seconds, reset seconds to 0
     setElapsedTime(newElapsedTime);
-    // Timer will continue from this new time
+    setStartTime(Date.now() - newElapsedTime * 1000); // Adjust start time so elapsed time matches
   };
 
   const formatTime = (seconds: number) => {
