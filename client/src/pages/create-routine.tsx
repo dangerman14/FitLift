@@ -31,6 +31,7 @@ interface RoutineExercise {
   reps: string; // Will store as "10-12" format
   weight?: string;
   notes?: string;
+  restDuration?: number; // Rest time in seconds, default 120 (2 minutes)
 }
 
 export default function CreateRoutine() {
@@ -51,6 +52,7 @@ export default function CreateRoutine() {
   const [maxReps, setMaxReps] = useState("12");
   const [weight, setWeight] = useState("");
   const [notes, setNotes] = useState("");
+  const [restDuration, setRestDuration] = useState("120"); // 2 minutes default
   const [exerciseSearch, setExerciseSearch] = useState("");
   const [muscleGroupFilter, setMuscleGroupFilter] = useState("");
   const [equipmentFilter, setEquipmentFilter] = useState("");
@@ -90,10 +92,11 @@ export default function CreateRoutine() {
           return {
             exerciseId: exercise.exerciseId,
             exerciseName: exercise.exercise.name,
-            sets: exercise.sets || exercise.sets || 3, // Try different possible field names
-            reps: exercise.reps || exercise.repRange || "10",
-            weight: exercise.weight || "",
+            sets: exercise.setsTarget || 3,
+            reps: exercise.repsTarget || "10",
+            weight: exercise.weightTarget || "",
             notes: exercise.notes || "",
+            restDuration: exercise.restDuration || 120, // Default 2 minutes
           };
         });
         console.log("Mapped routine exercises:", routineExercises);
@@ -171,6 +174,7 @@ export default function CreateRoutine() {
       reps: repsValue,
       weight: weight || undefined,
       notes: notes || undefined,
+      restDuration: parseInt(restDuration),
     };
 
     setSelectedExercises([...selectedExercises, routineExercise]);
@@ -181,6 +185,7 @@ export default function CreateRoutine() {
     setMaxReps("12");
     setWeight("");
     setNotes("");
+    setRestDuration("120"); // Reset to 2 minutes default
   };
 
   const removeExerciseFromRoutine = (index: number) => {
@@ -541,6 +546,27 @@ export default function CreateRoutine() {
                 />
               </div>
               
+              <div className="space-y-2">
+                <Label>Rest Time Between Sets</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    type="number"
+                    value={restDuration}
+                    onChange={(e) => setRestDuration(e.target.value)}
+                    placeholder="120"
+                    min="30"
+                    max="600"
+                    className="flex-1"
+                  />
+                  <span className="text-sm text-gray-600 min-w-0">
+                    {Math.floor(parseInt(restDuration || "120") / 60)}m {parseInt(restDuration || "120") % 60}s
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">
+                  Default: 2 minutes (120 seconds)
+                </p>
+              </div>
+              
               <Button 
                 onClick={addExerciseToRoutine}
                 className="w-full"
@@ -581,6 +607,9 @@ export default function CreateRoutine() {
                           {exercise.weight && (
                             <span className="ml-2 text-blue-600">@ {exercise.weight}</span>
                           )}
+                          <span className="ml-2 text-green-600">
+                            🕐 {Math.floor((exercise.restDuration || 120) / 60)}m {(exercise.restDuration || 120) % 60}s rest
+                          </span>
                         </div>
                         {exercise.notes && (
                           <div className="text-xs text-gray-500 mt-1 italic">
