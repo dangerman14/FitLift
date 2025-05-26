@@ -10,18 +10,17 @@ export default function RoutineDetails() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   
-  const { data: routine, isLoading: routineLoading } = useQuery({
+  const { data: routineData, isLoading: routineLoading } = useQuery({
     queryKey: ['/api/workout-templates', id],
     enabled: !!id,
   });
 
+  // Handle the case where the API returns an array instead of a single object
+  const routine = Array.isArray(routineData) ? routineData[0] : routineData;
+  
   // Extract exercises from the routine data (they're included in the workout template response)
   const exercises = routine?.exercises || [];
   const exercisesLoading = routineLoading;
-
-  // Debug logging
-  console.log('Routine data:', routine);
-  console.log('Exercises:', exercises);
 
   const { data: user } = useQuery({
     queryKey: ['/api/auth/user'],
