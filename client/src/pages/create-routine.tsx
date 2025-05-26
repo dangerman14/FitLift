@@ -27,7 +27,7 @@ interface RoutineExercise {
   exerciseId: number;
   exerciseName: string;
   sets: number;
-  reps: string;
+  reps: string; // Will store as "10-12" format
   weight?: string;
   notes?: string;
 }
@@ -38,7 +38,8 @@ export default function CreateRoutine() {
   const [selectedExercises, setSelectedExercises] = useState<RoutineExercise[]>([]);
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
   const [sets, setSets] = useState("3");
-  const [reps, setReps] = useState("10");
+  const [minReps, setMinReps] = useState("8");
+  const [maxReps, setMaxReps] = useState("12");
   const [weight, setWeight] = useState("");
   const [notes, setNotes] = useState("");
   const [exerciseSearch, setExerciseSearch] = useState("");
@@ -110,11 +111,13 @@ export default function CreateRoutine() {
     const exercise = exercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
     if (!exercise) return;
 
+    const repsRange = minReps === maxReps ? minReps : `${minReps}-${maxReps}`;
+    
     const routineExercise: RoutineExercise = {
       exerciseId: exercise.id,
       exerciseName: exercise.name,
       sets: parseInt(sets),
-      reps,
+      reps: repsRange,
       weight: weight || undefined,
       notes: notes || undefined,
     };
@@ -122,7 +125,8 @@ export default function CreateRoutine() {
     setSelectedExercises([...selectedExercises, routineExercise]);
     setSelectedExerciseId("");
     setSets("3");
-    setReps("10");
+    setMinReps("8");
+    setMaxReps("12");
     setWeight("");
     setNotes("");
   };
@@ -397,12 +401,27 @@ export default function CreateRoutine() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Reps</Label>
-                  <Input
-                    value={reps}
-                    onChange={(e) => setReps(e.target.value)}
-                    placeholder="10 or 30s"
-                  />
+                  <Label>Rep Range</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      placeholder="8"
+                      value={minReps}
+                      onChange={(e) => setMinReps(e.target.value)}
+                      min="1"
+                      className="flex-1"
+                    />
+                    <span className="text-gray-500 font-medium">-</span>
+                    <Input
+                      type="number"
+                      placeholder="12"
+                      value={maxReps}
+                      onChange={(e) => setMaxReps(e.target.value)}
+                      min="1"
+                      className="flex-1"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500">Set minimum and maximum reps (e.g., 8-12)</p>
                 </div>
               </div>
               
