@@ -76,20 +76,27 @@ export default function CreateRoutine() {
   // Populate form fields when existing routine data is loaded
   useEffect(() => {
     if (existingRoutine && isEditMode) {
+      console.log("Loading existing routine data:", existingRoutine);
+      
       setRoutineName(existingRoutine.name || "");
       setRoutineDescription(existingRoutine.description || "");
       setSelectedFolderId(existingRoutine.folderId?.toString() || "");
       
       // Load routine exercises if they exist
       if (existingRoutine.exercises && Array.isArray(existingRoutine.exercises)) {
-        const routineExercises = existingRoutine.exercises.map((exercise: any) => ({
-          exerciseId: exercise.exerciseId,
-          exerciseName: exercise.exercise.name,
-          sets: exercise.sets,
-          reps: exercise.reps,
-          weight: exercise.weight || "",
-          notes: exercise.notes || "",
-        }));
+        console.log("Mapping exercises:", existingRoutine.exercises);
+        const routineExercises = existingRoutine.exercises.map((exercise: any) => {
+          console.log("Individual exercise data:", exercise);
+          return {
+            exerciseId: exercise.exerciseId,
+            exerciseName: exercise.exercise.name,
+            sets: exercise.sets || exercise.sets || 3, // Try different possible field names
+            reps: exercise.reps || exercise.repRange || "10",
+            weight: exercise.weight || "",
+            notes: exercise.notes || "",
+          };
+        });
+        console.log("Mapped routine exercises:", routineExercises);
         setSelectedExercises(routineExercises);
       }
     }
