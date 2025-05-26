@@ -244,26 +244,26 @@ export default function CreateRoutine() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Search and Filters */}
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label>Search Exercises</Label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Search by name or description..."
-                      value={exerciseSearch}
-                      onChange={(e) => setExerciseSearch(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
+              <div className="space-y-2">
+                <Label>Select Exercise</Label>
+                
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search by name or description..."
+                    value={exerciseSearch}
+                    onChange={(e) => setExerciseSearch(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
                 
+                {/* Filter Controls */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label>Muscle Group</Label>
+                    <Label className="text-sm">Muscle Group</Label>
                     <Select value={muscleGroupFilter} onValueChange={setMuscleGroupFilter}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9">
                         <SelectValue placeholder="Any muscle" />
                       </SelectTrigger>
                       <SelectContent>
@@ -283,9 +283,9 @@ export default function CreateRoutine() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label>Equipment</Label>
+                    <Label className="text-sm">Equipment</Label>
                     <Select value={equipmentFilter} onValueChange={setEquipmentFilter}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9">
                         <SelectValue placeholder="Any equipment" />
                       </SelectTrigger>
                       <SelectContent>
@@ -303,40 +303,86 @@ export default function CreateRoutine() {
                   </div>
                 </div>
                 
+                {/* Results Counter */}
                 {(exerciseSearch || muscleGroupFilter || equipmentFilter) && (
                   <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded">
                     <Filter className="inline h-4 w-4 mr-1" />
                     Found {filteredExercises.length} exercises
                     {exerciseSearch && ` matching "${exerciseSearch}"`}
-                    {muscleGroupFilter && ` for ${muscleGroupFilter}`}
-                    {equipmentFilter && ` using ${equipmentFilter}`}
+                    {muscleGroupFilter && muscleGroupFilter !== "all" && ` for ${muscleGroupFilter}`}
+                    {equipmentFilter && equipmentFilter !== "all" && ` using ${equipmentFilter}`}
                   </div>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Select Exercise</Label>
-                <Select value={selectedExerciseId} onValueChange={setSelectedExerciseId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={
-                      filteredExercises.length === 0 
-                        ? "No exercises found" 
-                        : "Choose from filtered exercises"
-                    } />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredExercises.map((exercise: any) => (
-                      <SelectItem key={exercise.id} value={exercise.id.toString()}>
-                        <div className="flex flex-col">
-                          <span>{exercise.name}</span>
-                          <span className="text-xs text-gray-500">
-                            {exercise.primaryMuscleGroups?.join(', ')} • {exercise.equipmentType}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                
+                {/* Exercise List with Thumbnails */}
+                <div className="border rounded-lg max-h-64 overflow-y-auto">
+                  {filteredExercises.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500">
+                      No exercises found with current filters
+                    </div>
+                  ) : (
+                    <div className="space-y-1 p-2">
+                      {filteredExercises.map((exercise: any) => (
+                        <button
+                          key={exercise.id}
+                          type="button"
+                          onClick={() => setSelectedExerciseId(exercise.id.toString())}
+                          className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors hover:bg-blue-50 ${
+                            selectedExerciseId === exercise.id.toString() 
+                              ? 'bg-blue-100 border-blue-300' 
+                              : 'bg-white border-gray-200'
+                          }`}
+                        >
+                          {/* Exercise Thumbnail */}
+                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            {exercise.imageUrl ? (
+                              <img 
+                                src={exercise.imageUrl} 
+                                alt={exercise.name}
+                                className="w-full h-full object-cover rounded-lg"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  target.nextElementSibling!.classList.remove('hidden');
+                                }}
+                              />
+                            ) : null}
+                            <div className={`text-gray-400 text-xs ${exercise.imageUrl ? 'hidden' : ''}`}>
+                              {exercise.equipmentType === 'bodyweight' ? '🏃' : 
+                               exercise.equipmentType === 'barbell' ? '🏋️' :
+                               exercise.equipmentType === 'dumbbell' ? '💪' : 
+                               exercise.equipmentType === 'machine' ? '⚙️' : '🎯'}
+                            </div>
+                          </div>
+                          
+                          {/* Exercise Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-gray-900 truncate">
+                              {exercise.name}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {exercise.primaryMuscleGroups?.join(', ')} • {exercise.equipmentType}
+                            </div>
+                            {exercise.description && (
+                              <div className="text-xs text-gray-400 mt-1 line-clamp-1">
+                                {exercise.description}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Selection Indicator */}
+                          {selectedExerciseId === exercise.id.toString() && (
+                            <div className="text-blue-600">
+                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
