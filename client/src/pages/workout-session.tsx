@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X, Check, Play, Pause, Timer } from "lucide-react";
+import { X, Check, Plus, Timer, MoreVertical } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,10 +14,9 @@ export default function WorkoutSession() {
   const [, setLocation] = useLocation();
   const [activeWorkout, setActiveWorkout] = useState<any>(null);
   const [workoutExercises, setWorkoutExercises] = useState<any[]>([]);
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(-1);
-  const [sets, setSets] = useState<any[]>([]);
   const [startTime, setStartTime] = useState<Date>(new Date());
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -50,9 +49,7 @@ export default function WorkoutSession() {
       return response.json();
     },
     onSuccess: (workoutExercise) => {
-      setWorkoutExercises([...workoutExercises, workoutExercise]);
-      setCurrentExerciseIndex(workoutExercises.length);
-      setSets([]);
+      setWorkoutExercises(prev => [...prev, { ...workoutExercise, sets: [] }]);
     },
   });
 
@@ -85,19 +82,31 @@ export default function WorkoutSession() {
     };
     
     createWorkoutExerciseMutation.mutate(exerciseData);
+    setShowExerciseSelector(false);
   };
 
-  const completeSet = (setData: any) => {
-    if (!activeWorkout || currentExerciseIndex === -1) return;
+  const completeSet = (exerciseIndex: number, setData: any) => {
+    if (!activeWorkout) return;
 
-    const currentExercise = workoutExercises[currentExerciseIndex];
+    const workoutExercise = workoutExercises[exerciseIndex];
+    if (!workoutExercise) return;
+
+    const currentSets = workoutExercise.sets || [];
     const newSet = {
       ...setData,
-      setNumber: sets.length + 1,
-      workoutExerciseId: currentExercise?.id,
+      setNumber: currentSets.length + 1,
+      workoutExerciseId: workoutExercise.id,
     };
 
-    setSets([...sets, newSet]);
+    // Update local state
+    setWorkoutExercises(prev => 
+      prev.map((we, index) => 
+        index === exerciseIndex 
+          ? { ...we, sets: [...(we.sets || []), newSet] }
+          : we
+      )
+    );
+
     createSetMutation.mutate(newSet);
 
     toast({
@@ -106,29 +115,20 @@ export default function WorkoutSession() {
     });
   };
 
-  const nextExercise = () => {
-    if (currentExerciseIndex < workoutExercises.length - 1) {
-      setCurrentExerciseIndex(currentExerciseIndex + 1);
-      setSets([]);
-    } else {
-      // Reset to exercise selection
-      setCurrentExerciseIndex(-1);
-      setSets([]);
-    }
-  };
-
   const finishWorkout = () => {
     if (!activeWorkout) return;
 
-    // Calculate duration in minutes
     const duration = Math.round(elapsedTime / 60);
+    const totalSets = workoutExercises.reduce((sum, ex) => sum + (ex.sets?.length || 0), 0);
+    const totalVolume = workoutExercises.reduce((sum, ex) => 
+      sum + (ex.sets?.reduce((setSum: number, set: any) => 
+        setSum + ((set.weight || 0) * (set.reps || 0)), 0) || 0), 0);
 
     toast({
       title: "Workout Completed!",
-      description: `Great job! Duration: ${duration} minutes`,
+      description: `Duration: ${duration}min • ${totalSets} sets • ${Math.round(totalVolume)}lbs volume`,
     });
 
-    // Navigate back to dashboard
     setLocation("/");
   };
 
@@ -138,41 +138,97 @@ export default function WorkoutSession() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const currentExercise = currentExerciseIndex >= 0 ? workoutExercises[currentExerciseIndex] : null;
+  const getTotalVolume = () => {
+    return workoutExercises.reduce((sum, ex) => 
+      sum + (ex.sets?.reduce((setSum: number, set: any) => 
+        setSum + ((set.weight || 0) * (set.reps || 0)), 0) || 0), 0);
+  };
+
+  const getTotalSets = () => {
+    return workoutExercises.reduce((sum, ex) => sum + (ex.sets?.length || 0), 0);
+  };
 
   return (
-    <div className="min-h-screen bg-neutral-50 p-4">
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Header */}
+    <div className="min-h-screen bg-neutral-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b px-4 py-3">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-neutral-900">
-              {activeWorkout?.name || "Loading..."}
-            </h1>
-            <div className="flex items-center space-x-2 text-neutral-600">
+          <div className="flex items-center space-x-3">
+            <Button variant="ghost" size="sm" onClick={() => setLocation("/")}>
+              <X className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg font-medium text-neutral-900">Log Workout</h1>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1 text-sm text-neutral-600">
               <Timer className="h-4 w-4" />
               <span>{formatTime(elapsedTime)}</span>
             </div>
+            <Button 
+              onClick={finishWorkout}
+              style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
+              size="sm"
+            >
+              Finish
+            </Button>
           </div>
-          <Button variant="outline" onClick={() => setLocation("/")}>
-            <X className="h-4 w-4 mr-1" />
-            Exit
-          </Button>
         </div>
 
-        {/* Exercise Selection */}
-        {!currentExercise && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Add Exercise</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {(exercises && Array.isArray(exercises) ? exercises.slice(0, 10) : []).map((exercise: any) => (
+        {/* Stats */}
+        <div className="flex space-x-6 mt-3 text-sm">
+          <div>
+            <span className="text-neutral-500">Duration</span>
+            <div className="font-medium text-blue-600">{formatTime(elapsedTime)}</div>
+          </div>
+          <div>
+            <span className="text-neutral-500">Volume</span>
+            <div className="font-medium text-neutral-900">{Math.round(getTotalVolume())} kg</div>
+          </div>
+          <div>
+            <span className="text-neutral-500">Sets</span>
+            <div className="font-medium text-neutral-900">{getTotalSets()}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Workout Content */}
+      <div className="p-4 space-y-4">
+        {/* Exercise List */}
+        {workoutExercises.map((workoutExercise, exerciseIndex) => (
+          <ExerciseCard
+            key={workoutExercise.id}
+            workoutExercise={workoutExercise}
+            exerciseIndex={exerciseIndex}
+            onCompleteSet={completeSet}
+          />
+        ))}
+
+        {/* Add Exercise Button */}
+        <Button
+          onClick={() => setShowExerciseSelector(true)}
+          className="w-full py-6"
+          style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Add Exercise
+        </Button>
+
+        {/* Exercise Selector Modal */}
+        {showExerciseSelector && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
+            <div className="bg-white w-full max-h-[80vh] rounded-t-lg p-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">Add Exercise</h3>
+                <Button variant="ghost" onClick={() => setShowExerciseSelector(false)}>
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {(exercises && Array.isArray(exercises) ? exercises.slice(0, 15) : []).map((exercise: any) => (
                   <button
                     key={exercise.id}
                     onClick={() => addExerciseToWorkout(exercise)}
-                    className="w-full text-left p-4 rounded-lg border hover:bg-neutral-50 transition-colors"
+                    className="w-full text-left p-3 rounded-lg border hover:bg-neutral-50 transition-colors"
                   >
                     <div className="font-medium">{exercise.name}</div>
                     <div className="text-sm text-neutral-600">
@@ -181,94 +237,109 @@ export default function WorkoutSession() {
                   </button>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Current Exercise */}
-        {currentExercise && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-center">
-                {currentExercise.exercise?.name || "Exercise"}
-              </CardTitle>
-              <div className="text-center text-sm text-neutral-600">
-                Target: {currentExercise.setsTarget || 3} sets • Rest: {currentExercise.restDuration || 90}s
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <h3 className="font-medium">Sets ({sets.length}/{currentExercise.setsTarget || 3})</h3>
-                
-                {/* Completed Sets */}
-                {sets.map((set, index) => (
-                  <div key={index} className="p-3 bg-green-50 rounded-lg border border-green-200">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Set {set.setNumber}</span>
-                      <div className="text-sm text-green-700">
-                        {set.weight}lbs × {set.reps} reps {set.rpe && `@ RPE ${set.rpe}`}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {/* New Set Input */}
-                <SetInput
-                  setNumber={sets.length + 1}
-                  onComplete={completeSet}
-                />
-
-                {/* Navigation */}
-                <div className="flex space-x-3 pt-4">
-                  <Button 
-                    onClick={nextExercise}
-                    className="flex-1"
-                    style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
-                  >
-                    {currentExerciseIndex < workoutExercises.length - 1 ? "Next Exercise" : "Add Another Exercise"}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={finishWorkout}
-                    className="flex-1"
-                  >
-                    Finish Workout
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Workout Summary */}
-        {workoutExercises.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Workout Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {workoutExercises.map((ex, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <span>{ex.exercise?.name}</span>
-                    <Badge variant="secondary">{ex.setsTarget} sets</Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
 }
 
+interface ExerciseCardProps {
+  workoutExercise: any;
+  exerciseIndex: number;
+  onCompleteSet: (exerciseIndex: number, setData: any) => void;
+}
+
+function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: ExerciseCardProps) {
+  const [showAddSet, setShowAddSet] = useState(false);
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        {/* Exercise Header */}
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-neutral-100 rounded-lg flex items-center justify-center">
+              <span className="text-xl">💪</span>
+            </div>
+            <div>
+              <h3 className="font-medium text-blue-600">
+                {workoutExercise.exercise?.name || "Exercise"}
+              </h3>
+              <p className="text-sm text-neutral-500">Guessing weights</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Rest Timer */}
+        <div className="flex items-center space-x-2 mb-4 text-sm text-blue-600">
+          <Timer className="h-4 w-4" />
+          <span>Rest Timer: 4min 30s</span>
+          <span className="text-yellow-500">⚠️</span>
+        </div>
+
+        {/* Sets Table Header */}
+        <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2">
+          <div>SET</div>
+          <div>PREVIOUS</div>
+          <div>KG</div>
+          <div>REPS</div>
+          <div>RPE</div>
+          <div></div>
+        </div>
+
+        {/* Sets List */}
+        {(workoutExercise.sets || []).map((set: any, setIndex: number) => (
+          <div key={setIndex} className="grid grid-cols-6 gap-2 items-center py-2 border-b border-neutral-100">
+            <div className="font-medium">{set.setNumber}</div>
+            <div className="text-sm text-neutral-500">
+              {set.weight}kg x {set.reps}
+            </div>
+            <div className="font-medium">{set.weight}</div>
+            <div className="font-medium">{set.reps}</div>
+            <div className="font-medium">{set.rpe || '-'}</div>
+            <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
+              <Check className="h-4 w-4 text-white" />
+            </div>
+          </div>
+        ))}
+
+        {/* Add Set Input */}
+        {showAddSet ? (
+          <SetInput
+            setNumber={(workoutExercise.sets?.length || 0) + 1}
+            onComplete={(setData) => {
+              onCompleteSet(exerciseIndex, setData);
+              setShowAddSet(false);
+            }}
+            onCancel={() => setShowAddSet(false)}
+          />
+        ) : (
+          <Button
+            variant="outline"
+            className="w-full mt-3"
+            onClick={() => setShowAddSet(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Set
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 interface SetInputProps {
   setNumber: number;
   onComplete: (setData: any) => void;
+  onCancel: () => void;
 }
 
-function SetInput({ setNumber, onComplete }: SetInputProps) {
+function SetInput({ setNumber, onComplete, onCancel }: SetInputProps) {
   const [weight, setWeight] = useState("");
   const [reps, setReps] = useState("");
   const [rpe, setRpe] = useState("");
@@ -282,68 +353,43 @@ function SetInput({ setNumber, onComplete }: SetInputProps) {
       reps: parseInt(reps),
       rpe: rpe ? parseInt(rpe) : null,
     });
-
-    // Reset form
-    setWeight("");
-    setReps("");
-    setRpe("");
   };
 
   return (
-    <div className="p-4 border rounded-lg bg-white">
-      <div className="flex items-center space-x-3 mb-3">
-        <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-medium">
-          {setNumber}
-        </div>
-        <span className="font-medium">New Set</span>
+    <div className="grid grid-cols-6 gap-2 items-center py-3 border-b border-neutral-100 bg-neutral-50 rounded">
+      <div className="font-medium">{setNumber}</div>
+      <div className="text-sm text-neutral-500">-</div>
+      <Input
+        type="number"
+        placeholder="75"
+        value={weight}
+        onChange={(e) => setWeight(e.target.value)}
+        className="h-8 text-center"
+      />
+      <Input
+        type="number"
+        placeholder="10"
+        value={reps}
+        onChange={(e) => setReps(e.target.value)}
+        className="h-8 text-center"
+      />
+      <Input
+        type="number"
+        placeholder="8"
+        min="1"
+        max="10"
+        value={rpe}
+        onChange={(e) => setRpe(e.target.value)}
+        className="h-8 text-center"
+      />
+      <div className="flex space-x-1">
+        <Button size="sm" onClick={handleComplete} disabled={!weight || !reps}>
+          <Check className="h-3 w-3" />
+        </Button>
+        <Button size="sm" variant="outline" onClick={onCancel}>
+          <X className="h-3 w-3" />
+        </Button>
       </div>
-      
-      <div className="grid grid-cols-3 gap-3 mb-3">
-        <div>
-          <Label className="text-xs text-neutral-600">Weight (lbs)</Label>
-          <Input
-            type="number"
-            placeholder="185"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            className="text-center"
-          />
-        </div>
-        
-        <div>
-          <Label className="text-xs text-neutral-600">Reps</Label>
-          <Input
-            type="number"
-            placeholder="10"
-            value={reps}
-            onChange={(e) => setReps(e.target.value)}
-            className="text-center"
-          />
-        </div>
-        
-        <div>
-          <Label className="text-xs text-neutral-600">RPE (optional)</Label>
-          <Input
-            type="number"
-            placeholder="8"
-            min="1"
-            max="10"
-            value={rpe}
-            onChange={(e) => setRpe(e.target.value)}
-            className="text-center"
-          />
-        </div>
-      </div>
-      
-      <Button 
-        onClick={handleComplete}
-        disabled={!weight || !reps}
-        className="w-full"
-        style={{ backgroundColor: '#22C55E', color: '#FFFFFF' }}
-      >
-        <Check className="h-4 w-4 mr-1" />
-        Complete Set
-      </Button>
     </div>
   );
 }
