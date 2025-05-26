@@ -88,8 +88,8 @@ export default function ExerciseDetailsModal({
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Determine if this is a custom exercise (has createdBy field)
-  const isCustomExercise = exercise && 'createdBy' in exercise;
+  // Determine if this is a custom exercise (has createdBy field with a value)
+  const isCustomExercise = exercise && exercise.createdBy;
 
   const form = useForm<CustomExerciseForm>({
     resolver: zodResolver(insertCustomExerciseSchema),
