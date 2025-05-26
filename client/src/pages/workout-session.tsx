@@ -252,7 +252,7 @@ interface ExerciseCardProps {
 }
 
 function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: ExerciseCardProps) {
-  const [showAddSet, setShowAddSet] = useState(false);
+  const [showAddSet, setShowAddSet] = useState(true); // Start with Set 1 visible
 
   return (
     <Card>
