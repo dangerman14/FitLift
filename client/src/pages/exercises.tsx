@@ -74,12 +74,25 @@ export default function Exercises() {
             Exercise Library
           </h1>
           <p className="text-purple-100 text-lg mb-6">Discover and master new movements</p>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="px-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
             onClick={() => setShowCustomExerciseModal(true)}
-            className="bg-white text-purple-600 hover:bg-purple-50 shadow-medium border-0 px-8 py-3 rounded-xl font-bold transform hover:scale-105 transition-all duration-200"
+            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-xl shadow-medium border-0 px-8 py-4 rounded-xl font-bold transform hover:scale-105 transition-all duration-200 text-lg"
           >
-            <Plus className="h-5 w-5 mr-2" />
+            <Plus className="h-6 w-6 mr-3" />
             Add Custom Exercise
+          </Button>
+          <Button 
+            variant="outline"
+            className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 px-8 py-4 rounded-xl font-bold text-lg"
+          >
+            <Dumbbell className="h-6 w-6 mr-3" />
+            Browse All Exercises
           </Button>
         </div>
       </div>

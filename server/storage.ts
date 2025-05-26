@@ -28,7 +28,7 @@ import {
   type InsertBodyMeasurement,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gte, lte, sql, count, sum, max } from "drizzle-orm";
+import { eq, desc, and, gte, lte, sql, count, sum, max, or } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)

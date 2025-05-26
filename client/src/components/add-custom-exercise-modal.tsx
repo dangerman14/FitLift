@@ -277,7 +277,7 @@ export default function AddCustomExerciseModal({ isOpen, onClose }: AddCustomExe
                         </FormControl>
                         <SelectContent>
                           {equipmentTypes.map((equipment) => (
-                            <SelectItem key={equipment} value={equipment.toLowerCase().replace(" ", "_")}>
+                            <SelectItem key={equipment} value={equipment.toLowerCase().replace(/ /g, "_")}>
                               {equipment}
                             </SelectItem>
                           ))}
