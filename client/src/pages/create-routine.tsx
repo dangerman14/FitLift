@@ -541,22 +541,42 @@ export default function CreateRoutine() {
               
               <div className="space-y-2">
                 <Label>Rest Time Between Sets</Label>
-                <div className="flex items-center space-x-2">
-                  <Input
-                    type="number"
-                    value={restDuration}
-                    onChange={(e) => setRestDuration(e.target.value)}
-                    placeholder="120"
-                    min="30"
-                    max="600"
-                    className="flex-1"
-                  />
-                  <span className="text-sm text-gray-600 min-w-0">
-                    {Math.floor(parseInt(restDuration || "120") / 60)}m {parseInt(restDuration || "120") % 60}s
-                  </span>
-                </div>
+                <Select value={restDuration} onValueChange={setRestDuration}>
+                  <SelectTrigger>
+                    <SelectValue>
+                      {(() => {
+                        const seconds = parseInt(restDuration || "120");
+                        const mins = Math.floor(seconds / 60);
+                        const secs = seconds % 60;
+                        return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+                      })()}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {/* 5 second intervals up to 2 minutes */}
+                    {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
+                      <SelectItem key={seconds} value={seconds.toString()}>
+                        {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
+                      </SelectItem>
+                    ))}
+                    
+                    {/* 15 second intervals from 2m 15s to 5 minutes */}
+                    {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
+                      <SelectItem key={seconds} value={seconds.toString()}>
+                        {Math.floor(seconds / 60)}m {seconds % 60}s
+                      </SelectItem>
+                    ))}
+                    
+                    {/* 30 second intervals from 5m 30s to 15 minutes */}
+                    {Array.from({ length: 19 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
+                      <SelectItem key={seconds} value={seconds.toString()}>
+                        {Math.floor(seconds / 60)}m {seconds % 60}s
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <p className="text-xs text-gray-500">
-                  Default: 2 minutes (120 seconds)
+                  Default: 2 minutes rest between sets
                 </p>
               </div>
               
