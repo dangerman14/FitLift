@@ -431,6 +431,11 @@ export default function WorkoutSession() {
     );
   };
 
+  const updateWorkoutDuration = (minutes: string) => {
+    const newElapsedTime = parseInt(minutes) * 60;
+    setElapsedTime(newElapsedTime);
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -500,7 +505,28 @@ export default function WorkoutSession() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3 bg-white bg-opacity-20 px-6 py-3 rounded-2xl backdrop-blur-sm">
               <Timer className="h-5 w-5 text-white" />
-              <span className="font-bold text-white text-lg">{formatTime(elapsedTime)}</span>
+              <Select value={Math.floor(elapsedTime / 60).toString()} onValueChange={updateWorkoutDuration}>
+                <SelectTrigger className="bg-transparent border-0 text-white font-bold text-lg h-auto p-0 focus:ring-0 [&>svg]:text-white">
+                  <SelectValue placeholder={formatTime(elapsedTime)} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5 min</SelectItem>
+                  <SelectItem value="10">10 min</SelectItem>
+                  <SelectItem value="15">15 min</SelectItem>
+                  <SelectItem value="20">20 min</SelectItem>
+                  <SelectItem value="25">25 min</SelectItem>
+                  <SelectItem value="30">30 min</SelectItem>
+                  <SelectItem value="35">35 min</SelectItem>
+                  <SelectItem value="40">40 min</SelectItem>
+                  <SelectItem value="45">45 min</SelectItem>
+                  <SelectItem value="50">50 min</SelectItem>
+                  <SelectItem value="60">1 hour</SelectItem>
+                  <SelectItem value="75">1h 15min</SelectItem>
+                  <SelectItem value="90">1h 30min</SelectItem>
+                  <SelectItem value="105">1h 45min</SelectItem>
+                  <SelectItem value="120">2 hours</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <Button 
               onClick={finishWorkout}
