@@ -39,6 +39,9 @@ export const users = pgTable("users", {
   weight: decimal("weight", { precision: 5, scale: 2 }), // in kg
   experienceLevel: varchar("experience_level").default("beginner"),
   preferredUnits: varchar("preferred_units").default("metric"), // metric or imperial
+  weightUnit: varchar("weight_unit").default("kg"), // kg or lbs
+  distanceUnit: varchar("distance_unit").default("km"), // km or miles
+  bodyMeasurementUnit: varchar("body_measurement_unit").default("cm"), // cm or inches
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
