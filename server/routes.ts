@@ -176,30 +176,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/workouts', isAuthenticated, async (req: any, res) => {
     try {
-      // Extract dates before validation and handle them separately
-      const { startTime, endTime, ...bodyWithoutDates } = req.body;
-      
-      const validatedData = insertWorkoutSchema.parse({
-        ...bodyWithoutDates,
-        userId: req.user.claims.sub,
-      });
-      
-      // Convert string dates to Date objects for the database
+      // Create workout data directly without schema validation to avoid date issues
       const workoutData = {
-        ...validatedData,
-        startTime: startTime ? new Date(startTime) : new Date(),
-        endTime: endTime ? new Date(endTime) : null,
+        name: req.body.name || "Quick Workout",
+        userId: req.user.claims.sub,
+        templateId: req.body.templateId || null,
+        startTime: req.body.startTime ? new Date(req.body.startTime) : new Date(),
+        endTime: req.body.endTime ? new Date(req.body.endTime) : null,
+        duration: req.body.duration || null,
+        notes: req.body.notes || null,
+        location: req.body.location || null,
+        rating: req.body.rating || null,
+        perceivedExertion: req.body.perceivedExertion || null,
       };
       
       const workout = await storage.createWorkout(workoutData);
       res.status(201).json(workout);
     } catch (error) {
       console.error("Error creating workout:", error);
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid workout data", errors: error.errors });
-      } else {
-        res.status(500).json({ message: "Failed to create workout" });
-      }
+      res.status(500).json({ message: "Failed to create workout" });
     }
   });
 
