@@ -295,9 +295,12 @@ export default function AddCustomExerciseModal({ isOpen, onClose }: AddCustomExe
                     </FormLabel>
                     <FormControl>
                       <Input 
+                        type="url"
                         placeholder="https://youtube.com/watch?v=..." 
                         {...field} 
                         className="rounded-xl border-2"
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(e.target.value)}
                       />
                     </FormControl>
                     <FormMessage />
