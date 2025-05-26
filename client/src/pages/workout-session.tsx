@@ -231,7 +231,7 @@ export default function WorkoutSession() {
                 exercise: templateEx.exercise,
                 sets,
                 restTimer: templateEx.restDuration || 120,
-                comment: templateEx.notes || ''
+                comment: '' // Start with empty comment for user notes
               };
             });
             
