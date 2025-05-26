@@ -18,7 +18,8 @@ import {
   ArrowLeft,
   Save,
   Search,
-  Filter
+  Filter,
+  ChevronDown
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -409,14 +410,16 @@ export default function CreateRoutine() {
                   <button
                     type="button"
                     onClick={() => setUseRepRange(!useRepRange)}
-                    className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                    className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
                   >
                     <Label className="cursor-pointer">
                       {useRepRange ? "Rep Range" : "Reps"}
                     </Label>
-                    <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                      {useRepRange ? "Range Mode" : "Single Mode"}
-                    </div>
+                    <ChevronDown 
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        useRepRange ? 'rotate-180' : 'rotate-0'
+                      }`}
+                    />
                   </button>
                   
                   {useRepRange ? (
