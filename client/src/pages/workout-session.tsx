@@ -31,6 +31,8 @@ interface WorkoutSet {
   setNumber: number;
   weight: number;
   reps: number;
+  minReps?: number;
+  maxReps?: number;
   rpe?: number;
   completed: boolean;
   previousWeight?: number;
@@ -85,6 +87,17 @@ export default function WorkoutSession() {
       return `${(user?.weightUnit || 'kg').toUpperCase()} (Default)`;
     }
     return weightUnitOverride.toUpperCase();
+  };
+
+  // Helper function to format reps display like in create-routine
+  const formatRepsDisplay = (set: WorkoutSet) => {
+    if (set.minReps && set.maxReps) {
+      if (set.minReps === set.maxReps) {
+        return set.minReps.toString();
+      }
+      return `${set.minReps}-${set.maxReps}`;
+    }
+    return set.reps?.toString() || '';
   };
 
   // Update workout details mutation
@@ -164,21 +177,63 @@ export default function WorkoutSession() {
             setWorkoutName(template.name);
             setWorkoutDescription(template.description || '');
             
-            // Load template exercises with previous workout data
-            const templateExercises = template.exercises.map((templateEx: any, index: number) => ({
-              id: null, // Will be set when created in DB
-              exercise: templateEx.exercise,
-              sets: Array.from({ length: templateEx.sets || 3 }, (_, setIndex) => ({
-                setNumber: setIndex + 1,
-                weight: 0, // Will be filled with previous data if available
-                reps: 0,
-                completed: false,
-                previousWeight: 0, // TODO: Load from previous workouts
-                previousReps: 0
-              })),
-              restTimer: templateEx.restDuration || 120,
-              comment: templateEx.notes || ''
-            }));
+            // Load template exercises with proper reps data parsing
+            const templateExercises = template.exercises.map((templateEx: any, index: number) => {
+              // Parse the notes JSON to get sets data
+              let setsData = [];
+              try {
+                const notesData = JSON.parse(templateEx.notes || '{}');
+                setsData = notesData.setsData || [];
+              } catch (error) {
+                console.log('Could not parse notes data:', error);
+              }
+
+              // Create sets based on the parsed data
+              const sets = setsData.length > 0 
+                ? setsData.map((setData: any, setIndex: number) => {
+                    // Parse reps - could be single number or range like "8-12"
+                    let minReps = 0;
+                    let maxReps = 0;
+                    if (setData.reps) {
+                      if (setData.reps.includes('-')) {
+                        const [min, max] = setData.reps.split('-').map(Number);
+                        minReps = min;
+                        maxReps = max;
+                      } else {
+                        minReps = maxReps = parseInt(setData.reps);
+                      }
+                    }
+
+                    return {
+                      setNumber: setIndex + 1,
+                      weight: setData.weight || 0,
+                      reps: minReps, // Default to min reps for input
+                      minReps,
+                      maxReps,
+                      completed: false,
+                      previousWeight: 0,
+                      previousReps: 0
+                    };
+                  })
+                : Array.from({ length: templateEx.setsTarget || 3 }, (_, setIndex) => ({
+                    setNumber: setIndex + 1,
+                    weight: 0,
+                    reps: templateEx.repsTarget || 0,
+                    minReps: templateEx.repsTarget || 0,
+                    maxReps: templateEx.repsTarget || 0,
+                    completed: false,
+                    previousWeight: 0,
+                    previousReps: 0
+                  }));
+
+              return {
+                id: null,
+                exercise: templateEx.exercise,
+                sets,
+                restTimer: templateEx.restDuration || 120,
+                comment: templateEx.notes || ''
+              };
+            });
             
             setWorkoutExercises(templateExercises);
           }
@@ -557,14 +612,39 @@ export default function WorkoutSession() {
                     disabled={set.completed}
                   />
                   
-                  <Input
-                    type="number"
-                    value={set.reps || ""}
-                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
-                    className="h-10 text-center font-medium text-lg"
-                    placeholder="12"
-                    disabled={set.completed}
-                  />
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      value={set.completed ? set.reps.toString() : formatRepsDisplay(set)}
+                      onChange={(e) => {
+                        // If completed, don't allow editing
+                        if (set.completed) return;
+                        
+                        // Parse the input value
+                        const value = e.target.value;
+                        let repsValue = 0;
+                        
+                        if (value.includes('-')) {
+                          // Rep range format like "8-12"
+                          const [min] = value.split('-').map(Number);
+                          repsValue = min || 0;
+                        } else {
+                          repsValue = parseInt(value) || 0;
+                        }
+                        
+                        updateSetValue(exerciseIndex, setIndex, 'reps', repsValue);
+                      }}
+                      className="h-10 text-center font-medium text-lg"
+                      placeholder={formatRepsDisplay(set) || "12"}
+                      disabled={set.completed}
+                      readOnly={!set.completed && set.minReps && set.maxReps && set.minReps !== set.maxReps}
+                    />
+                    {!set.completed && set.minReps && set.maxReps && set.minReps !== set.maxReps && (
+                      <div className="absolute inset-0 flex items-center justify-center text-neutral-600 pointer-events-none">
+                        {formatRepsDisplay(set)}
+                      </div>
+                    )}
+                  </div>
                   
                   <Input
                     type="number"
