@@ -548,7 +548,7 @@ export default function WorkoutSession() {
                       placeholder="Add comment for this exercise..."
                       value={workoutExercise.comment || ""}
                       onChange={(e) => updateComment(exerciseIndex, e.target.value)}
-                      className="mt-2 text-sm resize-none"
+                      className="mt-2 text-sm resize-none min-h-[2rem] h-8"
                       rows={1}
                     />
                   </div>
