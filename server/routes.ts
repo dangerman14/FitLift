@@ -547,20 +547,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post('/api/routine-folders', isAuthenticated, async (req: any, res) => {
+    console.log("Creating folder with data:", req.body);
     try {
       const folderData = insertRoutineFolderSchema.parse({
         ...req.body,
         userId: req.user.claims.sub,
       });
       
+      console.log("Parsed folder data:", folderData);
       const folder = await storage.createRoutineFolder(folderData);
-      res.status(201).json(folder);
+      console.log("Created folder:", folder);
+      
+      res.setHeader('Content-Type', 'application/json');
+      return res.status(201).json(folder);
     } catch (error) {
       console.error("Error creating routine folder:", error);
+      res.setHeader('Content-Type', 'application/json');
       if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid folder data", errors: error.errors });
+        return res.status(400).json({ message: "Invalid folder data", errors: error.errors });
       } else {
-        res.status(500).json({ message: "Failed to create routine folder" });
+        return res.status(500).json({ message: "Failed to create routine folder" });
       }
     }
   });
