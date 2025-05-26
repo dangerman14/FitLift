@@ -82,7 +82,6 @@ export const exercises = pgTable("exercises", {
   name: varchar("name").notNull(),
   description: text("description"),
   instructions: text("instructions"),
-  difficultyLevel: varchar("difficulty_level").default("beginner"), // beginner, intermediate, advanced
   equipmentRequired: jsonb("equipment_required").default([]), // array of equipment names
   muscleGroups: jsonb("muscle_groups").notNull().default([]), // array of muscle group names
   movementPattern: varchar("movement_pattern"), // push, pull, squat, hinge, etc.
@@ -113,7 +112,6 @@ export const customExercises = pgTable("custom_exercises", {
   primaryMuscleGroups: jsonb("primary_muscle_groups").default([]),
   secondaryMuscleGroups: jsonb("secondary_muscle_groups").default([]),
   exerciseType: varchar("exercise_type").default("weight_reps"),
-  difficultyLevel: varchar("difficulty_level").default("beginner"),
   createdBy: varchar("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

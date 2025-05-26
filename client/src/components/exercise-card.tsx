@@ -83,11 +83,7 @@ export default function ExerciseCard({
           )}
         </div>
         
-        <div className="absolute top-3 right-3">
-          <Badge className={`${getDifficultyColor(exercise.difficultyLevel || 'beginner')} text-white text-xs`}>
-            {exercise.difficultyLevel || 'Beginner'}
-          </Badge>
-        </div>
+
       </div>
       
       <CardContent className="p-4">

@@ -103,7 +103,6 @@ export default function ExerciseDetailsModal({
       exerciseType: "weight_reps",
       primaryMuscleGroups: [],
       secondaryMuscleGroups: [],
-      difficultyLevel: "beginner",
     },
   });
 
@@ -120,7 +119,7 @@ export default function ExerciseDetailsModal({
         exerciseType: exercise.exerciseType || "weight_reps",
         primaryMuscleGroups: exercise.primaryMuscleGroups || [],
         secondaryMuscleGroups: exercise.secondaryMuscleGroups || [],
-        difficultyLevel: exercise.difficultyLevel || "beginner",
+
       });
     }
   }, [exercise, form]);
