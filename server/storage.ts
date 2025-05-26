@@ -360,7 +360,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getWorkoutById(id: number): Promise<Workout | undefined> {
-    const [workout] = await db.select().from(workouts).where(eq(workouts.id, id));
+    const [workout] = await db
+      .select({
+        id: workouts.id,
+        name: workouts.name,
+        description: workouts.description,
+        imageUrl: workouts.imageUrl,
+        userId: workouts.userId,
+        templateId: workouts.templateId,
+        startTime: workouts.startTime,
+        endTime: workouts.endTime,
+        notes: workouts.notes,
+        duration: workouts.duration,
+        location: workouts.location,
+        rating: workouts.rating,
+        createdAt: workouts.createdAt,
+        updatedAt: workouts.updatedAt,
+        templateName: workoutTemplates.name,
+      })
+      .from(workouts)
+      .leftJoin(workoutTemplates, eq(workouts.templateId, workoutTemplates.id))
+      .where(eq(workouts.id, id));
     return workout;
   }
 

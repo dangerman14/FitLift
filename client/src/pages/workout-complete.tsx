@@ -18,6 +18,9 @@ export default function WorkoutComplete() {
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
   const [workoutImageUrl, setWorkoutImageUrl] = useState('');
+  const [workoutDate, setWorkoutDate] = useState('');
+  const [workoutTime, setWorkoutTime] = useState('');
+  const [workoutDuration, setWorkoutDuration] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -35,9 +38,24 @@ export default function WorkoutComplete() {
   // Initialize form with workout data
   useEffect(() => {
     if (workout) {
-      setWorkoutName(workout.name || `Workout ${new Date().toLocaleDateString()}`);
+      // Use the workout template name if available, otherwise use the workout name
+      const displayName = workout.templateName || workout.name || `Workout ${new Date().toLocaleDateString()}`;
+      setWorkoutName(displayName);
       setWorkoutDescription(workout.description || '');
       setWorkoutImageUrl(workout.imageUrl || '');
+      
+      // Initialize date and time from startTime
+      if (workout.startTime) {
+        const startDate = new Date(workout.startTime);
+        setWorkoutDate(startDate.toISOString().split('T')[0]); // YYYY-MM-DD format
+        setWorkoutTime(startDate.toTimeString().slice(0, 5)); // HH:mm format
+      }
+      
+      // Initialize duration from start and end times
+      if (workout.startTime && workout.endTime) {
+        const durationMinutes = Math.round((new Date(workout.endTime).getTime() - new Date(workout.startTime).getTime()) / (1000 * 60));
+        setWorkoutDuration(durationMinutes.toString());
+      }
     }
   }, [workout]);
 
@@ -87,10 +105,28 @@ export default function WorkoutComplete() {
 
   // Update workout details mutation
   const updateWorkoutMutation = useMutation({
-    mutationFn: async (data: { name: string; description: string; imageUrl: string }) => {
+    mutationFn: async (data: { 
+      name: string; 
+      description: string; 
+      imageUrl: string;
+      date: string;
+      time: string;
+      duration: string;
+    }) => {
+      // Combine date and time to create new start time
+      const startTime = new Date(`${data.date}T${data.time}`);
+      const durationMinutes = parseInt(data.duration) || 0;
+      const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
+      
       const response = await fetch(`/api/workouts/${workoutId}/details`, {
         method: "PATCH",
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          name: data.name,
+          description: data.description,
+          imageUrl: data.imageUrl,
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString()
+        }),
         headers: { "Content-Type": "application/json" },
       });
       if (!response.ok) throw new Error('Failed to update workout');
