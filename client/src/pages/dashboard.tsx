@@ -64,23 +64,44 @@ export default function Dashboard() {
     return `${Math.round(volume)} ${unit}`;
   };
 
-  const getExerciseIcon = (exerciseName: string) => {
+  const getExerciseThumbnail = (exerciseName: string, imageUrl?: string) => {
     const name = exerciseName.toLowerCase();
     
-    // Cable exercises
-    if (name.includes('cable') || name.includes('pulldown') || name.includes('cable')) {
-      return <Zap className="h-4 w-4 text-blue-500" />;
+    // If there's a specific image URL, use it
+    if (imageUrl) {
+      return (
+        <img 
+          src={imageUrl} 
+          alt={exerciseName}
+          className="w-8 h-8 rounded-md object-cover"
+        />
+      );
     }
-    // Machine exercises
-    if (name.includes('machine') || name.includes('press')) {
-      return <Square className="h-4 w-4 text-green-500" />;
+    
+    // Generic exercise thumbnails based on type
+    let genericImageSrc = '';
+    
+    if (name.includes('cable') || name.includes('pulldown')) {
+      // Cable machine thumbnail
+      genericImageSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzMzNzNkYyIvPgo8cGF0aCBkPSJNOCAxMGg0djEySDh6bTEyLTJoNHYxNmgtNHoiIGZpbGw9IndoaXRlIiBvcGFjaXR5PSIwLjgiLz4KPHN0cm9rZSB4MT0iMTQiIHkxPSIxMCIgeDI9IjE4IiB5Mj0iMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K';
+    } else if (name.includes('machine') || name.includes('press')) {
+      // Machine thumbnail
+      genericImageSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzEwYjk4MSIvPgo8cmVjdCB4PSI2IiB5PSI4IiB3aWR0aD0iMjAiIGhlaWdodD0iMTYiIHJ4PSIyIiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC44Ii8+CjxyZWN0IHg9IjEwIiB5PSIxMiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjgiIGZpbGw9IiMxMGI5ODEiLz4KPC9zdmc+Cg==';
+    } else if (name.includes('dumbbell') || name.includes('barbell') || name.includes('shoulder')) {
+      // Dumbbell thumbnail
+      genericImageSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iI2Y5NzMxNiIvPgo8cGF0aCBkPSJNNiAxNGg0djRINnptMTYgMGg0djRoLTR6IiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCB4PSIxMCIgeT0iMTUiIHdpZHRoPSIxMiIgaGVpZ2h0PSIyIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K';
+    } else {
+      // Generic exercise thumbnail
+      genericImageSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzZiNzI4MCIvPgo8Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSI4IiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC44Ii8+CjxjaXJjbGUgY3g9IjE2IiBjeT0iMTYiIHI9IjQiIGZpbGw9IiM2YjcyODAiLz4KPC9zdmc+Cg==';
     }
-    // Dumbbell/Barbell exercises
-    if (name.includes('dumbbell') || name.includes('barbell') || name.includes('shoulder')) {
-      return <Dumbbell className="h-4 w-4 text-orange-500" />;
-    }
-    // Default exercise icon
-    return <Disc className="h-4 w-4 text-gray-500" />;
+    
+    return (
+      <img 
+        src={genericImageSrc} 
+        alt={exerciseName}
+        className="w-8 h-8 rounded-md object-cover"
+      />
+    );
   };
 
   const formatDuration = (minutes: number) => {
@@ -276,22 +297,22 @@ export default function Dashboard() {
                   {/* Exercise List */}
                   <div className="mb-4">
                     <div className="space-y-2">
-                      {/* Sample exercises with icons */}
-                      <div className="flex items-center gap-2 text-sm text-neutral-700">
-                        {getExerciseIcon("Lat Pulldown (Cable)")}
+                      {/* Sample exercises with thumbnails */}
+                      <div className="flex items-center gap-3 text-sm text-neutral-700">
+                        {getExerciseThumbnail("Lat Pulldown (Cable)")}
                         <span>3 × Lat Pulldown (Cable)</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-neutral-700">
-                        {getExerciseIcon("Incline Chest Press (Machine)")}
+                      <div className="flex items-center gap-3 text-sm text-neutral-700">
+                        {getExerciseThumbnail("Incline Chest Press (Machine)")}
                         <span>3 × Incline Chest Press (Machine)</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-neutral-700">
-                        {getExerciseIcon("Shoulder Press (Dumbbell)")}
+                      <div className="flex items-center gap-3 text-sm text-neutral-700">
+                        {getExerciseThumbnail("Shoulder Press (Dumbbell)")}
                         <span>3 × Shoulder Press (Dumbbell)</span>
                       </div>
                       {/* Show more exercises indicator */}
                       {workout.exerciseCount > 3 && (
-                        <div className="text-sm text-neutral-500 italic pl-6">
+                        <div className="text-sm text-neutral-500 italic pl-11">
                           see {workout.exerciseCount - 3} more exercises
                         </div>
                       )}
