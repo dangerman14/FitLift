@@ -126,6 +126,76 @@ export default function WorkoutSession() {
     queryKey: ["/api/exercises"],
   });
 
+  const createWorkoutMutation = useMutation({
+    mutationFn: async (workoutData: any) => {
+      const response = await apiRequest("POST", "/api/workouts", workoutData);
+      return response.json();
+    },
+    onSuccess: (workout) => {
+      setActiveWorkout(workout);
+      queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
+    },
+  });
+
+  // Load template from URL parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const templateId = urlParams.get('template');
+    
+    if (templateId && !activeWorkout) {
+      // Fetch template and load it
+      const loadTemplate = async () => {
+        try {
+          const response = await fetch(`/api/workout-templates/${templateId}`, {
+            credentials: 'include'
+          });
+          const template = await response.json();
+          
+          if (template && template.exercises) {
+            // Create a new workout session based on the template
+            createWorkoutMutation.mutate({
+              name: template.name,
+              description: template.description,
+              templateId: parseInt(templateId),
+              startTime: new Date().toISOString(),
+            });
+            
+            // Set workout name
+            setWorkoutName(template.name);
+            setWorkoutDescription(template.description || '');
+            
+            // Load template exercises with previous workout data
+            const templateExercises = template.exercises.map((templateEx: any, index: number) => ({
+              id: null, // Will be set when created in DB
+              exercise: templateEx.exercise,
+              sets: Array.from({ length: templateEx.sets || 3 }, (_, setIndex) => ({
+                setNumber: setIndex + 1,
+                weight: 0, // Will be filled with previous data if available
+                reps: 0,
+                completed: false,
+                previousWeight: 0, // TODO: Load from previous workouts
+                previousReps: 0
+              })),
+              restTimer: templateEx.restDuration || 120,
+              comment: templateEx.notes || ''
+            }));
+            
+            setWorkoutExercises(templateExercises);
+          }
+        } catch (error) {
+          console.error('Failed to load template:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load workout template",
+            variant: "destructive"
+          });
+        }
+      };
+      
+      loadTemplate();
+    }
+  }, [activeWorkout, createWorkoutMutation]);
+
   // Main workout timer
   useEffect(() => {
     const interval = setInterval(() => {
@@ -149,17 +219,6 @@ export default function WorkoutSession() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const createWorkoutMutation = useMutation({
-    mutationFn: async (workoutData: any) => {
-      const response = await apiRequest("POST", "/api/workouts", workoutData);
-      return response.json();
-    },
-    onSuccess: (workout) => {
-      setActiveWorkout(workout);
-      queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
-    },
-  });
 
   const createWorkoutExerciseMutation = useMutation({
     mutationFn: async (exerciseData: any) => {
@@ -193,9 +252,12 @@ export default function WorkoutSession() {
     },
   });
 
-  // Initialize workout
+  // Initialize workout (only if no template is being loaded)
   useEffect(() => {
-    if (!activeWorkout) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const templateId = urlParams.get('template');
+    
+    if (!activeWorkout && !templateId) {
       const workoutData = {
         name: "Workout Session",
         startTime: new Date().toISOString(),
