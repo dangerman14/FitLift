@@ -30,6 +30,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User settings route
+  app.patch('/api/user/settings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { weightUnit, distanceUnit, bodyMeasurementUnit } = req.body;
+      
+      const updatedUser = await storage.updateUserSettings(userId, {
+        weightUnit,
+        distanceUnit,
+        bodyMeasurementUnit,
+      });
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user settings:", error);
+      res.status(500).json({ message: "Failed to update settings" });
+    }
+  });
+
   // Exercise routes
   app.get('/api/exercises', isAuthenticated, async (req, res) => {
     try {
