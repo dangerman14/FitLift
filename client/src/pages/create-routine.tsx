@@ -302,6 +302,7 @@ export default function CreateRoutine() {
     const routineData = {
       name: routineName,
       description: routineDescription,
+      folderId: selectedFolderId && selectedFolderId !== "none" ? parseInt(selectedFolderId) : null,
       exercises: exercisesForBackend,
     };
 
