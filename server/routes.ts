@@ -171,6 +171,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const exercises = await storage.getTemplateExercises(id);
+      console.log(`Fetched template ${id} with ${exercises.length} exercises`);
       res.json({ ...template, exercises });
     } catch (error) {
       console.error("Error fetching workout template:", error);

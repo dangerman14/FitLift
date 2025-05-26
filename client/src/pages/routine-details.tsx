@@ -19,6 +19,10 @@ export default function RoutineDetails() {
   const exercises = routine?.exercises || [];
   const exercisesLoading = routineLoading;
 
+  // Debug logging
+  console.log('Routine data:', routine);
+  console.log('Exercises:', exercises);
+
   const { data: user } = useQuery({
     queryKey: ['/api/auth/user'],
   });
