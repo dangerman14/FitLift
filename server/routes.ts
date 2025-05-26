@@ -218,14 +218,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return `${baseSlug}-${uniqueId}`;
       };
 
-      const slug = generateSlug(req.body.name);
+      // Ensure slug is always present
+      const slug = generateSlug(req.body.name || 'routine');
       console.log("Generated slug:", slug);
 
-      const templateData = insertWorkoutTemplateSchema.parse({
+      // Add slug to the request body before validation
+      const dataWithSlug = {
         ...req.body,
         userId: req.user.claims.sub,
         slug: slug,
-      });
+      };
+
+      console.log("Data with slug:", dataWithSlug);
+      
+      const templateData = insertWorkoutTemplateSchema.parse(dataWithSlug);
       
       const template = await storage.createWorkoutTemplate(templateData);
       
