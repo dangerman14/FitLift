@@ -49,7 +49,22 @@ export default function WorkoutModal({ isOpen, onClose, template }: WorkoutModal
     },
     onSuccess: (workout) => {
       setActiveWorkout(workout);
+      if (template && templateExercises?.exercises) {
+        setWorkoutExercises(templateExercises.exercises);
+      }
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
+    },
+  });
+
+  const createWorkoutExerciseMutation = useMutation({
+    mutationFn: async (exerciseData: any) => {
+      const response = await apiRequest("POST", `/api/workouts/${activeWorkout?.id}/exercises`, exerciseData);
+      return response.json();
+    },
+    onSuccess: (workoutExercise) => {
+      setWorkoutExercises([...workoutExercises, workoutExercise]);
+      setCurrentExerciseIndex(workoutExercises.length);
+      setSets([]);
     },
   });
 
@@ -75,7 +90,7 @@ export default function WorkoutModal({ isOpen, onClose, template }: WorkoutModal
     },
   });
 
-  const workoutExercises = template ? templateExercises?.exercises || [] : [];
+  const [workoutExercises, setWorkoutExercises] = useState<any[]>([]);
   const currentExercise = workoutExercises[currentExerciseIndex];
 
   const startWorkout = () => {
@@ -86,6 +101,19 @@ export default function WorkoutModal({ isOpen, onClose, template }: WorkoutModal
     };
     
     createWorkoutMutation.mutate(workoutData);
+  };
+
+  const addExerciseToWorkout = (exercise: any) => {
+    if (!activeWorkout) return;
+    
+    const exerciseData = {
+      exerciseId: exercise.id,
+      orderIndex: workoutExercises.length,
+      setsTarget: 3,
+      restDuration: 90,
+    };
+    
+    createWorkoutExerciseMutation.mutate(exerciseData);
   };
 
   const completeSet = (setData: any) => {
@@ -112,7 +140,11 @@ export default function WorkoutModal({ isOpen, onClose, template }: WorkoutModal
       setIsResting(false);
       setRestTimer(0);
     } else {
-      finishWorkout();
+      // Reset to exercise selection to add another exercise
+      setCurrentExerciseIndex(-1);
+      setSets([]);
+      setIsResting(false);
+      setRestTimer(0);
     }
   };
 
@@ -253,34 +285,59 @@ export default function WorkoutModal({ isOpen, onClose, template }: WorkoutModal
               </div>
             </DialogHeader>
 
-            {currentExercise && (
+            {activeWorkout && (
               <div className="py-4 space-y-6">
-                {/* Current Exercise */}
-                <div className="text-center">
-                  <h4 className="text-xl font-medium text-neutral-900 mb-2">
-                    {currentExercise.exercise?.name}
-                  </h4>
-                  <div className="flex justify-center space-x-4 text-sm text-neutral-600">
-                    <span>Target: {currentExercise.setsTarget} sets</span>
-                    <span>•</span>
-                    <span>Rest: {currentExercise.restDuration}s</span>
+                {/* Exercise Selection */}
+                {!currentExercise && (
+                  <div>
+                    <h4 className="text-lg font-medium text-neutral-900 mb-4">Add Exercise</h4>
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {exercises?.slice(0, 10).map((exercise: any) => (
+                        <button
+                          key={exercise.id}
+                          onClick={() => addExerciseToWorkout(exercise)}
+                          className="w-full text-left p-3 rounded-lg border hover:bg-neutral-50 transition-colors"
+                        >
+                          <div className="font-medium">{exercise.name}</div>
+                          <div className="text-sm text-neutral-600">
+                            {exercise.muscleGroups?.join(', ')}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* Current Exercise */}
+                {currentExercise && (
+                  <div className="text-center">
+                    <h4 className="text-xl font-medium text-neutral-900 mb-2">
+                      {currentExercise.exercise?.name}
+                    </h4>
+                    <div className="flex justify-center space-x-4 text-sm text-neutral-600">
+                      <span>Target: {currentExercise.setsTarget || 3} sets</span>
+                      <span>•</span>
+                      <span>Rest: {currentExercise.restDuration || 90}s</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Set Tracking */}
-                <div>
-                  <h5 className="font-medium text-neutral-700 mb-3">Sets</h5>
-                  <div className="space-y-3">
-                    {Array.from({ length: currentExercise.setsTarget || 3 }).map((_, index) => (
-                      <SetInput
-                        key={index}
-                        setNumber={index + 1}
-                        onComplete={completeSet}
-                        completed={sets.length > index}
-                      />
-                    ))}
+                {currentExercise && (
+                  <div>
+                    <h5 className="font-medium text-neutral-700 mb-3">Sets</h5>
+                    <div className="space-y-3">
+                      {Array.from({ length: currentExercise.setsTarget || 3 }).map((_, index) => (
+                        <SetInput
+                          key={index}
+                          setNumber={index + 1}
+                          onComplete={completeSet}
+                          completed={sets.length > index}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Rest Timer */}
                 {isResting && (
@@ -306,20 +363,33 @@ export default function WorkoutModal({ isOpen, onClose, template }: WorkoutModal
 
                 {/* Action Buttons */}
                 <div className="flex space-x-3">
-                  <Button 
-                    onClick={nextExercise}
-                    className="flex-1 bg-primary-500 hover:bg-primary-600"
-                  >
-                    <SkipForward className="h-4 w-4 mr-1" />
-                    {currentExerciseIndex < workoutExercises.length - 1 ? "Next Exercise" : "Finish Workout"}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={finishWorkout}
-                    className="flex-1"
-                  >
-                    End Workout
-                  </Button>
+                  {currentExercise ? (
+                    <>
+                      <Button 
+                        onClick={nextExercise}
+                        className="flex-1"
+                        style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
+                      >
+                        <SkipForward className="h-4 w-4 mr-1" />
+                        {currentExerciseIndex < workoutExercises.length - 1 ? "Next Exercise" : "Add Another Exercise"}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={finishWorkout}
+                        className="flex-1"
+                      >
+                        End Workout
+                      </Button>
+                    </>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      onClick={finishWorkout}
+                      className="w-full"
+                    >
+                      End Workout
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
