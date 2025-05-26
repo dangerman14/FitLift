@@ -499,7 +499,7 @@ export default function WorkoutSession() {
               <X className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-white drop-shadow-lg">Workout Session</h1>
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">{workoutName || "Workout Session"}</h1>
               <p className="text-green-100">Push your limits today</p>
             </div>
           </div>
