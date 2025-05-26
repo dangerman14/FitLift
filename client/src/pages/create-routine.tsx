@@ -38,6 +38,8 @@ export default function CreateRoutine() {
   const [selectedExercises, setSelectedExercises] = useState<RoutineExercise[]>([]);
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
   const [sets, setSets] = useState("3");
+  const [useRepRange, setUseRepRange] = useState(true);
+  const [singleReps, setSingleReps] = useState("10");
   const [minReps, setMinReps] = useState("8");
   const [maxReps, setMaxReps] = useState("12");
   const [weight, setWeight] = useState("");
@@ -111,13 +113,15 @@ export default function CreateRoutine() {
     const exercise = exercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
     if (!exercise) return;
 
-    const repsRange = minReps === maxReps ? minReps : `${minReps}-${maxReps}`;
+    const repsValue = useRepRange 
+      ? (minReps === maxReps ? minReps : `${minReps}-${maxReps}`)
+      : singleReps;
     
     const routineExercise: RoutineExercise = {
       exerciseId: exercise.id,
       exerciseName: exercise.name,
       sets: parseInt(sets),
-      reps: repsRange,
+      reps: repsValue,
       weight: weight || undefined,
       notes: notes || undefined,
     };
@@ -125,6 +129,7 @@ export default function CreateRoutine() {
     setSelectedExercises([...selectedExercises, routineExercise]);
     setSelectedExerciseId("");
     setSets("3");
+    setSingleReps("10");
     setMinReps("8");
     setMaxReps("12");
     setWeight("");
@@ -401,27 +406,54 @@ export default function CreateRoutine() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Rep Range</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      placeholder="8"
-                      value={minReps}
-                      onChange={(e) => setMinReps(e.target.value)}
-                      min="1"
-                      className="flex-1"
-                    />
-                    <span className="text-gray-500 font-medium">-</span>
-                    <Input
-                      type="number"
-                      placeholder="12"
-                      value={maxReps}
-                      onChange={(e) => setMaxReps(e.target.value)}
-                      min="1"
-                      className="flex-1"
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500">Set minimum and maximum reps (e.g., 8-12)</p>
+                  <button
+                    type="button"
+                    onClick={() => setUseRepRange(!useRepRange)}
+                    className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    <Label className="cursor-pointer">
+                      {useRepRange ? "Rep Range" : "Reps"}
+                    </Label>
+                    <div className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                      {useRepRange ? "Range Mode" : "Single Mode"}
+                    </div>
+                  </button>
+                  
+                  {useRepRange ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          placeholder="8"
+                          value={minReps}
+                          onChange={(e) => setMinReps(e.target.value)}
+                          min="1"
+                          className="flex-1"
+                        />
+                        <span className="text-gray-500 font-medium">-</span>
+                        <Input
+                          type="number"
+                          placeholder="12"
+                          value={maxReps}
+                          onChange={(e) => setMaxReps(e.target.value)}
+                          min="1"
+                          className="flex-1"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500">Set minimum and maximum reps (e.g., 8-12)</p>
+                    </>
+                  ) : (
+                    <>
+                      <Input
+                        type="number"
+                        placeholder="10"
+                        value={singleReps}
+                        onChange={(e) => setSingleReps(e.target.value)}
+                        min="1"
+                      />
+                      <p className="text-xs text-gray-500">Set exact number of reps</p>
+                    </>
+                  )}
                 </div>
               </div>
               
