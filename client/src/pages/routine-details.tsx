@@ -13,7 +13,7 @@ export default function RoutineDetails() {
   console.log('RoutineDetails - ID from params:', id);
   
   const { data: routineData, isLoading: routineLoading } = useQuery({
-    queryKey: ['/api/workout-templates', id],
+    queryKey: [`/api/workout-templates/${id}`],
     enabled: !!id,
   });
 
