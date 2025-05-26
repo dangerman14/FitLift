@@ -58,12 +58,20 @@ export default function Routines() {
       });
       
       if (!response.ok) {
-        const errorData = await response.text();
-        console.error("Folder creation error:", errorData);
-        throw new Error(`Failed to create folder: ${response.status}`);
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          errorMessage = await response.text() || errorMessage;
+        }
+        console.error("Folder creation error:", errorMessage);
+        throw new Error(`Failed to create folder: ${errorMessage}`);
       }
       
-      return response.json();
+      const result = await response.json();
+      console.log("Folder created successfully:", result);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/routine-folders"] });
