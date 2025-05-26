@@ -102,7 +102,7 @@ export default function Landing() {
           <Button 
             onClick={handleLogin}
             size="lg"
-            className="bg-secondary-500 hover:bg-secondary-600 text-white px-8 py-3 text-lg"
+            className="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 text-lg font-semibold shadow-material-2"
           >
             Start Tracking Now
           </Button>
