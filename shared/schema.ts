@@ -124,7 +124,6 @@ export const workoutTemplates = pgTable("workout_templates", {
   slug: varchar("slug").notNull().unique(),
   description: text("description"),
   estimatedDuration: integer("estimated_duration"), // in minutes
-  difficultyLevel: varchar("difficulty_level").default("beginner"),
   targetMuscleGroups: jsonb("target_muscle_groups").default([]),
   isPublic: boolean("is_public").default(false),
   timesUsed: integer("times_used").default(0),
