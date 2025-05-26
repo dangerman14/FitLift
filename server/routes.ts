@@ -52,27 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/exercises', isAuthenticated, async (req: any, res) => {
-    try {
-      const exerciseData = insertExerciseSchema.parse({
-        ...req.body,
-        createdBy: req.user.claims.sub,
-        isCustom: true,
-      });
-      
-      const exercise = await storage.createExercise(exerciseData);
-      res.status(201).json(exercise);
-    } catch (error) {
-      console.error("Error creating exercise:", error);
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ message: "Invalid exercise data", errors: error.errors });
-      } else {
-        res.status(500).json({ message: "Failed to create exercise" });
-      }
-    }
-  });
-
-  // Custom exercise creation
+  // Custom exercise creation - moved before generic route
   app.post('/api/exercises/custom', isAuthenticated, async (req, res) => {
     try {
       const userId = (req as any).user?.claims?.sub;
@@ -94,6 +74,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating custom exercise:", error);
       res.status(500).json({ message: "Failed to create custom exercise" });
+    }
+  });
+
+  app.post('/api/exercises', isAuthenticated, async (req: any, res) => {
+    try {
+      const exerciseData = insertExerciseSchema.parse({
+        ...req.body,
+        createdBy: req.user.claims.sub,
+        isCustom: true,
+      });
+      
+      const exercise = await storage.createExercise(exerciseData);
+      res.status(201).json(exercise);
+    } catch (error) {
+      console.error("Error creating exercise:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid exercise data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create exercise" });
+      }
     }
   });
 
