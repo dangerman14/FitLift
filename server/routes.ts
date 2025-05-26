@@ -200,8 +200,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/workout-templates', isAuthenticated, async (req: any, res) => {
     try {
+      console.log("Creating routine with data:", req.body);
+      
       // Generate slug for the routine
       const generateSlug = (name: string): string => {
+        if (!name || typeof name !== 'string') {
+          name = 'routine'; // Fallback name
+        }
         const baseSlug = name
           .toLowerCase()
           .replace(/[^a-z0-9\s-]/g, '')
@@ -213,10 +218,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return `${baseSlug}-${uniqueId}`;
       };
 
+      const slug = generateSlug(req.body.name);
+      console.log("Generated slug:", slug);
+
       const templateData = insertWorkoutTemplateSchema.parse({
         ...req.body,
         userId: req.user.claims.sub,
-        slug: generateSlug(req.body.name),
+        slug: slug,
       });
       
       const template = await storage.createWorkoutTemplate(templateData);

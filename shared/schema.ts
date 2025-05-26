@@ -413,8 +413,9 @@ export const insertWorkoutTemplateSchema = createInsertSchema(workoutTemplates).
   id: true,
   createdAt: true,
   updatedAt: true,
+  slug: true,
 }).extend({
-  slug: z.string().optional(),
+  slug: z.string(),
 });
 
 export const insertTemplateExerciseSchema = createInsertSchema(templateExercises).omit({
