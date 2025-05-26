@@ -441,28 +441,7 @@ export default function ExerciseDetailsModal({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="difficultyLevel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Difficulty Level</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="rounded-xl border-2">
-                            <SelectValue placeholder="Select difficulty" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="beginner">Beginner</SelectItem>
-                          <SelectItem value="intermediate">Intermediate</SelectItem>
-                          <SelectItem value="advanced">Advanced</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
               </div>
 
               {/* Muscle Groups */}
