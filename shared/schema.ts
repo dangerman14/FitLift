@@ -123,6 +123,7 @@ export const workoutTemplates = pgTable("workout_templates", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: varchar("name").notNull(),
+  slug: varchar("slug").notNull().unique(),
   description: text("description"),
   estimatedDuration: integer("estimated_duration"), // in minutes
   difficultyLevel: varchar("difficulty_level").default("beginner"),
