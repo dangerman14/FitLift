@@ -30,17 +30,15 @@ export default function Dashboard() {
     queryKey: ["/api/workout-templates"],
   });
 
-  const recentWorkouts = workouts?.slice(0, 3) || [];
+  const recentWorkouts = (workouts && Array.isArray(workouts)) ? workouts.slice(0, 3) : [];
   const lastWorkout = recentWorkouts[0];
 
-  const handleStartWorkout = (template?: any) => {
-    setSelectedTemplate(template);
-    setIsWorkoutModalOpen(true);
+  const handleStartWorkout = () => {
+    setLocation("/workout-session");
   };
 
   const handleQuickStart = () => {
-    setSelectedTemplate(null);
-    setIsWorkoutModalOpen(true);
+    setLocation("/workout-session");
   };
 
   const formatDate = (dateString: string) => {
@@ -120,7 +118,7 @@ export default function Dashboard() {
                     variant="outline" 
                     className="w-full"
                     style={{ color: '#1976D2', borderColor: '#1976D2', backgroundColor: 'transparent' }}
-                    onClick={() => handleStartWorkout(lastWorkout)}
+                    onClick={handleStartWorkout}
                   >
                     Repeat Workout
                   </Button>
@@ -140,7 +138,7 @@ export default function Dashboard() {
           <Card className="shadow-material-1 border border-neutral-200">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-secondary-600 mb-1">
-                {workoutStats?.totalWorkouts || 0}
+                {(workoutStats as any)?.totalWorkouts || 0}
               </div>
               <div className="text-sm text-neutral-600 mb-2">Workouts</div>
               <Progress value={80} className="h-2" />
@@ -151,7 +149,7 @@ export default function Dashboard() {
           <Card className="shadow-material-1 border border-neutral-200">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-primary-600 mb-1">
-                {Math.round((workoutStats?.totalVolume || 0) / 1000)}k
+                {Math.round(((workoutStats as any)?.totalVolume || 0) / 1000)}k
               </div>
               <div className="text-sm text-neutral-600 mb-1">Volume (lbs)</div>
               <div className="text-xs text-secondary-600">+15% vs last week</div>
@@ -162,7 +160,7 @@ export default function Dashboard() {
           <Card className="shadow-material-1 border border-neutral-200">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-accent-500 mb-1">
-                {workoutStats?.personalRecords || 0}
+                {(workoutStats as any)?.personalRecords || 0}
               </div>
               <div className="text-sm text-neutral-600 mb-1">New PRs</div>
               <Trophy className="h-4 w-4 text-accent-500 mx-auto" />
