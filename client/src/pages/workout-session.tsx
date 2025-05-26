@@ -177,9 +177,9 @@ export default function WorkoutSession() {
     createSetMutation.mutate({
       workoutExerciseId: exercise.id,
       setNumber: set.setNumber,
-      weight: set.weight.toString(),
-      reps: set.reps.toString(),
-      rpe: set.rpe?.toString()
+      weight: set.weight,
+      reps: set.reps,
+      rpe: set.rpe
     });
 
     toast({

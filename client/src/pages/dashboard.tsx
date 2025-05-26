@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -62,12 +63,20 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 space-y-8">
+      {/* Header Section */}
+      <section className="text-center pt-4 pb-2">
+        <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-3">
+          Hello {user?.firstName || 'User'}!
+        </h1>
+        <p className="text-neutral-600 text-lg">Ready for a challenge?</p>
+      </section>
+
       {/* Quick Actions Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-medium text-neutral-900">Quick Start</h2>
-          <span className="text-sm text-neutral-600">
+      <section className="px-4">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-medium text-neutral-900">Your Workout</h2>
+          <span className="text-sm text-neutral-500">
             {new Date().toLocaleDateString('en-US', { 
               weekday: 'long', 
               month: 'short', 
@@ -76,9 +85,10 @@ export default function Dashboard() {
           </span>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Start New Workout Card */}
-          <Card className="bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-material-2 border-0">
+          <Card className="bg-gradient-primary text-white shadow-xl-colored border-0 overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
