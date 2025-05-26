@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Card,
   CardContent,
@@ -46,28 +47,26 @@ export default function Settings() {
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      weightUnit: user?.weightUnit || "kg",
-      distanceUnit: user?.distanceUnit || "km", 
-      bodyMeasurementUnit: user?.bodyMeasurementUnit || "cm",
+      weightUnit: "kg",
+      distanceUnit: "km", 
+      bodyMeasurementUnit: "cm",
     },
   });
 
+  // Update form values when user data is loaded
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        weightUnit: (user as any)?.weightUnit || "kg",
+        distanceUnit: (user as any)?.distanceUnit || "km",
+        bodyMeasurementUnit: (user as any)?.bodyMeasurementUnit || "cm",
+      });
+    }
+  }, [user, form]);
+
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: SettingsForm) => {
-      const response = await fetch("/api/user/settings", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      return response.json();
+      return await apiRequest("/api/user/settings", "PATCH", data);
     },
     onSuccess: () => {
       toast({
