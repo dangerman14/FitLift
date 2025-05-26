@@ -219,9 +219,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateWorkout(id: number, workout: Partial<InsertWorkout>): Promise<Workout> {
+    const updateData: any = { ...workout, updatedAt: new Date() };
+    
+    // Ensure dates are proper Date objects
+    if (updateData.endTime && typeof updateData.endTime === 'string') {
+      updateData.endTime = new Date(updateData.endTime);
+    }
+    if (updateData.startTime && typeof updateData.startTime === 'string') {
+      updateData.startTime = new Date(updateData.startTime);
+    }
+    
     const [updatedWorkout] = await db
       .update(workouts)
-      .set({ ...workout, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(workouts.id, id))
       .returning();
     return updatedWorkout;
