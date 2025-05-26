@@ -133,7 +133,8 @@
   }
   
   .bg-gradient-primary {
-    background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%);
+    background: #1976D2 !important; /* Fallback solid color */
+    background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%) !important;
   }
   
   /* Glass morphism effect */
