@@ -168,7 +168,7 @@ export default function WorkoutSession() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {exercises?.slice(0, 10).map((exercise: any) => (
+                {(exercises && Array.isArray(exercises) ? exercises.slice(0, 10) : []).map((exercise: any) => (
                   <button
                     key={exercise.id}
                     onClick={() => addExerciseToWorkout(exercise)}

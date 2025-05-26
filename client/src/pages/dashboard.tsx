@@ -171,7 +171,7 @@ export default function Dashboard() {
           <Card className="shadow-material-1 border border-neutral-200">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-warning mb-1">
-                {workoutStats?.avgDuration || 0}
+                {(workoutStats as any)?.avgDuration || 0}
               </div>
               <div className="text-sm text-neutral-600 mb-1">Avg Duration (min)</div>
               <div className="text-xs text-neutral-500">-3 min vs last week</div>
