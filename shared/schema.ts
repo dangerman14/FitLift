@@ -190,9 +190,20 @@ export const exerciseSets = pgTable("exercise_sets", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const routineFolders = pgTable("routine_folders", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  color: varchar("color").default("#3b82f6"), // Default blue color
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const routines = pgTable("routines", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  folderId: integer("folder_id").references(() => routineFolders.id, { onDelete: "set null" }),
   name: varchar("name").notNull(),
   description: text("description"),
   goal: varchar("goal").notNull(),
@@ -227,6 +238,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   workouts: many(workouts),
   customExercises: many(customExercises),
   routines: many(routines),
+  routineFolders: many(routineFolders),
 }));
 
 export const bodyMeasurementsRelations = relations(bodyMeasurements, ({ one }) => ({
@@ -310,10 +322,22 @@ export const customExercisesRelations = relations(customExercises, ({ one }) => 
   }),
 }));
 
+export const routineFoldersRelations = relations(routineFolders, ({ one, many }) => ({
+  user: one(users, {
+    fields: [routineFolders.userId],
+    references: [users.id],
+  }),
+  routines: many(routines),
+}));
+
 export const routinesRelations = relations(routines, ({ one, many }) => ({
   user: one(users, {
     fields: [routines.userId],
     references: [users.id],
+  }),
+  folder: one(routineFolders, {
+    fields: [routines.folderId],
+    references: [routineFolders.id],
   }),
   routineExercises: many(routineExercises),
 }));
@@ -359,6 +383,9 @@ export type ExerciseSet = typeof exerciseSets.$inferSelect;
 
 export type InsertCustomExercise = typeof customExercises.$inferInsert;
 export type CustomExercise = typeof customExercises.$inferSelect;
+
+export type InsertRoutineFolder = typeof routineFolders.$inferInsert;
+export type RoutineFolder = typeof routineFolders.$inferSelect;
 
 export type InsertRoutine = typeof routines.$inferInsert;
 export type Routine = typeof routines.$inferSelect;
@@ -418,6 +445,12 @@ export const insertExerciseSetSchema = createInsertSchema(exerciseSets).omit({
 });
 
 export const insertCustomExerciseSchema = createInsertSchema(customExercises).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertRoutineFolderSchema = createInsertSchema(routineFolders).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

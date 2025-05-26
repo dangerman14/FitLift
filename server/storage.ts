@@ -31,10 +31,13 @@ import {
   type InsertBodyMeasurement,
   routines,
   routineExercises,
+  routineFolders,
   type Routine,
   type InsertRoutine,
   type RoutineExercise,
   type InsertRoutineExercise,
+  type RoutineFolder,
+  type InsertRoutineFolder,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql, count, sum, max, or } from "drizzle-orm";
@@ -100,6 +103,12 @@ export interface IStorage {
     date: Date;
     maxWeight: number;
   }[]>;
+
+  // Folder operations
+  getRoutineFolders(userId: string): Promise<RoutineFolder[]>;
+  createRoutineFolder(folder: InsertRoutineFolder): Promise<RoutineFolder>;
+  updateRoutineFolder(id: number, userId: string, updates: Partial<InsertRoutineFolder>): Promise<RoutineFolder>;
+  deleteRoutineFolder(id: number, userId: string): Promise<void>;
 
   // Routine operations
   getRoutines(userId: string): Promise<Routine[]>;
