@@ -201,7 +201,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/workouts/:id', isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updateData = req.body;
+      const updateData = { ...req.body };
+      
+      // Convert date strings to Date objects if they exist
+      if (updateData.endTime) {
+        updateData.endTime = new Date(updateData.endTime);
+      }
+      if (updateData.startTime) {
+        updateData.startTime = new Date(updateData.startTime);
+      }
       
       const workout = await storage.updateWorkout(id, updateData);
       res.json(workout);
