@@ -219,7 +219,8 @@ export default function WorkoutModal({ isOpen, onClose, template }: WorkoutModal
               <div className="flex space-x-3 pt-4">
                 <Button 
                   onClick={startWorkout}
-                  className="flex-1 bg-primary-500 hover:bg-primary-600"
+                  className="flex-1"
+                  style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
                   disabled={createWorkoutMutation.isPending}
                 >
                   {createWorkoutMutation.isPending ? "Starting..." : "Start Workout"}

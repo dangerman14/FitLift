@@ -305,6 +305,9 @@ export const insertWorkoutSchema = createInsertSchema(workouts).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  startTime: z.string().datetime().optional(),
+  endTime: z.string().datetime().optional(),
 });
 
 export const insertWorkoutExerciseSchema = createInsertSchema(workoutExercises).omit({

@@ -176,10 +176,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/workouts', isAuthenticated, async (req: any, res) => {
     try {
-      const workoutData = insertWorkoutSchema.parse({
+      const validatedData = insertWorkoutSchema.parse({
         ...req.body,
         userId: req.user.claims.sub,
       });
+      
+      // Convert string dates to Date objects for the database
+      const workoutData = {
+        ...validatedData,
+        startTime: validatedData.startTime ? new Date(validatedData.startTime) : new Date(),
+        endTime: validatedData.endTime ? new Date(validatedData.endTime) : null,
+      };
       
       const workout = await storage.createWorkout(workoutData);
       res.status(201).json(workout);
