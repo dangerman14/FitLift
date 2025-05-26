@@ -81,12 +81,8 @@ export default function CreateRoutine() {
   // Create routine mutation
   const createRoutineMutation = useMutation({
     mutationFn: async (routineData: any) => {
-      return await apiRequest({
-        method: "POST",
-        url: "/api/workout-templates",
-        body: JSON.stringify(routineData),
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await apiRequest("POST", "/api/workout-templates", routineData);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/workout-templates"] });
@@ -354,9 +350,9 @@ export default function CreateRoutine() {
                     </div>
                   ) : (
                     <div className="space-y-1 p-2">
-                      {filteredExercises.map((exercise: any) => (
+                      {filteredExercises.map((exercise: any, index: number) => (
                         <button
-                          key={exercise.id}
+                          key={`${exercise.id}-${exercise.createdBy ? 'custom' : 'system'}-${index}`}
                           type="button"
                           onClick={() => setSelectedExerciseId(exercise.id.toString())}
                           className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors hover:bg-blue-50 ${
