@@ -290,7 +290,7 @@ export default function CreateRoutine() {
         exerciseId: exercise.exerciseId,
         setsTarget: exercise.sets.length,
         repsTarget: parseInt(firstSet.reps) || 10,
-        weightTarget: parseFloat(firstSet.weight) || null,
+        weightTarget: firstSet.weight ? parseFloat(firstSet.weight) : null,
         restDuration: exercise.restDuration,
         notes: JSON.stringify({
           userNotes: exercise.notes || null,
