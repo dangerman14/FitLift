@@ -10,6 +10,8 @@ export default function RoutineDetails() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   
+  console.log('RoutineDetails - ID from params:', id);
+  
   const { data: routineData, isLoading: routineLoading } = useQuery({
     queryKey: ['/api/workout-templates', id],
     enabled: !!id,
