@@ -87,16 +87,40 @@ export default function CreateRoutine() {
       
       // Load routine exercises if they exist
       if (existingRoutine.exercises && Array.isArray(existingRoutine.exercises)) {
-        const routineExercises = existingRoutine.exercises.map((exercise: any) => ({
-          exerciseId: exercise.exerciseId,
-          exerciseName: exercise.exercise.name,
-          sets: Array.from({ length: exercise.setsTarget || 3 }, () => ({
-            reps: exercise.repsTarget || "10",
-            weight: exercise.weightTarget || "",
-          })),
-          restDuration: exercise.restDuration || 120,
-          notes: exercise.notes || "",
-        }));
+        const routineExercises = existingRoutine.exercises.map((exercise: any) => {
+          // Try to parse stored sets data from notes field
+          let setsData = [];
+          let userNotes = "";
+          
+          if (exercise.notes) {
+            try {
+              const parsedNotes = JSON.parse(exercise.notes);
+              if (parsedNotes.setsData && Array.isArray(parsedNotes.setsData)) {
+                setsData = parsedNotes.setsData;
+              }
+              userNotes = parsedNotes.userNotes || "";
+            } catch (e) {
+              // If parsing fails, treat notes as regular user notes
+              userNotes = exercise.notes;
+            }
+          }
+          
+          // If no stored sets data, create default sets
+          if (setsData.length === 0) {
+            setsData = Array.from({ length: exercise.setsTarget || 3 }, () => ({
+              reps: exercise.repsTarget || "10",
+              weight: exercise.weightTarget || "",
+            }));
+          }
+          
+          return {
+            exerciseId: exercise.exerciseId,
+            exerciseName: exercise.exercise.name,
+            sets: setsData,
+            restDuration: exercise.restDuration || 120,
+            notes: userNotes,
+          };
+        });
         setSelectedExercises(routineExercises);
       }
     }
@@ -135,13 +159,20 @@ export default function CreateRoutine() {
       }
     },
     onSuccess: () => {
+      // Invalidate all related queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["/api/workout-templates"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/workout-templates", editId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/routine-folders"] });
+      
       toast({
         title: "Success!",
         description: `Your workout routine has been ${isEditMode ? 'updated' : 'created'}.`,
       });
-      // Navigate back to routines page
-      window.location.href = "/routines";
+      
+      // Small delay to ensure cache invalidation completes before navigation
+      setTimeout(() => {
+        window.location.href = "/routines";
+      }, 100);
     },
     onError: (error) => {
       console.error("Save routine error:", error);
@@ -248,7 +279,12 @@ export default function CreateRoutine() {
 
     // Transform exercises data for backend compatibility
     const exercisesForBackend = selectedExercises.map(exercise => {
-      // Use first set's data as template for now (backend expects flat structure)
+      // Store individual sets data in notes field as JSON for now
+      const setsData = exercise.sets.map(set => ({
+        reps: set.reps,
+        weight: set.weight || null
+      }));
+      
       const firstSet = exercise.sets[0];
       return {
         exerciseId: exercise.exerciseId,
@@ -256,7 +292,10 @@ export default function CreateRoutine() {
         repsTarget: firstSet.reps,
         weightTarget: firstSet.weight || null,
         restDuration: exercise.restDuration,
-        notes: exercise.notes || null,
+        notes: JSON.stringify({
+          userNotes: exercise.notes || null,
+          setsData: setsData
+        }),
       };
     });
 
