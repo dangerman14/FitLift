@@ -131,11 +131,20 @@ export default function AddCustomExerciseModal({ isOpen, onClose }: AddCustomExe
         });
         
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorText = await response.text();
+          console.error("Server error response:", errorText);
+          throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
         
-        const result = await response.json();
-        console.log("Exercise created successfully:", result);
+        let result;
+        try {
+          result = await response.json();
+          console.log("Exercise created successfully:", result);
+        } catch (parseError) {
+          console.error("JSON parse error:", parseError);
+          // If JSON parsing fails but response was ok, still consider it success
+          result = { success: true };
+        }
         return result;
       } catch (error) {
         console.error("Mutation function error:", error);
