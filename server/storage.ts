@@ -62,6 +62,7 @@ export interface IStorage {
   getWorkoutTemplates(userId: string): Promise<WorkoutTemplate[]>;
   getWorkoutTemplateById(id: number): Promise<WorkoutTemplate | undefined>;
   createWorkoutTemplate(template: InsertWorkoutTemplate): Promise<WorkoutTemplate>;
+  updateWorkoutTemplate(id: number, updates: Partial<InsertWorkoutTemplate>): Promise<WorkoutTemplate>;
   deleteWorkoutTemplate(id: number, userId: string): Promise<void>;
   
   // Template exercise operations
@@ -253,6 +254,15 @@ export class DatabaseStorage implements IStorage {
   async createWorkoutTemplate(template: InsertWorkoutTemplate): Promise<WorkoutTemplate> {
     const [newTemplate] = await db.insert(workoutTemplates).values(template).returning();
     return newTemplate;
+  }
+
+  async updateWorkoutTemplate(id: number, updates: Partial<InsertWorkoutTemplate>): Promise<WorkoutTemplate> {
+    const [updatedTemplate] = await db
+      .update(workoutTemplates)
+      .set(updates)
+      .where(eq(workoutTemplates.id, id))
+      .returning();
+    return updatedTemplate;
   }
 
   async deleteWorkoutTemplate(id: number, userId: string): Promise<void> {

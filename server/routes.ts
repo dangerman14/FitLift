@@ -215,29 +215,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       const userId = req.user.claims.sub;
       
-      const templateData = insertWorkoutTemplateSchema.parse({
-        ...req.body,
-        userId: userId,
+      // Check if template exists and belongs to user
+      const existingTemplate = await storage.getWorkoutTemplateById(id);
+      if (!existingTemplate || existingTemplate.userId !== userId) {
+        return res.status(404).json({ message: "Workout template not found" });
+      }
+      
+      // Update the template with new data
+      const updatedTemplate = await storage.updateWorkoutTemplate(id, {
+        name: req.body.name,
+        description: req.body.description,
+        folderId: req.body.folderId || null,
       });
       
-      // Note: For now, we'll create a simple update that recreates the template
-      // In a production app, you'd want proper update logic
-      await storage.deleteWorkoutTemplate(id, userId);
-      const template = await storage.createWorkoutTemplate(templateData);
+      // Remove existing template exercises
+      const existingExercises = await storage.getTemplateExercises(id);
+      for (const exercise of existingExercises) {
+        await storage.deleteTemplateExercise(exercise.id);
+      }
       
-      // Add exercises to template if provided
+      // Add new exercises to template if provided
       if (req.body.exercises && Array.isArray(req.body.exercises)) {
         for (let i = 0; i < req.body.exercises.length; i++) {
           const exerciseData = insertTemplateExerciseSchema.parse({
             ...req.body.exercises[i],
-            templateId: template.id,
+            templateId: id,
             orderIndex: i,
           });
           await storage.createTemplateExercise(exerciseData);
         }
       }
       
-      res.json(template);
+      res.json(updatedTemplate);
     } catch (error) {
       console.error("Error updating workout template:", error);
       if (error instanceof z.ZodError) {
