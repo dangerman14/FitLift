@@ -23,15 +23,14 @@ export default function WorkoutComplete() {
   const { user } = useAuth();
 
   // Get workout details and statistics
-  const { data: workout } = useQuery({
+  const { data: workoutData } = useQuery({
     queryKey: ["/api/workouts", workoutId],
     enabled: !!workoutId,
   });
 
-  const { data: workoutExercises } = useQuery({
-    queryKey: ["/api/workouts", workoutId, "exercises"],
-    enabled: !!workoutId,
-  });
+  // Extract workout and exercises from the same query response
+  const workout = workoutData || {};
+  const workoutExercises = workoutData?.exercises || [];
 
   // Initialize form with workout data
   useEffect(() => {
@@ -43,7 +42,7 @@ export default function WorkoutComplete() {
   }, [workout]);
 
   // Get proper workout data with type safety
-  const workoutData = workout || {};
+  const workoutInfo = workout || {};
   const exerciseData = workoutExercises || [];
 
   // Calculate workout statistics
@@ -73,8 +72,8 @@ export default function WorkoutComplete() {
       }
     });
 
-    const duration = workoutData.startTime && workoutData.endTime 
-      ? Math.round((new Date(workoutData.endTime).getTime() - new Date(workoutData.startTime).getTime()) / (1000 * 60))
+    const duration = workoutInfo.startTime && workoutInfo.endTime 
+      ? Math.round((new Date(workoutInfo.endTime).getTime() - new Date(workoutInfo.startTime).getTime()) / (1000 * 60))
       : 0;
 
     return {
@@ -84,7 +83,7 @@ export default function WorkoutComplete() {
       exercisesCompleted,
       duration
     };
-  }, [exerciseData, workoutData]);
+  }, [exerciseData, workoutInfo]);
 
   // Update workout details mutation
   const updateWorkoutMutation = useMutation({
