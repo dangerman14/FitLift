@@ -121,12 +121,17 @@ export default function CreateRoutine() {
   // Create/Update routine mutation
   const saveRoutineMutation = useMutation({
     mutationFn: async (routineData: any) => {
-      if (isEditMode && editId) {
-        const response = await apiRequest("PUT", `/api/workout-templates/${editId}`, routineData);
-        return response.json();
-      } else {
-        const response = await apiRequest("POST", "/api/workout-templates", routineData);
-        return response.json();
+      try {
+        if (isEditMode && editId) {
+          const response = await apiRequest("PUT", `/api/workout-templates/${editId}`, routineData);
+          return response;
+        } else {
+          const response = await apiRequest("POST", "/api/workout-templates", routineData);
+          return response;
+        }
+      } catch (error) {
+        console.error("Mutation error:", error);
+        throw error;
       }
     },
     onSuccess: () => {
@@ -138,7 +143,8 @@ export default function CreateRoutine() {
       // Navigate back to routines page
       window.location.href = "/routines";
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Save routine error:", error);
       toast({
         title: "Error",
         description: `Failed to ${isEditMode ? 'update' : 'create'} routine. Please try again.`,
