@@ -179,6 +179,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Route to get workout template by slug
+  app.get('/api/workout-templates/slug/:slug', isAuthenticated, async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      const template = await storage.getWorkoutTemplateBySlug(slug);
+      
+      if (!template) {
+        return res.status(404).json({ message: "Workout template not found" });
+      }
+      
+      const exercises = await storage.getTemplateExercises(template.id);
+      console.log(`Fetched template ${slug} with ${exercises.length} exercises:`, exercises);
+      res.json({ ...template, exercises });
+    } catch (error) {
+      console.error("Error fetching workout template by slug:", error);
+      res.status(500).json({ message: "Failed to fetch workout template" });
+    }
+  });
+
   app.post('/api/workout-templates', isAuthenticated, async (req: any, res) => {
     try {
       const templateData = insertWorkoutTemplateSchema.parse({

@@ -42,6 +42,22 @@ import {
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql, count, sum, max, or } from "drizzle-orm";
 
+// Utility function to generate unique slugs
+function generateSlug(name: string): string {
+  const baseSlug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .trim()
+    .substring(0, 30); // Limit length
+  
+  // Generate random 6-character alphanumeric string
+  const randomString = Math.random().toString(36).substring(2, 8);
+  
+  return `${baseSlug}-${randomString}`;
+}
+
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
@@ -61,6 +77,7 @@ export interface IStorage {
   // Workout template operations
   getWorkoutTemplates(userId: string): Promise<WorkoutTemplate[]>;
   getWorkoutTemplateById(id: number): Promise<WorkoutTemplate | undefined>;
+  getWorkoutTemplateBySlug(slug: string): Promise<WorkoutTemplate | undefined>;
   createWorkoutTemplate(template: InsertWorkoutTemplate): Promise<WorkoutTemplate>;
   updateWorkoutTemplate(id: number, updates: Partial<InsertWorkoutTemplate>): Promise<WorkoutTemplate>;
   deleteWorkoutTemplate(id: number, userId: string): Promise<void>;
@@ -251,8 +268,17 @@ export class DatabaseStorage implements IStorage {
     return template;
   }
 
+  async getWorkoutTemplateBySlug(slug: string): Promise<WorkoutTemplate | undefined> {
+    const [template] = await db
+      .select()
+      .from(workoutTemplates)
+      .where(eq(workoutTemplates.slug, slug));
+    return template;
+  }
+
   async createWorkoutTemplate(template: InsertWorkoutTemplate): Promise<WorkoutTemplate> {
-    const [newTemplate] = await db.insert(workoutTemplates).values(template).returning();
+    const slug = generateSlug(template.name);
+    const [newTemplate] = await db.insert(workoutTemplates).values({ ...template, slug }).returning();
     return newTemplate;
   }
 
