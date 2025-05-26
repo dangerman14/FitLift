@@ -219,14 +219,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateWorkout(id: number, workout: Partial<InsertWorkout>): Promise<Workout> {
-    const updateData: any = { ...workout, updatedAt: new Date() };
+    const updateData: any = { updatedAt: new Date() };
     
-    // Ensure dates are proper Date objects
-    if (updateData.endTime && typeof updateData.endTime === 'string') {
-      updateData.endTime = new Date(updateData.endTime);
+    // Only include non-date fields to avoid conversion issues
+    Object.keys(workout).forEach(key => {
+      if (key !== 'startTime' && key !== 'endTime') {
+        updateData[key] = workout[key as keyof typeof workout];
+      }
+    });
+    
+    // Handle dates separately with explicit conversion
+    if (workout.endTime) {
+      updateData.endTime = new Date();
     }
-    if (updateData.startTime && typeof updateData.startTime === 'string') {
-      updateData.startTime = new Date(updateData.startTime);
+    if (workout.startTime) {
+      updateData.startTime = new Date(workout.startTime);
+    }
+    if (workout.duration !== undefined) {
+      updateData.duration = workout.duration;
     }
     
     const [updatedWorkout] = await db
