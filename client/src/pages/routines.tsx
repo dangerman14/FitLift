@@ -69,8 +69,23 @@ export default function Routines() {
         throw new Error(`Failed to create folder: ${errorMessage}`);
       }
       
-      const result = await response.json();
-      console.log("Folder created successfully:", result);
+      // Clone response before consuming it to handle potential parsing issues
+      const responseClone = response.clone();
+      
+      let result;
+      try {
+        result = await response.json();
+        console.log("Folder created successfully:", result);
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        try {
+          const textResponse = await responseClone.text();
+          console.error("Server response as text:", textResponse);
+        } catch (textError) {
+          console.error("Could not read response as text:", textError);
+        }
+        throw new Error("Invalid JSON response from server");
+      }
       return result;
     },
     onSuccess: () => {
