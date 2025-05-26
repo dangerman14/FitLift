@@ -16,7 +16,9 @@ import {
   Plus, 
   X,
   ArrowLeft,
-  Save
+  Save,
+  Search,
+  Filter
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -39,6 +41,9 @@ export default function CreateRoutine() {
   const [reps, setReps] = useState("10");
   const [weight, setWeight] = useState("");
   const [notes, setNotes] = useState("");
+  const [exerciseSearch, setExerciseSearch] = useState("");
+  const [muscleGroupFilter, setMuscleGroupFilter] = useState("");
+  const [equipmentFilter, setEquipmentFilter] = useState("");
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -46,6 +51,22 @@ export default function CreateRoutine() {
   // Fetch exercises for the dropdown
   const { data: exercises = [] } = useQuery({
     queryKey: ["/api/exercises"],
+  });
+
+  // Filter exercises based on search and filters
+  const filteredExercises = exercises.filter((exercise: any) => {
+    const matchesSearch = exerciseSearch === "" || 
+      exercise.name.toLowerCase().includes(exerciseSearch.toLowerCase()) ||
+      (exercise.description && exercise.description.toLowerCase().includes(exerciseSearch.toLowerCase()));
+    
+    const matchesMuscleGroup = muscleGroupFilter === "" || muscleGroupFilter === "all" ||
+      (exercise.primaryMuscleGroups && exercise.primaryMuscleGroups.includes(muscleGroupFilter)) ||
+      (exercise.secondaryMuscleGroups && exercise.secondaryMuscleGroups.includes(muscleGroupFilter));
+    
+    const matchesEquipment = equipmentFilter === "" || equipmentFilter === "all" ||
+      exercise.equipmentType === equipmentFilter;
+    
+    return matchesSearch && matchesMuscleGroup && matchesEquipment;
   });
 
   // Create routine mutation
@@ -217,19 +238,101 @@ export default function CreateRoutine() {
           {/* Add Exercise */}
           <Card>
             <CardHeader>
-              <CardTitle>Add Exercise</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Search className="h-5 w-5" />
+                Find & Add Exercise
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Search and Filters */}
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label>Search Exercises</Label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search by name or description..."
+                      value={exerciseSearch}
+                      onChange={(e) => setExerciseSearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label>Muscle Group</Label>
+                    <Select value={muscleGroupFilter} onValueChange={setMuscleGroupFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Any muscle" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Muscle Groups</SelectItem>
+                        <SelectItem value="chest">Chest</SelectItem>
+                        <SelectItem value="back">Back</SelectItem>
+                        <SelectItem value="shoulders">Shoulders</SelectItem>
+                        <SelectItem value="biceps">Biceps</SelectItem>
+                        <SelectItem value="triceps">Triceps</SelectItem>
+                        <SelectItem value="legs">Legs</SelectItem>
+                        <SelectItem value="glutes">Glutes</SelectItem>
+                        <SelectItem value="calves">Calves</SelectItem>
+                        <SelectItem value="abs">Abs</SelectItem>
+                        <SelectItem value="cardio">Cardio</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Equipment</Label>
+                    <Select value={equipmentFilter} onValueChange={setEquipmentFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Any equipment" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Equipment</SelectItem>
+                        <SelectItem value="bodyweight">Bodyweight</SelectItem>
+                        <SelectItem value="barbell">Barbell</SelectItem>
+                        <SelectItem value="dumbbell">Dumbbell</SelectItem>
+                        <SelectItem value="machine">Machine</SelectItem>
+                        <SelectItem value="cable">Cable</SelectItem>
+                        <SelectItem value="kettlebell">Kettlebell</SelectItem>
+                        <SelectItem value="resistance_band">Resistance Band</SelectItem>
+                        <SelectItem value="cardio_machine">Cardio Machine</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                {(exerciseSearch || muscleGroupFilter || equipmentFilter) && (
+                  <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded">
+                    <Filter className="inline h-4 w-4 mr-1" />
+                    Found {filteredExercises.length} exercises
+                    {exerciseSearch && ` matching "${exerciseSearch}"`}
+                    {muscleGroupFilter && ` for ${muscleGroupFilter}`}
+                    {equipmentFilter && ` using ${equipmentFilter}`}
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2">
-                <Label>Exercise</Label>
+                <Label>Select Exercise</Label>
                 <Select value={selectedExerciseId} onValueChange={setSelectedExerciseId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select an exercise" />
+                    <SelectValue placeholder={
+                      filteredExercises.length === 0 
+                        ? "No exercises found" 
+                        : "Choose from filtered exercises"
+                    } />
                   </SelectTrigger>
                   <SelectContent>
-                    {exercises.map((exercise: any) => (
+                    {filteredExercises.map((exercise: any) => (
                       <SelectItem key={exercise.id} value={exercise.id.toString()}>
-                        {exercise.name}
+                        <div className="flex flex-col">
+                          <span>{exercise.name}</span>
+                          <span className="text-xs text-gray-500">
+                            {exercise.primaryMuscleGroups?.join(', ')} • {exercise.equipmentType}
+                          </span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
