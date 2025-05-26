@@ -18,6 +18,7 @@ import {
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
 
   const { data: workoutStats } = useQuery({
     queryKey: ["/api/analytics/stats"],

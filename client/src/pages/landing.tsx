@@ -8,29 +8,31 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
-      <div className="container mx-auto px-4 py-16">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-20">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center mb-6">
-            <Dumbbell className="h-12 w-12 text-primary-500 mr-3" />
-            <h1 className="text-4xl font-bold text-neutral-900">FitTrack Pro</h1>
+        <div className="text-center mb-20">
+          <div className="flex items-center justify-center mb-8">
+            <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-xl-colored mr-4">
+              <Dumbbell className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-5xl font-bold bg-gradient-primary bg-clip-text text-transparent">FitTrack Pro</h1>
           </div>
-          <p className="text-xl text-neutral-600 mb-8 max-w-2xl mx-auto">
-            The ultimate workout tracking application designed to help you achieve your fitness goals with precision and insight.
+          <p className="text-2xl text-neutral-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Transform your fitness journey with intelligent tracking and personalized insights
           </p>
           <Button 
             onClick={handleLogin}
             size="lg"
-            className="bg-primary-500 hover:bg-primary-600 text-white px-8 py-3 text-lg"
+            className="bg-gradient-primary hover:shadow-xl-colored text-white px-12 py-4 text-xl font-semibold rounded-xl shadow-large transform hover:scale-105 transition-all duration-200"
           >
-            Get Started
+            Start Your Journey
           </Button>
         </div>
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          <Card className="shadow-material-2 border-0 hover:shadow-material-3 transition-shadow">
+          <Card className="shadow-soft border-0 hover:shadow-medium transition-all duration-300 transform hover:-translate-y-1">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Dumbbell className="h-8 w-8 text-primary-600" />
