@@ -43,23 +43,45 @@ export default function WorkoutSession() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
+  const [weightUnitOverride, setWeightUnitOverride] = useState<'default' | 'kg' | 'lbs'>('default');
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
 
   // Weight unit conversion helpers
-  const getWeightUnit = () => user?.weightUnit || 'kg';
+  const getWeightUnit = () => {
+    if (weightUnitOverride === 'default') {
+      return user?.weightUnit || 'kg';
+    }
+    return weightUnitOverride;
+  };
+  
   const getDisplayWeight = (weight: number) => {
     if (getWeightUnit() === 'lbs' && weight > 0) {
       return Math.round(weight * 2.20462 * 10) / 10; // Convert kg to lbs
     }
     return weight;
   };
+  
   const getStorageWeight = (displayWeight: number) => {
     if (getWeightUnit() === 'lbs' && displayWeight > 0) {
       return Math.round(displayWeight / 2.20462 * 10) / 10; // Convert lbs to kg for storage
     }
     return displayWeight;
+  };
+
+  const toggleWeightUnit = () => {
+    const units: ('default' | 'kg' | 'lbs')[] = ['default', 'kg', 'lbs'];
+    const currentIndex = units.indexOf(weightUnitOverride);
+    const nextIndex = (currentIndex + 1) % units.length;
+    setWeightUnitOverride(units[nextIndex]);
+  };
+
+  const getWeightUnitDisplay = () => {
+    if (weightUnitOverride === 'default') {
+      return `${(user?.weightUnit || 'kg').toUpperCase()} (Default)`;
+    }
+    return weightUnitOverride.toUpperCase();
   };
 
   const { data: exercises } = useQuery({
