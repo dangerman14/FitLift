@@ -16,6 +16,7 @@ import {
   Play,
   MoreVertical,
   Trash2,
+  Edit,
   Folder,
   FolderPlus
 } from "lucide-react";
@@ -74,10 +75,8 @@ export default function Routines() {
   // Delete routine mutation
   const deleteRoutineMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest({
-        method: "DELETE",
-        url: `/api/workout-templates/${id}`,
-      });
+      const response = await apiRequest("DELETE", `/api/workout-templates/${id}`);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/workout-templates"] });
@@ -99,6 +98,11 @@ export default function Routines() {
     if (newFolderName.trim()) {
       createFolderMutation.mutate(newFolderName.trim());
     }
+  };
+
+  const handleEditRoutine = (id: number) => {
+    // Navigate to the create-routine page with the routine ID for editing
+    window.location.href = `/create-routine?edit=${id}`;
   };
 
   const handleDeleteRoutine = (id: number) => {
@@ -250,6 +254,12 @@ export default function Routines() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem 
+                        onClick={() => handleEditRoutine(routine.id)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => handleDeleteRoutine(routine.id)}
                         className="text-red-600 hover:text-red-700"
