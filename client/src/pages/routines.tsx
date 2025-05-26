@@ -48,45 +48,11 @@ export default function Routines() {
   // Create folder mutation
   const createFolderMutation = useMutation({
     mutationFn: async (name: string) => {
-      const response = await fetch("/api/routine-folders", {
+      return await apiRequest({
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ name }),
+        url: "/api/routine-folders",
+        body: { name },
       });
-      
-      if (!response.ok) {
-        let errorMessage = `HTTP ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch {
-          errorMessage = await response.text() || errorMessage;
-        }
-        console.error("Folder creation error:", errorMessage);
-        throw new Error(`Failed to create folder: ${errorMessage}`);
-      }
-      
-      // Clone response before consuming it to handle potential parsing issues
-      const responseClone = response.clone();
-      
-      let result;
-      try {
-        result = await response.json();
-        console.log("Folder created successfully:", result);
-      } catch (parseError) {
-        console.error("JSON parse error:", parseError);
-        try {
-          const textResponse = await responseClone.text();
-          console.error("Server response as text:", textResponse);
-        } catch (textError) {
-          console.error("Could not read response as text:", textError);
-        }
-        throw new Error("Invalid JSON response from server");
-      }
-      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/routine-folders"] });
