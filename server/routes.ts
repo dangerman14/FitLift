@@ -232,6 +232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Data with slug:", dataWithSlug);
       
       const templateData = insertWorkoutTemplateSchema.parse(dataWithSlug);
+      console.log("Parsed template data:", templateData);
       
       const template = await storage.createWorkoutTemplate(templateData);
       
