@@ -43,15 +43,10 @@ export default function Exercises() {
     "Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable"
   ];
 
-  const difficulties = [
-    "Beginner", "Intermediate", "Advanced"
-  ];
-
   const filteredExercises = exercises?.filter((exercise: any) => {
     const matchesSearch = exercise.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDifficulty = !selectedDifficulty || exercise.difficultyLevel === selectedDifficulty.toLowerCase();
     
-    return matchesSearch && matchesDifficulty;
+    return matchesSearch;
   }) || [];
 
   const handleViewDetails = (exercise: any) => {
@@ -138,19 +133,7 @@ export default function Exercises() {
             </SelectContent>
           </Select>
           
-          <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="All Difficulties" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Difficulties</SelectItem>
-              {difficulties.map((difficulty) => (
-                <SelectItem key={difficulty} value={difficulty}>
-                  {difficulty}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
         </div>
       </div>
 

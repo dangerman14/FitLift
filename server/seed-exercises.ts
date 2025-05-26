@@ -7,7 +7,6 @@ const exerciseData = [
     name: "Bench Press",
     description: "Classic chest exercise performed lying on a bench",
     instructions: "Lie on bench, grip bar with hands slightly wider than shoulders, lower to chest, press up",
-    difficultyLevel: "intermediate",
     equipmentRequired: ["barbell", "bench"],
     muscleGroups: ["chest", "shoulders", "triceps"],
     movementPattern: "push",
@@ -18,7 +17,6 @@ const exerciseData = [
     name: "Incline Bench Press",
     description: "Upper chest focused barbell press on inclined bench",
     instructions: "Set bench to 30-45 degrees, press barbell from upper chest",
-    difficultyLevel: "intermediate",
     equipmentRequired: ["barbell", "incline bench"],
     muscleGroups: ["chest", "shoulders", "triceps"],
     movementPattern: "push",
@@ -29,7 +27,6 @@ const exerciseData = [
     name: "Decline Bench Press",
     description: "Lower chest focused barbell press on declined bench",
     instructions: "Set bench to decline position, press barbell from lower chest",
-    difficultyLevel: "intermediate",
     equipmentRequired: ["barbell", "decline bench"],
     muscleGroups: ["chest", "shoulders", "triceps"],
     movementPattern: "push",
@@ -38,9 +35,8 @@ const exerciseData = [
   },
   {
     name: "Dumbbell Bench Press",
-    description: "Chest exercise with dumbbells for greater range of motion",
+    description: "Chest exercise using dumbbells for greater range of motion",
     instructions: "Lie on bench, press dumbbells from chest level to arms extended",
-    difficultyLevel: "beginner",
     equipmentRequired: ["dumbbells", "bench"],
     muscleGroups: ["chest", "shoulders", "triceps"],
     movementPattern: "push",
@@ -51,7 +47,6 @@ const exerciseData = [
     name: "Incline Dumbbell Press",
     description: "Upper chest focused dumbbell press",
     instructions: "Set bench to 30-45 degrees, press dumbbells from upper chest",
-    difficultyLevel: "beginner",
     equipmentRequired: ["dumbbells", "incline bench"],
     muscleGroups: ["chest", "shoulders", "triceps"],
     movementPattern: "push",
@@ -62,7 +57,6 @@ const exerciseData = [
     name: "Dumbbell Flyes",
     description: "Isolation exercise for chest using dumbbells",
     instructions: "Lie on bench, arc dumbbells down and out, then bring together over chest",
-    difficultyLevel: "intermediate",
     equipmentRequired: ["dumbbells", "bench"],
     muscleGroups: ["chest"],
     movementPattern: "fly",
@@ -73,7 +67,6 @@ const exerciseData = [
     name: "Push-ups",
     description: "Classic bodyweight chest exercise",
     instructions: "Start in plank position, lower chest to ground, push back up",
-    difficultyLevel: "beginner",
     equipmentRequired: [],
     muscleGroups: ["chest", "shoulders", "triceps"],
     movementPattern: "push",
@@ -81,146 +74,123 @@ const exerciseData = [
     equipmentType: "bodyweight"
   },
   {
-    name: "Diamond Push-ups",
-    description: "Tricep-focused push-up variation",
-    instructions: "Form diamond shape with hands, perform push-up with narrow grip",
-    difficultyLevel: "intermediate",
-    equipmentRequired: [],
-    muscleGroups: ["triceps", "chest", "shoulders"],
+    name: "Chest Dips",
+    description: "Bodyweight exercise targeting lower chest",
+    instructions: "Support body on parallel bars, lower down by bending arms, push back up",
+    equipmentRequired: ["parallel bars"],
+    muscleGroups: ["chest", "shoulders", "triceps"],
     movementPattern: "push",
     exerciseType: "bodyweight",
     equipmentType: "bodyweight"
   },
   {
-    name: "Chest Dips",
-    description: "Bodyweight exercise targeting lower chest",
-    instructions: "Lean forward on parallel bars, lower body, push back up",
-    difficultyLevel: "intermediate",
-    equipmentRequired: ["parallel bars"],
-    muscleGroups: ["chest", "triceps", "shoulders"],
-    movementPattern: "push",
-    exerciseType: "bodyweight",
-    equipmentType: "bodyweight"
+    name: "Cable Chest Fly",
+    description: "Cable variation of chest fly exercise",
+    instructions: "Set cables at chest height, bring handles together in arc motion",
+    equipmentRequired: ["cable machine"],
+    muscleGroups: ["chest"],
+    movementPattern: "fly",
+    exerciseType: "weight_reps",
+    equipmentType: "cable"
   },
-
+  
   // BACK EXERCISES
   {
     name: "Pull-ups",
-    description: "Upper body pulling exercise",
-    instructions: "Hang from bar with overhand grip, pull body up until chin clears bar",
-    difficultyLevel: "intermediate",
+    description: "Classic bodyweight back exercise",
+    instructions: "Hang from bar, pull body up until chin clears bar, lower with control",
     equipmentRequired: ["pull-up bar"],
-    muscleGroups: ["lats", "rhomboids", "biceps"],
+    muscleGroups: ["back", "biceps"],
     movementPattern: "pull",
     exerciseType: "bodyweight",
     equipmentType: "bodyweight"
   },
   {
-    name: "Chin-ups",
-    description: "Pull-up variation with underhand grip",
-    instructions: "Hang from bar with underhand grip, pull body up",
-    difficultyLevel: "intermediate",
-    equipmentRequired: ["pull-up bar"],
-    muscleGroups: ["lats", "biceps", "rhomboids"],
-    movementPattern: "pull",
-    exerciseType: "bodyweight",
-    equipmentType: "bodyweight"
-  },
-  {
-    name: "Bent-over Barbell Row",
-    description: "Compound back exercise with barbell",
-    instructions: "Bend over at hips, pull barbell to lower chest",
-    difficultyLevel: "intermediate",
+    name: "Deadlift",
+    description: "Fundamental compound movement for posterior chain",
+    instructions: "Grip bar, keep back straight, lift by extending hips and knees",
     equipmentRequired: ["barbell"],
-    muscleGroups: ["lats", "rhomboids", "middle traps"],
+    muscleGroups: ["back", "glutes", "hamstrings"],
+    movementPattern: "hinge",
+    exerciseType: "weight_reps",
+    equipmentType: "barbell"
+  },
+  {
+    name: "Bent-Over Barbell Row",
+    description: "Compound back exercise using barbell",
+    instructions: "Bend over holding barbell, row to lower chest keeping back straight",
+    equipmentRequired: ["barbell"],
+    muscleGroups: ["back", "biceps"],
     movementPattern: "pull",
     exerciseType: "weight_reps",
     equipmentType: "barbell"
   },
   {
-    name: "Dumbbell Rows",
-    description: "Unilateral back exercise with dumbbell",
-    instructions: "Support body with one hand, row dumbbell to hip with other arm",
-    difficultyLevel: "beginner",
-    equipmentRequired: ["dumbbell", "bench"],
-    muscleGroups: ["lats", "rhomboids", "middle traps"],
-    movementPattern: "pull",
-    exerciseType: "weight_reps",
-    equipmentType: "dumbbell"
-  },
-  {
-    name: "T-Bar Row",
-    description: "Thick grip rowing exercise",
-    instructions: "Straddle T-bar, pull handle to chest while bent over",
-    difficultyLevel: "intermediate",
-    equipmentRequired: ["t-bar"],
-    muscleGroups: ["lats", "rhomboids", "middle traps"],
-    movementPattern: "pull",
-    exerciseType: "weight_reps",
-    equipmentType: "machine"
-  },
-  {
     name: "Lat Pulldown",
     description: "Machine exercise targeting latissimus dorsi",
-    instructions: "Pull bar down to upper chest while seated",
-    difficultyLevel: "beginner",
-    equipmentRequired: ["cable machine"],
-    muscleGroups: ["lats", "rhomboids", "biceps"],
+    instructions: "Pull bar down to upper chest, squeeze shoulder blades together",
+    equipmentRequired: ["lat pulldown machine"],
+    muscleGroups: ["back", "biceps"],
     movementPattern: "pull",
     exerciseType: "weight_reps",
     equipmentType: "machine"
   },
   {
     name: "Seated Cable Row",
-    description: "Horizontal pulling exercise using cable machine",
-    instructions: "Pull cable handle to abdomen while seated",
-    difficultyLevel: "beginner",
+    description: "Cable exercise for mid-back development",
+    instructions: "Sit upright, pull handle to torso, squeeze shoulder blades",
     equipmentRequired: ["cable machine"],
-    muscleGroups: ["lats", "rhomboids", "middle traps"],
+    muscleGroups: ["back", "biceps"],
     movementPattern: "pull",
     exerciseType: "weight_reps",
-    equipmentType: "machine"
+    equipmentType: "cable"
   },
   {
-    name: "Deadlift",
-    description: "King of all exercises - full body compound movement",
-    instructions: "Lift bar from ground by extending hips and knees simultaneously",
-    difficultyLevel: "advanced",
-    equipmentRequired: ["barbell"],
-    muscleGroups: ["hamstrings", "glutes", "erector spinae", "traps"],
-    movementPattern: "hinge",
+    name: "T-Bar Row",
+    description: "Back exercise using T-bar or landmine setup",
+    instructions: "Straddle bar, pull to chest with neutral spine",
+    equipmentRequired: ["t-bar", "plates"],
+    muscleGroups: ["back", "biceps"],
+    movementPattern: "pull",
     exerciseType: "weight_reps",
     equipmentType: "barbell"
   },
-
-  // SHOULDERS
+  {
+    name: "Single-Arm Dumbbell Row",
+    description: "Unilateral back exercise for muscle balance",
+    instructions: "Support on bench, row dumbbell to hip, squeeze at top",
+    equipmentRequired: ["dumbbell", "bench"],
+    muscleGroups: ["back", "biceps"],
+    movementPattern: "pull",
+    exerciseType: "weight_reps",
+    equipmentType: "dumbbell"
+  },
+  
+  // SHOULDER EXERCISES
   {
     name: "Overhead Press",
-    description: "Standing barbell shoulder press",
-    instructions: "Press barbell from shoulders to overhead position",
-    difficultyLevel: "intermediate",
+    description: "Primary shoulder exercise for overhead strength",
+    instructions: "Press barbell from shoulders to overhead, keep core tight",
     equipmentRequired: ["barbell"],
     muscleGroups: ["shoulders", "triceps"],
-    movementPattern: "push",
+    movementPattern: "press",
     exerciseType: "weight_reps",
     equipmentType: "barbell"
   },
   {
     name: "Dumbbell Shoulder Press",
-    description: "Seated or standing dumbbell press",
+    description: "Shoulder press using dumbbells for independent arm movement",
     instructions: "Press dumbbells from shoulder level to overhead",
-    difficultyLevel: "beginner",
     equipmentRequired: ["dumbbells"],
     muscleGroups: ["shoulders", "triceps"],
-    movementPattern: "push",
+    movementPattern: "press",
     exerciseType: "weight_reps",
     equipmentType: "dumbbell"
   },
   {
     name: "Lateral Raises",
     description: "Isolation exercise for side deltoids",
-    instructions: "Raise dumbbells out to sides until parallel with ground",
-    difficultyLevel: "beginner",
+    instructions: "Raise dumbbells out to sides until parallel to floor",
     equipmentRequired: ["dumbbells"],
     muscleGroups: ["shoulders"],
     movementPattern: "raise",
@@ -230,8 +200,7 @@ const exerciseData = [
   {
     name: "Front Raises",
     description: "Isolation exercise for front deltoids",
-    instructions: "Raise dumbbell in front of body to shoulder height",
-    difficultyLevel: "beginner",
+    instructions: "Raise dumbbells in front to shoulder height",
     equipmentRequired: ["dumbbells"],
     muscleGroups: ["shoulders"],
     movementPattern: "raise",
@@ -240,11 +209,10 @@ const exerciseData = [
   },
   {
     name: "Rear Delt Flyes",
-    description: "Isolation exercise for rear deltoids",
-    instructions: "Bent over, raise dumbbells out to sides",
-    difficultyLevel: "beginner",
+    description: "Isolation exercise for posterior deltoids",
+    instructions: "Bend over, raise dumbbells back and out",
     equipmentRequired: ["dumbbells"],
-    muscleGroups: ["rear delts"],
+    muscleGroups: ["shoulders"],
     movementPattern: "fly",
     exerciseType: "weight_reps",
     equipmentType: "dumbbell"
@@ -252,87 +220,29 @@ const exerciseData = [
   {
     name: "Upright Rows",
     description: "Compound exercise for shoulders and traps",
-    instructions: "Pull barbell straight up along body to chin level",
-    difficultyLevel: "intermediate",
+    instructions: "Pull barbell up along body to chest level",
     equipmentRequired: ["barbell"],
     muscleGroups: ["shoulders", "traps"],
     movementPattern: "pull",
     exerciseType: "weight_reps",
     equipmentType: "barbell"
   },
-  {
-    name: "Arnold Press",
-    description: "Dumbbell press with rotation for full deltoid development",
-    instructions: "Start palms facing you, rotate and press overhead",
-    difficultyLevel: "intermediate",
-    equipmentRequired: ["dumbbells"],
-    muscleGroups: ["shoulders"],
-    movementPattern: "push",
-    exerciseType: "weight_reps",
-    equipmentType: "dumbbell"
-  },
-
-  // LEGS
+  
+  // LEG EXERCISES
   {
     name: "Squats",
-    description: "King of leg exercises - compound movement",
-    instructions: "Lower body by bending knees and hips, return to standing",
-    difficultyLevel: "intermediate",
-    equipmentRequired: ["barbell", "squat rack"],
+    description: "Fundamental lower body compound movement",
+    instructions: "Descend by bending knees and hips, return to standing",
+    equipmentRequired: ["barbell"],
     muscleGroups: ["quads", "glutes", "hamstrings"],
     movementPattern: "squat",
     exerciseType: "weight_reps",
     equipmentType: "barbell"
-  },
-  {
-    name: "Front Squats",
-    description: "Quad-focused squat variation",
-    instructions: "Hold bar across front of shoulders, squat down and up",
-    difficultyLevel: "advanced",
-    equipmentRequired: ["barbell", "squat rack"],
-    muscleGroups: ["quads", "glutes", "core"],
-    movementPattern: "squat",
-    exerciseType: "weight_reps",
-    equipmentType: "barbell"
-  },
-  {
-    name: "Goblet Squats",
-    description: "Beginner-friendly squat with dumbbell",
-    instructions: "Hold dumbbell at chest, squat down keeping chest up",
-    difficultyLevel: "beginner",
-    equipmentRequired: ["dumbbell"],
-    muscleGroups: ["quads", "glutes"],
-    movementPattern: "squat",
-    exerciseType: "weight_reps",
-    equipmentType: "dumbbell"
-  },
-  {
-    name: "Lunges",
-    description: "Single-leg lower body exercise",
-    instructions: "Step forward into lunge position, lower back knee toward ground",
-    difficultyLevel: "beginner",
-    equipmentRequired: [],
-    muscleGroups: ["quads", "glutes", "hamstrings"],
-    movementPattern: "lunge",
-    exerciseType: "bodyweight",
-    equipmentType: "bodyweight"
-  },
-  {
-    name: "Dumbbell Lunges",
-    description: "Weighted lunges with dumbbells",
-    instructions: "Hold dumbbells, step forward into lunge position",
-    difficultyLevel: "intermediate",
-    equipmentRequired: ["dumbbells"],
-    muscleGroups: ["quads", "glutes", "hamstrings"],
-    movementPattern: "lunge",
-    exerciseType: "weight_reps",
-    equipmentType: "dumbbell"
   },
   {
     name: "Romanian Deadlift",
-    description: "Hip hinge movement targeting hamstrings",
-    instructions: "Keep legs straight, hinge at hips to lower bar",
-    difficultyLevel: "intermediate",
+    description: "Hip hinge movement targeting hamstrings and glutes",
+    instructions: "Lower barbell by pushing hips back, keep knees slightly bent",
     equipmentRequired: ["barbell"],
     muscleGroups: ["hamstrings", "glutes"],
     movementPattern: "hinge",
@@ -341,9 +251,8 @@ const exerciseData = [
   },
   {
     name: "Bulgarian Split Squats",
-    description: "Single-leg squat with rear foot elevated",
-    instructions: "Place rear foot on bench, squat down on front leg",
-    difficultyLevel: "intermediate",
+    description: "Single-leg squat variation for unilateral strength",
+    instructions: "Rear foot elevated, descend into lunge position",
     equipmentRequired: ["bench"],
     muscleGroups: ["quads", "glutes"],
     movementPattern: "squat",
@@ -351,13 +260,22 @@ const exerciseData = [
     equipmentType: "bodyweight"
   },
   {
-    name: "Leg Press",
-    description: "Machine exercise for overall leg development",
-    instructions: "Press weight sled with feet, lower under control",
-    difficultyLevel: "beginner",
-    equipmentRequired: ["leg press machine"],
+    name: "Walking Lunges",
+    description: "Dynamic lunge variation",
+    instructions: "Step forward into lunge, alternate legs while moving forward",
+    equipmentRequired: [],
     muscleGroups: ["quads", "glutes", "hamstrings"],
-    movementPattern: "squat",
+    movementPattern: "lunge",
+    exerciseType: "bodyweight",
+    equipmentType: "bodyweight"
+  },
+  {
+    name: "Leg Press",
+    description: "Machine-based leg exercise",
+    instructions: "Press weight up by extending knees and hips",
+    equipmentRequired: ["leg press machine"],
+    muscleGroups: ["quads", "glutes"],
+    movementPattern: "press",
     exerciseType: "weight_reps",
     equipmentType: "machine"
   },
@@ -365,7 +283,6 @@ const exerciseData = [
     name: "Leg Curls",
     description: "Isolation exercise for hamstrings",
     instructions: "Curl weight up by flexing knees while lying prone",
-    difficultyLevel: "beginner",
     equipmentRequired: ["leg curl machine"],
     muscleGroups: ["hamstrings"],
     movementPattern: "curl",
@@ -376,7 +293,6 @@ const exerciseData = [
     name: "Leg Extensions",
     description: "Isolation exercise for quadriceps",
     instructions: "Extend legs to straighten knees against resistance",
-    difficultyLevel: "beginner",
     equipmentRequired: ["leg extension machine"],
     muscleGroups: ["quads"],
     movementPattern: "extension",
@@ -387,20 +303,18 @@ const exerciseData = [
     name: "Calf Raises",
     description: "Isolation exercise for calf muscles",
     instructions: "Rise up on toes, lower under control",
-    difficultyLevel: "beginner",
     equipmentRequired: [],
     muscleGroups: ["calves"],
     movementPattern: "raise",
     exerciseType: "bodyweight",
     equipmentType: "bodyweight"
   },
-
-  // ARMS - BICEPS
+  
+  // ARM EXERCISES
   {
-    name: "Barbell Curls",
-    description: "Classic bicep exercise with barbell",
-    instructions: "Curl barbell up by flexing biceps, lower under control",
-    difficultyLevel: "beginner",
+    name: "Barbell Bicep Curls",
+    description: "Classic bicep exercise using barbell",
+    instructions: "Curl barbell up by flexing biceps, lower with control",
     equipmentRequired: ["barbell"],
     muscleGroups: ["biceps"],
     movementPattern: "curl",
@@ -408,10 +322,9 @@ const exerciseData = [
     equipmentType: "barbell"
   },
   {
-    name: "Dumbbell Curls",
-    description: "Bicep exercise allowing for unilateral training",
+    name: "Dumbbell Bicep Curls",
+    description: "Bicep exercise using dumbbells",
     instructions: "Curl dumbbells up alternating or simultaneously",
-    difficultyLevel: "beginner",
     equipmentRequired: ["dumbbells"],
     muscleGroups: ["biceps"],
     movementPattern: "curl",
@@ -420,33 +333,28 @@ const exerciseData = [
   },
   {
     name: "Hammer Curls",
-    description: "Neutral grip curl targeting biceps and brachialis",
-    instructions: "Curl dumbbells with neutral grip (thumbs up)",
-    difficultyLevel: "beginner",
+    description: "Bicep variation with neutral grip",
+    instructions: "Curl dumbbells with palms facing each other",
     equipmentRequired: ["dumbbells"],
-    muscleGroups: ["biceps", "brachialis"],
+    muscleGroups: ["biceps", "forearms"],
     movementPattern: "curl",
     exerciseType: "weight_reps",
     equipmentType: "dumbbell"
   },
   {
-    name: "Preacher Curls",
-    description: "Isolated bicep curl using preacher bench",
-    instructions: "Curl weight while arms supported on preacher bench",
-    difficultyLevel: "intermediate",
-    equipmentRequired: ["preacher bench", "barbell"],
-    muscleGroups: ["biceps"],
-    movementPattern: "curl",
+    name: "Close-Grip Bench Press",
+    description: "Tricep-focused bench press variation",
+    instructions: "Bench press with hands closer together, focus on triceps",
+    equipmentRequired: ["barbell", "bench"],
+    muscleGroups: ["triceps", "chest"],
+    movementPattern: "press",
     exerciseType: "weight_reps",
     equipmentType: "barbell"
   },
-
-  // ARMS - TRICEPS
   {
     name: "Tricep Dips",
     description: "Bodyweight exercise for triceps",
-    instructions: "Lower body by bending elbows, push back up",
-    difficultyLevel: "intermediate",
+    instructions: "Lower body by bending arms, push back up",
     equipmentRequired: ["parallel bars"],
     muscleGroups: ["triceps"],
     movementPattern: "push",
@@ -454,45 +362,21 @@ const exerciseData = [
     equipmentType: "bodyweight"
   },
   {
-    name: "Close-Grip Bench Press",
-    description: "Tricep-focused bench press variation",
-    instructions: "Bench press with hands closer than shoulder width",
-    difficultyLevel: "intermediate",
-    equipmentRequired: ["barbell", "bench"],
-    muscleGroups: ["triceps", "chest"],
-    movementPattern: "push",
-    exerciseType: "weight_reps",
-    equipmentType: "barbell"
-  },
-  {
     name: "Overhead Tricep Extension",
     description: "Isolation exercise for triceps",
-    instructions: "Extend dumbbell overhead by straightening elbows",
-    difficultyLevel: "beginner",
+    instructions: "Extend dumbbell overhead by straightening arms",
     equipmentRequired: ["dumbbell"],
     muscleGroups: ["triceps"],
     movementPattern: "extension",
     exerciseType: "weight_reps",
     equipmentType: "dumbbell"
   },
-  {
-    name: "Tricep Pushdowns",
-    description: "Cable exercise for tricep isolation",
-    instructions: "Push cable attachment down by extending elbows",
-    difficultyLevel: "beginner",
-    equipmentRequired: ["cable machine"],
-    muscleGroups: ["triceps"],
-    movementPattern: "extension",
-    exerciseType: "weight_reps",
-    equipmentType: "machine"
-  },
-
-  // CORE
+  
+  // CORE EXERCISES
   {
     name: "Plank",
     description: "Isometric core strengthening exercise",
-    instructions: "Hold straight body position supported on forearms",
-    difficultyLevel: "beginner",
+    instructions: "Hold body straight in push-up position",
     equipmentRequired: [],
     muscleGroups: ["core"],
     movementPattern: "hold",
@@ -500,43 +384,29 @@ const exerciseData = [
     equipmentType: "bodyweight"
   },
   {
-    name: "Crunches",
-    description: "Classic abdominal exercise",
-    instructions: "Curl upper body toward knees while lying on back",
-    difficultyLevel: "beginner",
-    equipmentRequired: [],
-    muscleGroups: ["abs"],
-    movementPattern: "crunch",
-    exerciseType: "bodyweight",
-    equipmentType: "bodyweight"
-  },
-  {
     name: "Russian Twists",
     description: "Rotational core exercise",
-    instructions: "Twist torso side to side while seated",
-    difficultyLevel: "beginner",
+    instructions: "Sit with knees bent, rotate torso side to side",
     equipmentRequired: [],
-    muscleGroups: ["obliques", "core"],
-    movementPattern: "twist",
+    muscleGroups: ["core"],
+    movementPattern: "rotation",
     exerciseType: "bodyweight",
     equipmentType: "bodyweight"
   },
   {
     name: "Mountain Climbers",
-    description: "Dynamic core and cardio exercise",
-    instructions: "Alternate bringing knees to chest in plank position",
-    difficultyLevel: "intermediate",
+    description: "Dynamic core exercise",
+    instructions: "In plank position, alternate bringing knees to chest",
     equipmentRequired: [],
-    muscleGroups: ["core", "shoulders"],
+    muscleGroups: ["core"],
     movementPattern: "dynamic",
-    exerciseType: "bodyweight",
+    exerciseType: "time",
     equipmentType: "bodyweight"
   },
   {
     name: "Dead Bug",
     description: "Core stability exercise",
-    instructions: "Lie on back, extend opposite arm and leg while maintaining neutral spine",
-    difficultyLevel: "beginner",
+    instructions: "Lie on back, extend opposite arm and leg while keeping core stable",
     equipmentRequired: [],
     muscleGroups: ["core"],
     movementPattern: "stability",
@@ -544,38 +414,61 @@ const exerciseData = [
     equipmentType: "bodyweight"
   },
   {
+    name: "Bicycle Crunches",
+    description: "Dynamic abdominal exercise",
+    instructions: "Bring opposite elbow to knee in cycling motion",
+    equipmentRequired: [],
+    muscleGroups: ["core"],
+    movementPattern: "crunch",
+    exerciseType: "bodyweight",
+    equipmentType: "bodyweight"
+  },
+  {
     name: "Hanging Leg Raises",
     description: "Advanced core exercise",
-    instructions: "Hang from bar, raise legs up to 90 degrees",
-    difficultyLevel: "advanced",
+    instructions: "Hang from bar, raise legs up while keeping core tight",
     equipmentRequired: ["pull-up bar"],
-    muscleGroups: ["abs", "hip flexors"],
+    muscleGroups: ["core"],
     movementPattern: "raise",
+    exerciseType: "bodyweight",
+    equipmentType: "bodyweight"
+  },
+  {
+    name: "Ab Wheel Rollout",
+    description: "Advanced core strengthening exercise",
+    instructions: "Roll wheel forward while maintaining straight body line",
+    equipmentRequired: ["ab wheel"],
+    muscleGroups: ["core"],
+    movementPattern: "rollout",
     exerciseType: "bodyweight",
     equipmentType: "bodyweight"
   }
 ];
 
 export async function seedExercises() {
-  console.log('Starting exercise seeding...');
-  
   try {
-    // Insert all exercises
-    for (const exercise of exerciseData) {
-      await db.insert(exercises).values(exercise).onConflictDoNothing();
+    console.log("Starting exercise seeding...");
+    
+    // Clear existing system exercises first
+    await db.delete(exercises).where({ isCustom: false });
+    
+    // Insert exercises in batches to avoid overwhelming the database
+    const batchSize = 10;
+    for (let i = 0; i < exerciseData.length; i += batchSize) {
+      const batch = exerciseData.slice(i, i + batchSize);
+      await db.insert(exercises).values(
+        batch.map(exercise => ({
+          ...exercise,
+          isCustom: false,
+          createdBy: null
+        }))
+      );
+      console.log(`Inserted exercises ${i + 1} to ${Math.min(i + batchSize, exerciseData.length)}`);
     }
     
-    console.log(`Successfully seeded ${exerciseData.length} exercises!`);
+    console.log(`Successfully seeded ${exerciseData.length} exercises`);
   } catch (error) {
-    console.error('Error seeding exercises:', error);
+    console.error("Error seeding exercises:", error);
+    throw error;
   }
 }
-
-// Run seeding
-seedExercises().then(() => {
-  console.log('Exercise seeding complete!');
-  process.exit(0);
-}).catch((error) => {
-  console.error('Failed to seed exercises:', error);
-  process.exit(1);
-});
