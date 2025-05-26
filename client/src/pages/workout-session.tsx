@@ -612,39 +612,14 @@ export default function WorkoutSession() {
                     disabled={set.completed}
                   />
                   
-                  <div className="relative">
-                    <Input
-                      type="text"
-                      value={set.completed ? set.reps.toString() : formatRepsDisplay(set)}
-                      onChange={(e) => {
-                        // If completed, don't allow editing
-                        if (set.completed) return;
-                        
-                        // Parse the input value
-                        const value = e.target.value;
-                        let repsValue = 0;
-                        
-                        if (value.includes('-')) {
-                          // Rep range format like "8-12"
-                          const [min] = value.split('-').map(Number);
-                          repsValue = min || 0;
-                        } else {
-                          repsValue = parseInt(value) || 0;
-                        }
-                        
-                        updateSetValue(exerciseIndex, setIndex, 'reps', repsValue);
-                      }}
-                      className="h-10 text-center font-medium text-lg"
-                      placeholder={formatRepsDisplay(set) || "12"}
-                      disabled={set.completed}
-                      readOnly={!set.completed && set.minReps && set.maxReps && set.minReps !== set.maxReps}
-                    />
-                    {!set.completed && set.minReps && set.maxReps && set.minReps !== set.maxReps && (
-                      <div className="absolute inset-0 flex items-center justify-center text-neutral-600 pointer-events-none">
-                        {formatRepsDisplay(set)}
-                      </div>
-                    )}
-                  </div>
+                  <Input
+                    type="number"
+                    value={set.completed ? set.reps.toString() : (set.reps > 0 ? set.reps.toString() : "")}
+                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
+                    className="h-10 text-center font-medium text-lg"
+                    placeholder={formatRepsDisplay(set) || "12"}
+                    disabled={set.completed}
+                  />
                   
                   <Input
                     type="number"
