@@ -19,7 +19,9 @@ import {
   Trash2,
   Edit,
   Folder,
-  FolderPlus
+  FolderPlus,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -36,6 +38,7 @@ export default function Routines() {
   const queryClient = useQueryClient();
   const [newFolderName, setNewFolderName] = useState("");
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
+  const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
 
   // Fetch routines using workout templates since that's where we're storing them
   const { data: routines = [], isLoading } = useQuery({
@@ -46,6 +49,33 @@ export default function Routines() {
   const { data: folders = [] } = useQuery({
     queryKey: ["/api/routine-folders"],
   });
+
+  // Helper functions
+  const toggleFolder = (folderId: number) => {
+    const newExpanded = new Set(expandedFolders);
+    if (newExpanded.has(folderId)) {
+      newExpanded.delete(folderId);
+    } else {
+      newExpanded.add(folderId);
+    }
+    setExpandedFolders(newExpanded);
+  };
+
+  const getRoutinesInFolder = (folderId: number) => {
+    return routines.filter((routine: any) => routine.folderId === folderId);
+  };
+
+  const getRoutinesWithoutFolder = () => {
+    return routines.filter((routine: any) => !routine.folderId);
+  };
+
+  const getExerciseCount = (routine: any) => {
+    // Count exercises from the routine's exercise array if available
+    if (routine.exercises && Array.isArray(routine.exercises)) {
+      return routine.exercises.length;
+    }
+    return 0;
+  };
 
   // Create folder mutation
   const createFolderMutation = useMutation({
@@ -200,30 +230,110 @@ export default function Routines() {
       {folders.length > 0 && (
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-neutral-900 mb-4">Folders</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {folders.map((folder: any) => (
-              <Card 
-                key={folder.id} 
-                className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200 cursor-pointer"
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-8 h-8 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: folder.color }}
-                    >
-                      <Folder className="h-4 w-4 text-white" />
+          <div className="space-y-4">
+            {folders.map((folder: any) => {
+              const folderRoutines = getRoutinesInFolder(folder.id);
+              const isExpanded = expandedFolders.has(folder.id);
+              
+              return (
+                <div key={folder.id}>
+                  <Card 
+                    className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200 cursor-pointer"
+                    onClick={() => toggleFolder(folder.id)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div 
+                            className="w-8 h-8 rounded-lg flex items-center justify-center"
+                            style={{ backgroundColor: folder.color }}
+                          >
+                            <Folder className="h-4 w-4 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-neutral-900 truncate">
+                              {folder.name}
+                            </h3>
+                            <p className="text-sm text-neutral-500">
+                              {folderRoutines.length} routine{folderRoutines.length !== 1 ? 's' : ''}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          {isExpanded ? (
+                            <ChevronDown className="h-5 w-5 text-neutral-500" />
+                          ) : (
+                            <ChevronRight className="h-5 w-5 text-neutral-500" />
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Expanded folder content */}
+                  {isExpanded && folderRoutines.length > 0 && (
+                    <div className="ml-4 mt-2 space-y-2">
+                      {folderRoutines.map((routine: any) => (
+                        <Card 
+                          key={routine.id} 
+                          className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200"
+                        >
+                          <CardHeader className="pb-4">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <Link href={`/routine/${routine.slug}`}>
+                                  <CardTitle className="text-lg font-medium text-neutral-900 mb-2 hover:text-blue-600 cursor-pointer transition-colors">
+                                    {routine.name}
+                                  </CardTitle>
+                                </Link>
+                                {routine.description && (
+                                  <p className="text-sm text-neutral-600 line-clamp-2">
+                                    {routine.description}
+                                  </p>
+                                )}
+                              </div>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuItem onClick={() => window.location.href = `/create-routine?edit=${routine.id}`}>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit Routine
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => deleteRoutineMutation.mutate(routine.id)}
+                                    className="text-red-600"
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete Routine
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            <div className="flex items-center justify-between text-sm text-neutral-600">
+                              <span>{getExerciseCount(routine)} exercises</span>
+                              <Button 
+                                size="sm" 
+                                onClick={() => window.location.href = `/workout?template=${routine.id}`}
+                                className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
+                              >
+                                <Play className="h-3 w-3 mr-1" />
+                                Start Workout
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-neutral-900 truncate">
-                        {folder.name}
-                      </h3>
-                      <p className="text-sm text-neutral-500">0 routines</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
