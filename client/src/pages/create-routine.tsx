@@ -24,14 +24,17 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
+interface RoutineSet {
+  reps: string; // Will store as "10-12" format
+  weight?: string;
+  restDuration: number; // Rest time in seconds
+}
+
 interface RoutineExercise {
   exerciseId: number;
   exerciseName: string;
-  sets: number;
-  reps: string; // Will store as "10-12" format
-  weight?: string;
+  sets: RoutineSet[];
   notes?: string;
-  restDuration?: number; // Rest time in seconds, default 120 (2 minutes)
 }
 
 export default function CreateRoutine() {
@@ -87,11 +90,12 @@ export default function CreateRoutine() {
         const routineExercises = existingRoutine.exercises.map((exercise: any) => ({
           exerciseId: exercise.exerciseId,
           exerciseName: exercise.exercise.name,
-          sets: exercise.setsTarget || 3,
-          reps: exercise.repsTarget || "10",
-          weight: exercise.weightTarget || "",
+          sets: Array.from({ length: exercise.setsTarget || 3 }, () => ({
+            reps: exercise.repsTarget || "10",
+            weight: exercise.weightTarget || "",
+            restDuration: exercise.restDuration || 120,
+          })),
           notes: exercise.notes || "",
-          restDuration: exercise.restDuration || 120, // Default 2 minutes
         }));
         setSelectedExercises(routineExercises);
       }
@@ -163,11 +167,12 @@ export default function CreateRoutine() {
     const routineExercise: RoutineExercise = {
       exerciseId: exercise.id,
       exerciseName: exercise.name,
-      sets: parseInt(sets),
-      reps: repsValue,
-      weight: weight || undefined,
+      sets: Array.from({ length: parseInt(sets) }, () => ({
+        reps: repsValue,
+        weight: weight || undefined,
+        restDuration: parseInt(restDuration),
+      })),
       notes: notes || undefined,
-      restDuration: parseInt(restDuration),
     };
 
     setSelectedExercises([...selectedExercises, routineExercise]);
@@ -183,6 +188,32 @@ export default function CreateRoutine() {
 
   const removeExerciseFromRoutine = (index: number) => {
     setSelectedExercises(selectedExercises.filter((_, i) => i !== index));
+  };
+
+  const updateSetField = (exerciseIndex: number, setIndex: number, field: keyof RoutineSet, value: string | number) => {
+    const updatedExercises = [...selectedExercises];
+    updatedExercises[exerciseIndex].sets[setIndex] = {
+      ...updatedExercises[exerciseIndex].sets[setIndex],
+      [field]: value
+    };
+    setSelectedExercises(updatedExercises);
+  };
+
+  const addSet = (exerciseIndex: number) => {
+    const updatedExercises = [...selectedExercises];
+    const lastSet = updatedExercises[exerciseIndex].sets[updatedExercises[exerciseIndex].sets.length - 1];
+    updatedExercises[exerciseIndex].sets.push({
+      reps: lastSet.reps,
+      weight: lastSet.weight,
+      restDuration: lastSet.restDuration
+    });
+    setSelectedExercises(updatedExercises);
+  };
+
+  const removeSet = (exerciseIndex: number, setIndex: number) => {
+    const updatedExercises = [...selectedExercises];
+    updatedExercises[exerciseIndex].sets = updatedExercises[exerciseIndex].sets.filter((_, i) => i !== setIndex);
+    setSelectedExercises(updatedExercises);
   };
 
   const handleCreateRoutine = () => {
@@ -600,44 +631,144 @@ export default function CreateRoutine() {
                 <span>Routine Exercises ({selectedExercises.length})</span>
                 {selectedExercises.length > 0 && (
                   <span className="text-sm font-normal text-gray-600">
-                    Total: {selectedExercises.reduce((sum, ex) => sum + ex.sets, 0)} sets
+                    Total: {selectedExercises.reduce((sum, ex) => sum + ex.sets.length, 0)} sets
                   </span>
                 )}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {selectedExercises.length > 0 ? (
-                <div className="space-y-3">
-                  {selectedExercises.map((exercise, index) => (
+                <div className="space-y-4">
+                  {selectedExercises.map((exercise, exerciseIndex) => (
                     <div 
-                      key={`${exercise.exerciseId}-${index}`}
-                      className="flex items-center justify-between p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                      key={`${exercise.exerciseId}-${exerciseIndex}`}
+                      className="border rounded-lg bg-white"
                     >
-                      <div className="flex-1">
-                        <div className="font-medium text-lg">{exercise.exerciseName}</div>
-                        <div className="text-sm text-gray-600 mt-1">
-                          <span className="font-medium">{exercise.sets} sets × {exercise.reps} reps</span>
-                          {exercise.weight && (
-                            <span className="ml-2 text-blue-600">@ {exercise.weight}</span>
-                          )}
-                          <span className="ml-2 text-green-600">
-                            🕐 {Math.floor((exercise.restDuration || 120) / 60)}m {(exercise.restDuration || 120) % 60}s rest
-                          </span>
+                      {/* Exercise Header */}
+                      <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+                        <div>
+                          <div className="font-medium text-lg">{exercise.exerciseName}</div>
+                          <div className="text-sm text-gray-600">
+                            {exercise.sets.length} sets
+                          </div>
                         </div>
+                        <Button
+                          onClick={() => removeExerciseFromRoutine(exerciseIndex)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* Sets List */}
+                      <div className="p-4 space-y-2">
+                        {exercise.sets.map((set, setIndex) => (
+                          <div 
+                            key={setIndex}
+                            className="flex items-center gap-4 p-3 border rounded-md bg-gray-50"
+                          >
+                            <span className="text-sm font-medium text-gray-600 min-w-[60px]">
+                              Set {setIndex + 1}
+                            </span>
+                            
+                            {/* Reps Input */}
+                            <div className="flex-1">
+                              <Input
+                                value={set.reps}
+                                onChange={(e) => updateSetField(exerciseIndex, setIndex, 'reps', e.target.value)}
+                                placeholder="10"
+                                className="h-8 text-sm"
+                              />
+                              <span className="text-xs text-gray-500">reps</span>
+                            </div>
+                            
+                            {/* Weight Input */}
+                            <div className="flex-1">
+                              <Input
+                                value={set.weight || ""}
+                                onChange={(e) => updateSetField(exerciseIndex, setIndex, 'weight', e.target.value)}
+                                placeholder="135 lbs"
+                                className="h-8 text-sm"
+                              />
+                              <span className="text-xs text-gray-500">weight</span>
+                            </div>
+                            
+                            {/* Rest Time Select */}
+                            <div className="flex-1">
+                              <Select 
+                                value={set.restDuration.toString()} 
+                                onValueChange={(value) => updateSetField(exerciseIndex, setIndex, 'restDuration', parseInt(value))}
+                              >
+                                <SelectTrigger className="h-8 text-sm">
+                                  <SelectValue>
+                                    {(() => {
+                                      const seconds = set.restDuration;
+                                      const mins = Math.floor(seconds / 60);
+                                      const secs = seconds % 60;
+                                      return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+                                    })()}
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent className="max-h-40">
+                                  {/* 5 second intervals up to 2 minutes */}
+                                  {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
+                                    <SelectItem key={seconds} value={seconds.toString()}>
+                                      {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
+                                    </SelectItem>
+                                  ))}
+                                  
+                                  {/* 15 second intervals from 2m 15s to 5 minutes */}
+                                  {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
+                                    <SelectItem key={seconds} value={seconds.toString()}>
+                                      {Math.floor(seconds / 60)}m {seconds % 60}s
+                                    </SelectItem>
+                                  ))}
+                                  
+                                  {/* 30 second intervals from 5m 30s to 15 minutes */}
+                                  {Array.from({ length: 19 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
+                                    <SelectItem key={seconds} value={seconds.toString()}>
+                                      {Math.floor(seconds / 60)}m {seconds % 60}s
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <span className="text-xs text-gray-500">rest</span>
+                            </div>
+                            
+                            {/* Remove Set Button */}
+                            {exercise.sets.length > 1 && (
+                              <Button
+                                onClick={() => removeSet(exerciseIndex, setIndex)}
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        
+                        {/* Add Set Button */}
+                        <Button
+                          onClick={() => addSet(exerciseIndex)}
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-2"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add Set
+                        </Button>
+                        
+                        {/* Exercise Notes */}
                         {exercise.notes && (
-                          <div className="text-xs text-gray-500 mt-1 italic">
+                          <div className="text-xs text-gray-500 mt-2 italic border-t pt-2">
                             {exercise.notes}
                           </div>
                         )}
                       </div>
-                      <Button
-                        onClick={() => removeExerciseFromRoutine(index)}
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
                     </div>
                   ))}
                 </div>
