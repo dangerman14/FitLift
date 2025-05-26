@@ -175,7 +175,7 @@ export default function WorkoutSession() {
             
             // Set workout name
             setWorkoutName(template.name);
-            setWorkoutDescription(template.description || '');
+            setWorkoutDescription(template.description || `${template.name} workout`);
             
             // Load template exercises with proper reps data parsing
             const templateExercises = template.exercises.map((templateEx: any, index: number) => {
