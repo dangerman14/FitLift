@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { exercises } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 const exerciseData = [
   // CHEST EXERCISES
@@ -450,7 +451,7 @@ export async function seedExercises() {
     console.log("Starting exercise seeding...");
     
     // Clear existing system exercises first
-    await db.delete(exercises).where({ isCustom: false });
+    await db.delete(exercises).where(eq(exercises.isCustom, false));
     
     // Insert exercises in batches to avoid overwhelming the database
     const batchSize = 10;
