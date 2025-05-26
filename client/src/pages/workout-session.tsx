@@ -46,6 +46,10 @@ export default function WorkoutSession() {
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [weightUnitOverride, setWeightUnitOverride] = useState<'default' | 'kg' | 'lbs'>('default');
+  const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
+  const [workoutName, setWorkoutName] = useState('');
+  const [workoutDescription, setWorkoutDescription] = useState('');
+  const [workoutImageUrl, setWorkoutImageUrl] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -82,6 +86,41 @@ export default function WorkoutSession() {
     }
     return weightUnitOverride.toUpperCase();
   };
+
+  // Update workout details mutation
+  const updateWorkoutDetailsMutation = useMutation({
+    mutationFn: async (data: { name: string; description: string; imageUrl: string }) => {
+      return await apiRequest(`/api/workouts/${activeWorkout?.id}/details`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+    onSuccess: (updatedWorkout) => {
+      setActiveWorkout(updatedWorkout);
+      setEditWorkoutOpen(false);
+      toast({
+        title: "Workout updated!",
+        description: "Your workout details have been saved.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update workout details.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Initialize workout details form when activeWorkout loads
+  useEffect(() => {
+    if (activeWorkout) {
+      setWorkoutName(activeWorkout.name || '');
+      setWorkoutDescription(activeWorkout.description || '');
+      setWorkoutImageUrl(activeWorkout.imageUrl || '');
+    }
+  }, [activeWorkout]);
 
   const { data: exercises } = useQuery({
     queryKey: ["/api/exercises"],
@@ -310,10 +349,91 @@ export default function WorkoutSession() {
             <Button variant="ghost" size="sm" onClick={() => setLocation("/")} className="hover:bg-white hover:bg-opacity-20 rounded-xl text-white">
               <X className="h-5 w-5" />
             </Button>
+            {activeWorkout?.imageUrl && (
+              <img 
+                src={activeWorkout.imageUrl} 
+                alt="Workout" 
+                className="w-12 h-12 rounded-xl object-cover border-2 border-white/20"
+              />
+            )}
             <div>
-              <h1 className="text-3xl font-bold text-white drop-shadow-lg">Workout Session</h1>
-              <p className="text-green-100">Push your limits today</p>
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">{activeWorkout?.name || 'Workout Session'}</h1>
+              <p className="text-green-100">{activeWorkout?.description || 'Push your limits today'}</p>
             </div>
+            <Dialog open={editWorkoutOpen} onOpenChange={setEditWorkoutOpen}>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 rounded-xl">
+                  <Edit3 className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Workout Details</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Workout Name</label>
+                    <Input
+                      value={workoutName}
+                      onChange={(e) => setWorkoutName(e.target.value)}
+                      placeholder="Enter workout name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Description</label>
+                    <Textarea
+                      value={workoutDescription}
+                      onChange={(e) => setWorkoutDescription(e.target.value)}
+                      placeholder="Add a description..."
+                      rows={3}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      <Image className="h-4 w-4 inline mr-1" />
+                      Workout Image URL
+                    </label>
+                    <Input
+                      value={workoutImageUrl}
+                      onChange={(e) => setWorkoutImageUrl(e.target.value)}
+                      placeholder="Paste image URL..."
+                    />
+                    {workoutImageUrl && (
+                      <div className="mt-2">
+                        <img 
+                          src={workoutImageUrl} 
+                          alt="Preview" 
+                          className="w-full h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2 pt-4">
+                    <Button 
+                      onClick={() => setEditWorkoutOpen(false)}
+                      variant="outline" 
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={() => updateWorkoutDetailsMutation.mutate({
+                        name: workoutName,
+                        description: workoutDescription,
+                        imageUrl: workoutImageUrl
+                      })}
+                      disabled={updateWorkoutDetailsMutation.isPending}
+                      className="flex-1"
+                    >
+                      {updateWorkoutDetailsMutation.isPending ? "Saving..." : "Save"}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-3 bg-white bg-opacity-20 px-6 py-3 rounded-2xl backdrop-blur-sm">
