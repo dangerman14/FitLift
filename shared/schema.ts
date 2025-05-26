@@ -85,6 +85,13 @@ export const exercises = pgTable("exercises", {
   movementPattern: varchar("movement_pattern"), // push, pull, squat, hinge, etc.
   videoUrl: varchar("video_url"),
   thumbnailUrl: varchar("thumbnail_url"),
+  // New custom exercise fields
+  imageUrl: varchar("image_url"),
+  youtubeUrl: varchar("youtube_url"),
+  equipmentType: varchar("equipment_type"), // None, Barbell, Dumbbell, etc.
+  primaryMuscleGroups: jsonb("primary_muscle_groups").default([]),
+  secondaryMuscleGroups: jsonb("secondary_muscle_groups").default([]),
+  exerciseType: varchar("exercise_type").default("weight_reps"), // weight_reps, bodyweight_reps, etc.
   isCustom: boolean("is_custom").default(false),
   createdBy: varchar("created_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").defaultNow(),

@@ -36,7 +36,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   
   // Exercise operations
-  getExercises(): Promise<Exercise[]>;
+  getExercises(userId?: string): Promise<Exercise[]>;
   getExercisesByMuscleGroup(muscleGroup: string): Promise<Exercise[]>;
   getExercisesByEquipment(equipment: string): Promise<Exercise[]>;
   createExercise(exercise: InsertExercise): Promise<Exercise>;
