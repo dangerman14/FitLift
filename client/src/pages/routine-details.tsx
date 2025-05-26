@@ -66,15 +66,24 @@ export default function RoutineDetails() {
     return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
   };
 
-  const formatReps = (repsData: string) => {
+  const formatReps = (repsData: string, exercise: any) => {
     try {
       const parsed = JSON.parse(repsData);
       if (parsed.setsData && Array.isArray(parsed.setsData)) {
-        return parsed.setsData.map((set: any, index: number) => (
-          <div key={index} className="text-sm text-gray-600 dark:text-gray-300">
-            Set {index + 1}: {set.reps} reps {set.weight ? `@ ${set.weight} ${user?.weightUnit || 'lbs'}` : '(bodyweight)'}
-          </div>
-        ));
+        return parsed.setsData.map((set: any, index: number) => {
+          const isBodyweight = exercise.exerciseType === 'bodyweight' || exercise.equipmentType === 'bodyweight';
+          const weightDisplay = set.weight 
+            ? `@ ${set.weight} ${user?.weightUnit || 'lbs'}` 
+            : isBodyweight 
+              ? '(bodyweight)' 
+              : `@ - ${user?.weightUnit || 'lbs'}`;
+          
+          return (
+            <div key={index} className="text-sm text-gray-600 dark:text-gray-300">
+              Set {index + 1}: {set.reps} reps {weightDisplay}
+            </div>
+          );
+        });
       }
     } catch (e) {
       // Fallback for simple string format
@@ -193,7 +202,7 @@ export default function RoutineDetails() {
                           <div>
                             <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sets & Reps</p>
                             <div className="space-y-1">
-                              {exercise.notes ? formatReps(exercise.notes) : (
+                              {exercise.notes ? formatReps(exercise.notes, exercise.exercise) : (
                                 <div className="text-sm text-gray-600 dark:text-gray-300">
                                   {exercise.setsTarget || 3} sets × {exercise.repsTarget || 10} reps
                                 </div>

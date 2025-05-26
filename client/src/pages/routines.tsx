@@ -40,11 +40,7 @@ export default function Routines() {
   // Fetch routines using workout templates since that's where we're storing them
   const { data: routines = [], isLoading } = useQuery({
     queryKey: ["/api/workout-templates"],
-    staleTime: 0, // Force fresh data
   });
-
-  // Debug log to see the data structure
-  console.log('Routines data:', routines.slice(0, 1));
 
   // Fetch folders
   const { data: folders = [] } = useQuery({
