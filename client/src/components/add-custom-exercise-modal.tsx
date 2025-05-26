@@ -117,18 +117,30 @@ export default function AddCustomExerciseModal({ isOpen, onClose }: AddCustomExe
   const createExerciseMutation = useMutation({
     mutationFn: async (data: CustomExerciseForm) => {
       console.log("Creating exercise with data:", data);
-      const response = await apiRequest("POST", "/api/exercises/custom", {
-        ...data,
-        isCustom: true,
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      try {
+        const response = await fetch("/api/exercises/custom", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            ...data,
+            isCustom: true,
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log("Exercise created successfully:", result);
+        return result;
+      } catch (error) {
+        console.error("Mutation function error:", error);
+        throw error;
       }
-      
-      const result = await response.json();
-      console.log("Exercise created successfully:", result);
-      return result;
     },
     onSuccess: (data) => {
       console.log("Success callback triggered:", data);
