@@ -176,16 +176,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/workouts', isAuthenticated, async (req: any, res) => {
     try {
+      // Extract dates before validation and handle them separately
+      const { startTime, endTime, ...bodyWithoutDates } = req.body;
+      
       const validatedData = insertWorkoutSchema.parse({
-        ...req.body,
+        ...bodyWithoutDates,
         userId: req.user.claims.sub,
       });
       
       // Convert string dates to Date objects for the database
       const workoutData = {
         ...validatedData,
-        startTime: validatedData.startTime ? new Date(validatedData.startTime) : new Date(),
-        endTime: validatedData.endTime ? new Date(validatedData.endTime) : null,
+        startTime: startTime ? new Date(startTime) : new Date(),
+        endTime: endTime ? new Date(endTime) : null,
       };
       
       const workout = await storage.createWorkout(workoutData);
