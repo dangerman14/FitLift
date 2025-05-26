@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { X, Plus, Timer, MoreVertical, Check } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface WorkoutExercise {
   id: number;
@@ -44,6 +45,22 @@ export default function WorkoutSession() {
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Weight unit conversion helpers
+  const getWeightUnit = () => user?.weightUnit || 'kg';
+  const getDisplayWeight = (weight: number) => {
+    if (getWeightUnit() === 'lbs' && weight > 0) {
+      return Math.round(weight * 2.20462 * 10) / 10; // Convert kg to lbs
+    }
+    return weight;
+  };
+  const getStorageWeight = (displayWeight: number) => {
+    if (getWeightUnit() === 'lbs' && displayWeight > 0) {
+      return Math.round(displayWeight / 2.20462 * 10) / 10; // Convert lbs to kg for storage
+    }
+    return displayWeight;
+  };
 
   const { data: exercises } = useQuery({
     queryKey: ["/api/exercises"],
@@ -101,7 +118,7 @@ export default function WorkoutSession() {
           weight: 0,
           reps: 0,
           completed: false,
-          previousWeight: 75,
+          previousWeight: getDisplayWeight(75), // Convert to user's preferred unit
           previousReps: 12
         }]
       };
@@ -300,7 +317,7 @@ export default function WorkoutSession() {
           </div>
           <div>
             <div className="text-neutral-500">Volume</div>
-            <div className="font-medium text-neutral-900">{Math.round(getTotalVolume())} kg</div>
+            <div className="font-medium text-neutral-900">{Math.round(getDisplayWeight(getTotalVolume()))} {getWeightUnit()}</div>
           </div>
           <div>
             <div className="text-neutral-500">Sets</div>
@@ -353,7 +370,7 @@ export default function WorkoutSession() {
               <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
                 <div>SET</div>
                 <div>PREVIOUS</div>
-                <div>KG</div>
+                <div>{getWeightUnit().toUpperCase()}</div>
                 <div>REPS</div>
                 <div>RPE</div>
                 <div className="text-center">✓</div>
@@ -365,15 +382,15 @@ export default function WorkoutSession() {
                   <div className="font-medium text-lg">{set.setNumber}</div>
                   
                   <div className="text-sm text-neutral-500">
-                    {set.previousWeight}kg x {set.previousReps}
+                    {getDisplayWeight(set.previousWeight || 0)}{getWeightUnit()} x {set.previousReps}
                   </div>
                   
                   <Input
                     type="number"
-                    value={set.weight || ""}
-                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'weight', parseFloat(e.target.value) || 0)}
+                    value={getDisplayWeight(set.weight || 0) || ""}
+                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'weight', getStorageWeight(parseFloat(e.target.value) || 0))}
                     className="h-10 text-center font-medium text-lg"
-                    placeholder="75"
+                    placeholder={getWeightUnit() === 'lbs' ? "165" : "75"}
                     disabled={set.completed}
                   />
                   
