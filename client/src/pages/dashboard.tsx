@@ -48,13 +48,17 @@ export default function Dashboard() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString();
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      month: 'long', 
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const formatVolume = (volume: number) => {
+    const unit = user?.weightUnit || 'lbs';
+    return `${Math.round(volume)} ${unit}`;
   };
 
   const formatDuration = (minutes: number) => {
@@ -219,30 +223,92 @@ export default function Dashboard() {
           </Button>
         </div>
         
-        <div className="space-y-3">
+        <div className="space-y-6">
           {recentWorkouts.length > 0 ? (
             recentWorkouts.map((workout: any) => (
               <Card key={workout.id} className="shadow-material-1 border border-neutral-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-                        <Check className="h-5 w-5 text-primary-600" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-neutral-900">
-                          Completed {workout.name}
-                        </div>
-                        <div className="text-sm text-neutral-600">
-                          {formatDuration(workout.duration || 0)}
-                        </div>
-                      </div>
+                <CardContent className="p-6">
+                  {/* Date and Title */}
+                  <div className="mb-4">
+                    <div className="text-sm text-neutral-500 mb-1">
+                      {formatDate(workout.startTime)}
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs text-neutral-500">
-                        {formatDate(workout.startTime)}
-                      </div>
+                    <h3 className="text-lg font-semibold text-neutral-900">
+                      {workout.name || "Workout Session"}
+                    </h3>
+                  </div>
+
+                  {/* Stats Row */}
+                  <div className="flex items-center gap-6 mb-4 text-sm text-neutral-600">
+                    <div>
+                      <span className="font-medium">Duration:</span> {formatDuration(workout.duration || 0)}
                     </div>
+                    <div>
+                      <span className="font-medium">Volume:</span> {formatVolume(workout.totalWeight || 0)}
+                    </div>
+                    <div>
+                      <span className="font-medium">Records:</span> {workout.personalRecords || 0} PRs
+                    </div>
+                  </div>
+
+                  {/* Exercise List */}
+                  <div className="mb-4">
+                    <div className="space-y-2">
+                      {/* Sample exercises - in real implementation, these would come from workout.exercises */}
+                      <div className="text-sm text-neutral-700">
+                        3 × Lat Pulldown (Cable)
+                      </div>
+                      <div className="text-sm text-neutral-700">
+                        3 × Incline Chest Press (Machine)
+                      </div>
+                      <div className="text-sm text-neutral-700">
+                        3 × Shoulder Press (Dumbbell)
+                      </div>
+                      {/* Show more exercises indicator */}
+                      {workout.exerciseCount > 3 && (
+                        <div className="text-sm text-neutral-500 italic">
+                          see {workout.exerciseCount - 3} more exercises
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Engagement Stats */}
+                  <div className="flex items-center gap-4 mb-4 text-sm text-neutral-600">
+                    <div>
+                      <span className="font-medium">{workout.likes || 0}</span> likes
+                    </div>
+                    <div>
+                      <span className="font-medium">{workout.comments || 0}</span> comments
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-3 pt-2 border-t border-neutral-100">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex items-center gap-2 text-neutral-600 hover:text-red-500"
+                    >
+                      <Heart className="h-4 w-4" />
+                      Like
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex items-center gap-2 text-neutral-600 hover:text-blue-500"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Comment
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex items-center gap-2 text-neutral-600 hover:text-green-500"
+                    >
+                      <Share className="h-4 w-4" />
+                      Share
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
