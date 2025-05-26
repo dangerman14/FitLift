@@ -239,7 +239,7 @@ export default function Routines() {
               <CardHeader className="pb-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <Link href={`/routine/${routine.id}`}>
+                    <Link href={`/routine/${routine.slug}`}>
                       <CardTitle className="text-lg font-medium text-neutral-900 mb-2 hover:text-blue-600 cursor-pointer transition-colors">
                         {routine.name}
                       </CardTitle>

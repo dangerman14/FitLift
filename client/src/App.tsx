@@ -49,7 +49,7 @@ function Router() {
                 <Route path="/workouts" component={Workouts} />
                 <Route path="/exercises" component={Exercises} />
                 <Route path="/routines" component={Routines} />
-                <Route path="/routine/:id" component={RoutineDetails} />
+                <Route path="/routine/:slug" component={RoutineDetails} />
                 <Route path="/create-routine" component={CreateRoutine} />
                 <Route path="/progress" component={Progress} />
                 <Route path="/profile" component={Profile} />

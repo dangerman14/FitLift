@@ -7,14 +7,14 @@ import { ArrowLeft, Edit, Clock, Hash, Weight, Plus } from "lucide-react";
 import { Link } from "wouter";
 
 export default function RoutineDetails() {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const [, setLocation] = useLocation();
   
-  console.log('RoutineDetails - ID from params:', id);
+  console.log('RoutineDetails - Slug from params:', slug);
   
   const { data: routineData, isLoading: routineLoading } = useQuery({
-    queryKey: [`/api/workout-templates/${id}`],
-    enabled: !!id,
+    queryKey: [`/api/workout-templates/slug/${slug}`],
+    enabled: !!slug,
   });
 
   // Handle the case where the API returns an array instead of a single object
@@ -108,7 +108,7 @@ export default function RoutineDetails() {
               )}
             </div>
           </div>
-          <Button onClick={() => setLocation(`/create-routine?edit=${id}`)}>
+          <Button onClick={() => setLocation(`/create-routine?edit=${routine?.id}`)}>
             <Edit className="w-4 h-4 mr-2" />
             Edit Routine
           </Button>
@@ -242,7 +242,7 @@ export default function RoutineDetails() {
                 <p className="text-gray-500 dark:text-gray-400 mb-4">
                   This routine is empty. Add some exercises to get started with your workout.
                 </p>
-                <Button onClick={() => setLocation(`/create-routine?edit=${id}`)}>
+                <Button onClick={() => setLocation(`/create-routine?edit=${routine?.id}`)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Exercises
                 </Button>
