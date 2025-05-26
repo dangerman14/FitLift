@@ -93,7 +93,8 @@ export default function Dashboard() {
               </div>
               <Button 
                 onClick={handleQuickStart}
-                className="bg-white text-primary-600 hover:bg-primary-50 w-full"
+                className="w-full"
+                style={{ backgroundColor: '#FFFFFF', color: '#1976D2', border: '1px solid #1976D2' }}
               >
                 Start Workout
               </Button>
@@ -119,7 +120,8 @@ export default function Dashboard() {
                   </div>
                   <Button 
                     variant="outline" 
-                    className="w-full text-primary-500 border-primary-500 hover:bg-primary-50"
+                    className="w-full"
+                    style={{ color: '#1976D2', borderColor: '#1976D2', backgroundColor: 'transparent' }}
                     onClick={() => handleStartWorkout(lastWorkout)}
                   >
                     Repeat Workout
@@ -225,7 +227,11 @@ export default function Dashboard() {
                 <Calendar className="h-12 w-12 text-neutral-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-neutral-900 mb-2">No Recent Activity</h3>
                 <p className="text-neutral-600 mb-4">Start your first workout to see your activity here.</p>
-                <Button onClick={handleQuickStart} className="bg-primary-500 hover:bg-primary-600">
+                <Button 
+                  onClick={handleQuickStart} 
+                  style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
+                  className="hover:bg-primary-600"
+                >
                   Start Your First Workout
                 </Button>
               </CardContent>
