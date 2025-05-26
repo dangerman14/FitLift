@@ -335,19 +335,23 @@ export default function WorkoutSession() {
     if (!activeWorkout) return;
     
     try {
-      // Update workout with end time
-      await apiRequest(`/api/workouts/${activeWorkout.id}`, {
+      // Update workout with end time using fetch directly
+      const response = await fetch(`/api/workouts/${activeWorkout.id}`, {
         method: "PATCH",
         body: JSON.stringify({
-          endTime: new Date().toISOString(),
-          status: "completed"
+          endTime: new Date().toISOString()
         }),
         headers: { "Content-Type": "application/json" },
       });
 
+      if (!response.ok) {
+        throw new Error('Failed to finish workout');
+      }
+
       // Navigate to completion screen
       setLocation(`/workout-complete/${activeWorkout.id}`);
     } catch (error) {
+      console.error("Error finishing workout:", error);
       toast({
         title: "Error",
         description: "Failed to finish workout.",
