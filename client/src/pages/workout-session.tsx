@@ -434,6 +434,7 @@ export default function WorkoutSession() {
   const updateWorkoutDuration = (minutes: string) => {
     const newElapsedTime = parseInt(minutes) * 60;
     setElapsedTime(newElapsedTime);
+    // Timer will continue from this new time
   };
 
   const formatTime = (seconds: number) => {
@@ -510,21 +511,11 @@ export default function WorkoutSession() {
                   <SelectValue placeholder={formatTime(elapsedTime)} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="5">5 min</SelectItem>
-                  <SelectItem value="10">10 min</SelectItem>
-                  <SelectItem value="15">15 min</SelectItem>
-                  <SelectItem value="20">20 min</SelectItem>
-                  <SelectItem value="25">25 min</SelectItem>
-                  <SelectItem value="30">30 min</SelectItem>
-                  <SelectItem value="35">35 min</SelectItem>
-                  <SelectItem value="40">40 min</SelectItem>
-                  <SelectItem value="45">45 min</SelectItem>
-                  <SelectItem value="50">50 min</SelectItem>
-                  <SelectItem value="60">1 hour</SelectItem>
-                  <SelectItem value="75">1h 15min</SelectItem>
-                  <SelectItem value="90">1h 30min</SelectItem>
-                  <SelectItem value="105">1h 45min</SelectItem>
-                  <SelectItem value="120">2 hours</SelectItem>
+                  {Array.from({ length: 120 }, (_, i) => i + 1).map(minute => (
+                    <SelectItem key={minute} value={minute.toString()}>
+                      {minute < 60 ? `${minute} min` : `${Math.floor(minute / 60)}h ${minute % 60 ? (minute % 60) + 'min' : ''}`}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
