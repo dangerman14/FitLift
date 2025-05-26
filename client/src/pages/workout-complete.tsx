@@ -42,9 +42,13 @@ export default function WorkoutComplete() {
     }
   }, [workout]);
 
+  // Get proper workout data with type safety
+  const workoutData = workout || {};
+  const exerciseData = workoutExercises || [];
+
   // Calculate workout statistics
   const workoutStats = React.useMemo(() => {
-    if (!workoutExercises || !Array.isArray(workoutExercises)) {
+    if (!exerciseData || !Array.isArray(exerciseData)) {
       return {
         totalSets: 0,
         totalReps: 0,
@@ -57,22 +61,20 @@ export default function WorkoutComplete() {
     let totalSets = 0;
     let totalReps = 0;
     let totalVolume = 0;
-    let exercisesCompleted = workoutExercises.length;
+    let exercisesCompleted = exerciseData.length;
 
-    workoutExercises.forEach((exercise: any) => {
+    exerciseData.forEach((exercise: any) => {
       if (exercise.sets && Array.isArray(exercise.sets)) {
         exercise.sets.forEach((set: any) => {
-          if (set.completed) {
-            totalSets++;
-            totalReps += set.reps || 0;
-            totalVolume += (set.weight || 0) * (set.reps || 0);
-          }
+          totalSets++;
+          totalReps += set.reps || 0;
+          totalVolume += (set.weight || 0) * (set.reps || 0);
         });
       }
     });
 
-    const duration = workout?.startTime && workout?.endTime 
-      ? Math.round((new Date(workout.endTime).getTime() - new Date(workout.startTime).getTime()) / (1000 * 60))
+    const duration = workoutData.startTime && workoutData.endTime 
+      ? Math.round((new Date(workoutData.endTime).getTime() - new Date(workoutData.startTime).getTime()) / (1000 * 60))
       : 0;
 
     return {
@@ -82,7 +84,7 @@ export default function WorkoutComplete() {
       exercisesCompleted,
       duration
     };
-  }, [workoutExercises, workout]);
+  }, [exerciseData, workoutData]);
 
   // Update workout details mutation
   const updateWorkoutMutation = useMutation({
@@ -120,7 +122,8 @@ export default function WorkoutComplete() {
   };
 
   const getWeightDisplay = (weight: number) => {
-    if (user?.weightUnit === 'lbs' && weight > 0) {
+    const userData = user || {};
+    if (userData.weightUnit === 'lbs' && weight > 0) {
       return `${Math.round(weight * 2.20462 * 10) / 10} lbs`;
     }
     return `${weight} kg`;
@@ -248,25 +251,25 @@ export default function WorkoutComplete() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {workoutExercises && Array.isArray(workoutExercises) ? workoutExercises.map((exercise: any, index: number) => {
-                const completedSets = exercise.sets?.filter((set: any) => set.completed) || [];
-                const maxWeight = Math.max(...(completedSets.map((set: any) => set.weight || 0)));
+              {exerciseData && Array.isArray(exerciseData) && exerciseData.length > 0 ? exerciseData.map((exercise: any, index: number) => {
+                const allSets = exercise.sets || [];
+                const maxWeight = allSets.length > 0 ? Math.max(...(allSets.map((set: any) => set.weight || 0))) : 0;
                 
                 return (
                   <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div>
-                      <h3 className="font-semibold">{exercise.exercise?.name}</h3>
+                      <h3 className="font-semibold">{exercise.exercise?.name || 'Unknown Exercise'}</h3>
                       <p className="text-sm text-gray-600">
-                        {completedSets.length} sets • Best: {getWeightDisplay(maxWeight)}
+                        {allSets.length} sets • Best: {getWeightDisplay(maxWeight)}
                       </p>
                     </div>
                     <Badge variant="secondary" className="bg-green-100 text-green-800">
-                      {completedSets.reduce((total: number, set: any) => total + (set.reps || 0), 0)} reps
+                      {allSets.reduce((total: number, set: any) => total + (set.reps || 0), 0)} reps
                     </Badge>
                   </div>
                 );
               }) : (
-                <p className="text-gray-500">No exercises completed</p>
+                <p className="text-gray-500 text-center py-8">No exercises completed in this workout</p>
               )}
             </div>
           </CardContent>
