@@ -69,7 +69,7 @@ export default function CreateRoutine() {
 
   // Fetch existing routine data when in edit mode
   const { data: existingRoutine } = useQuery({
-    queryKey: ["/api/workout-templates", editId],
+    queryKey: [`/api/workout-templates/${editId}`],
     enabled: isEditMode && !!editId,
   });
 
@@ -81,8 +81,17 @@ export default function CreateRoutine() {
       setSelectedFolderId(existingRoutine.folderId?.toString() || "");
       
       // Load routine exercises if they exist
-      // Note: This would require fetching template exercises from the backend
-      // For now, we'll just set the basic routine info
+      if (existingRoutine.exercises && Array.isArray(existingRoutine.exercises)) {
+        const routineExercises = existingRoutine.exercises.map((exercise: any) => ({
+          exerciseId: exercise.exerciseId,
+          exerciseName: exercise.exercise.name,
+          sets: exercise.sets,
+          reps: exercise.reps,
+          weight: exercise.weight || "",
+          notes: exercise.notes || "",
+        }));
+        setSelectedExercises(routineExercises);
+      }
     }
   }, [existingRoutine, isEditMode]);
 

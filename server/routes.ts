@@ -210,6 +210,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/workout-templates/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
+      
+      const templateData = insertWorkoutTemplateSchema.parse({
+        ...req.body,
+        userId: userId,
+      });
+      
+      // Note: For now, we'll create a simple update that recreates the template
+      // In a production app, you'd want proper update logic
+      await storage.deleteWorkoutTemplate(id, userId);
+      const template = await storage.createWorkoutTemplate(templateData);
+      
+      // Add exercises to template if provided
+      if (req.body.exercises && Array.isArray(req.body.exercises)) {
+        for (let i = 0; i < req.body.exercises.length; i++) {
+          const exerciseData = insertTemplateExerciseSchema.parse({
+            ...req.body.exercises[i],
+            templateId: template.id,
+            orderIndex: i,
+          });
+          await storage.createTemplateExercise(exerciseData);
+        }
+      }
+      
+      res.json(template);
+    } catch (error) {
+      console.error("Error updating workout template:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid template data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to update workout template" });
+      }
+    }
+  });
+
   app.delete('/api/workout-templates/:id', isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
