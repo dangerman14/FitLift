@@ -152,7 +152,10 @@ export default function WorkoutComplete() {
     updateWorkoutMutation.mutate({
       name: workoutName,
       description: workoutDescription,
-      imageUrl: workoutImageUrl
+      imageUrl: workoutImageUrl,
+      date: workoutDate,
+      time: workoutTime,
+      duration: workoutDuration
     });
   };
 
@@ -241,6 +244,39 @@ export default function WorkoutComplete() {
                 placeholder="Enter workout name"
                 className="text-lg"
               />
+            </div>
+            
+            {/* Date, Time, and Duration Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Date</label>
+                <Input
+                  type="date"
+                  value={workoutDate}
+                  onChange={(e) => setWorkoutDate(e.target.value)}
+                  className="text-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Time</label>
+                <Input
+                  type="time"
+                  value={workoutTime}
+                  onChange={(e) => setWorkoutTime(e.target.value)}
+                  className="text-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Duration (minutes)</label>
+                <Input
+                  type="number"
+                  value={workoutDuration}
+                  onChange={(e) => setWorkoutDuration(e.target.value)}
+                  placeholder="Duration in minutes"
+                  className="text-lg"
+                  min="1"
+                />
+              </div>
             </div>
             
             <div>
