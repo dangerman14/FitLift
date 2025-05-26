@@ -300,6 +300,12 @@ export default function WorkoutSession() {
     );
   };
 
+  const updateSetWeight = (exerciseIndex: number, setIndex: number, displayWeight: string) => {
+    const numericWeight = parseFloat(displayWeight) || 0;
+    const storageWeight = getStorageWeight(numericWeight);
+    updateSetValue(exerciseIndex, setIndex, 'weight', storageWeight);
+  };
+
   const updateComment = (exerciseIndex: number, comment: string) => {
     setWorkoutExercises(prev => 
       prev.map((ex, exIndex) => 
@@ -482,8 +488,8 @@ export default function WorkoutSession() {
                   
                   <Input
                     type="number"
-                    value={getDisplayWeight(set.weight || 0) || ""}
-                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'weight', getStorageWeight(parseFloat(e.target.value) || 0))}
+                    value={set.weight ? getDisplayWeight(set.weight).toString() : ""}
+                    onChange={(e) => updateSetWeight(exerciseIndex, setIndex, e.target.value)}
                     className="h-10 text-center font-medium text-lg"
                     placeholder={getWeightUnit() === 'lbs' ? "165" : "75"}
                     disabled={set.completed}
