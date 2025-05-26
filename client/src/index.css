@@ -337,4 +337,27 @@
   .hover\:bg-warning\/10:hover {
     background-color: hsl(36 100% 50% / 0.1); /* #FF9800 with 10% opacity */
   }
+
+  /* Lighter placeholder text for better distinction */
+  ::placeholder {
+    color: hsl(214 11% 58% / 0.4) !important; /* Much more transparent gray */
+    opacity: 1;
+  }
+
+  .dark ::placeholder {
+    color: hsl(214 11% 58% / 0.5) !important; /* Slightly more visible in dark mode */
+    opacity: 1;
+  }
+
+  /* Specific styling for input and textarea placeholders */
+  input::placeholder,
+  textarea::placeholder {
+    color: hsl(214 11% 58% / 0.4) !important;
+    font-weight: 400;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: hsl(214 11% 58% / 0.5) !important;
+  }
 }
