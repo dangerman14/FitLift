@@ -155,6 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const templates = await storage.getWorkoutTemplates(userId);
       console.log("Templates with exercise counts:", templates.map(t => ({ id: t.id, name: t.name, exerciseCount: t.exerciseCount })));
+      res.set('Cache-Control', 'no-cache');
       res.json(templates);
     } catch (error) {
       console.error("Error fetching workout templates:", error);
