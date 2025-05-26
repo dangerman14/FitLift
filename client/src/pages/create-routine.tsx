@@ -226,18 +226,18 @@ export default function CreateRoutine() {
         </div>
         <Button 
           onClick={handleCreateRoutine}
-          disabled={createRoutineMutation.isPending || selectedExercises.length === 0}
+          disabled={saveRoutineMutation.isPending || selectedExercises.length === 0}
           className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
         >
-          {createRoutineMutation.isPending ? (
+          {saveRoutineMutation.isPending ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Creating...
+              {isEditMode ? 'Updating...' : 'Creating...'}
             </>
           ) : (
             <>
               <Save className="h-4 w-4 mr-2" />
-              Save Routine
+              {isEditMode ? 'Update Routine' : 'Save Routine'}
             </>
           )}
         </Button>
