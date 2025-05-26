@@ -5,7 +5,8 @@ import {
   Trophy, 
   User,
   Settings,
-  Bell
+  Bell,
+  Calendar
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export default function Navigation() {
     { path: "/", icon: BarChart3, label: "Dashboard" },
     { path: "/workouts", icon: Dumbbell, label: "Workouts" },
     { path: "/exercises", icon: List, label: "Exercises" },
+    { path: "/routines", icon: Calendar, label: "Routines" },
     { path: "/progress", icon: Trophy, label: "Progress" },
     { path: "/settings", icon: Settings, label: "Settings" },
   ];
