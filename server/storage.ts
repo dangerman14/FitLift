@@ -37,8 +37,8 @@ export interface IStorage {
   
   // Exercise operations
   getExercises(userId?: string): Promise<Exercise[]>;
-  getExercisesByMuscleGroup(muscleGroup: string): Promise<Exercise[]>;
-  getExercisesByEquipment(equipment: string): Promise<Exercise[]>;
+  getExercisesByMuscleGroup(muscleGroup: string, userId?: string): Promise<Exercise[]>;
+  getExercisesByEquipment(equipment: string, userId?: string): Promise<Exercise[]>;
   createExercise(exercise: InsertExercise): Promise<Exercise>;
   
   // Workout template operations
@@ -122,19 +122,45 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(exercises).where(eq(exercises.isCustom, false)).orderBy(exercises.name);
   }
 
-  async getExercisesByMuscleGroup(muscleGroup: string): Promise<Exercise[]> {
+  async getExercisesByMuscleGroup(muscleGroup: string, userId?: string): Promise<Exercise[]> {
+    let whereCondition = sql`${exercises.muscleGroups} @> ${JSON.stringify([muscleGroup])}`;
+    
+    if (userId) {
+      // Include system exercises + user's custom exercises
+      whereCondition = and(
+        whereCondition,
+        or(eq(exercises.isCustom, false), eq(exercises.createdBy, userId))
+      );
+    } else {
+      // Only system exercises if no user ID
+      whereCondition = and(whereCondition, eq(exercises.isCustom, false));
+    }
+    
     return await db
       .select()
       .from(exercises)
-      .where(sql`${exercises.muscleGroups} @> ${JSON.stringify([muscleGroup])}`)
+      .where(whereCondition)
       .orderBy(exercises.name);
   }
 
-  async getExercisesByEquipment(equipment: string): Promise<Exercise[]> {
+  async getExercisesByEquipment(equipment: string, userId?: string): Promise<Exercise[]> {
+    let whereCondition = sql`${exercises.equipmentRequired} @> ${JSON.stringify([equipment])}`;
+    
+    if (userId) {
+      // Include system exercises + user's custom exercises
+      whereCondition = and(
+        whereCondition,
+        or(eq(exercises.isCustom, false), eq(exercises.createdBy, userId))
+      );
+    } else {
+      // Only system exercises if no user ID
+      whereCondition = and(whereCondition, eq(exercises.isCustom, false));
+    }
+    
     return await db
       .select()
       .from(exercises)
-      .where(sql`${exercises.equipmentRequired} @> ${JSON.stringify([equipment])}`)
+      .where(whereCondition)
       .orderBy(exercises.name);
   }
 

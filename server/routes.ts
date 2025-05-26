@@ -35,13 +35,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { muscleGroup, equipment } = req.query;
       
+      const userId = (req as any).user?.claims?.sub;
       let exercises;
       if (muscleGroup) {
-        exercises = await storage.getExercisesByMuscleGroup(muscleGroup as string);
+        exercises = await storage.getExercisesByMuscleGroup(muscleGroup as string, userId);
       } else if (equipment) {
-        exercises = await storage.getExercisesByEquipment(equipment as string);
+        exercises = await storage.getExercisesByEquipment(equipment as string, userId);
       } else {
-        const userId = (req as any).user?.claims?.sub;
         exercises = await storage.getExercises(userId);
       }
       
