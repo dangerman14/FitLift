@@ -190,6 +190,35 @@ export const exerciseSets = pgTable("exercise_sets", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const routines = pgTable("routines", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  goal: varchar("goal").notNull(),
+  experience: varchar("experience").notNull(),
+  duration: integer("duration").notNull(), // minutes
+  daysPerWeek: integer("days_per_week").notNull(),
+  equipment: varchar("equipment").notNull(),
+  totalExercises: integer("total_exercises").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const routineExercises = pgTable("routine_exercises", {
+  id: serial("id").primaryKey(),
+  routineId: integer("routine_id").notNull().references(() => routines.id, { onDelete: "cascade" }),
+  exerciseId: integer("exercise_id").notNull().references(() => exercises.id, { onDelete: "cascade" }),
+  dayOfWeek: integer("day_of_week").notNull(), // 1-7
+  sets: integer("sets").notNull(),
+  reps: varchar("reps"), // "8-12" or "45 seconds"
+  weight: varchar("weight"), // "bodyweight" or "moderate"
+  restTime: integer("rest_time"), // seconds
+  notes: text("notes"),
+  orderIndex: integer("order_index").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   bodyMeasurements: many(bodyMeasurements),
@@ -197,6 +226,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   workoutTemplates: many(workoutTemplates),
   workouts: many(workouts),
   customExercises: many(customExercises),
+  routines: many(routines),
 }));
 
 export const bodyMeasurementsRelations = relations(bodyMeasurements, ({ one }) => ({
@@ -280,6 +310,25 @@ export const customExercisesRelations = relations(customExercises, ({ one }) => 
   }),
 }));
 
+export const routinesRelations = relations(routines, ({ one, many }) => ({
+  user: one(users, {
+    fields: [routines.userId],
+    references: [users.id],
+  }),
+  routineExercises: many(routineExercises),
+}));
+
+export const routineExercisesRelations = relations(routineExercises, ({ one }) => ({
+  routine: one(routines, {
+    fields: [routineExercises.routineId],
+    references: [routines.id],
+  }),
+  exercise: one(exercises, {
+    fields: [routineExercises.exerciseId],
+    references: [exercises.id],
+  }),
+}));
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -310,6 +359,12 @@ export type ExerciseSet = typeof exerciseSets.$inferSelect;
 
 export type InsertCustomExercise = typeof customExercises.$inferInsert;
 export type CustomExercise = typeof customExercises.$inferSelect;
+
+export type InsertRoutine = typeof routines.$inferInsert;
+export type Routine = typeof routines.$inferSelect;
+
+export type InsertRoutineExercise = typeof routineExercises.$inferInsert;
+export type RoutineExercise = typeof routineExercises.$inferSelect;
 
 // Insert schemas
 export const insertBodyMeasurementSchema = createInsertSchema(bodyMeasurements).omit({

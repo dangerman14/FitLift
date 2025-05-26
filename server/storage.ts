@@ -94,6 +94,13 @@ export interface IStorage {
     date: Date;
     maxWeight: number;
   }[]>;
+
+  // Routine operations
+  getRoutines(userId: string): Promise<Routine[]>;
+  getRoutineById(id: number, userId: string): Promise<Routine | undefined>;
+  createRoutine(routine: InsertRoutine): Promise<Routine>;
+  deleteRoutine(id: number, userId: string): Promise<void>;
+  createRoutineExercise(routineExercise: InsertRoutineExercise): Promise<RoutineExercise>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -496,6 +503,39 @@ export class DatabaseStorage implements IStorage {
       date: p.date,
       maxWeight: Number(p.maxWeight) || 0,
     }));
+  }
+
+  async getRoutines(userId: string): Promise<Routine[]> {
+    return await db.select().from(routines).where(eq(routines.userId, userId));
+  }
+
+  async getRoutineById(id: number, userId: string): Promise<Routine | undefined> {
+    const [routine] = await db.select().from(routines).where(
+      and(eq(routines.id, id), eq(routines.userId, userId))
+    );
+    return routine;
+  }
+
+  async createRoutine(routine: InsertRoutine): Promise<Routine> {
+    const [newRoutine] = await db
+      .insert(routines)
+      .values(routine)
+      .returning();
+    return newRoutine;
+  }
+
+  async deleteRoutine(id: number, userId: string): Promise<void> {
+    await db.delete(routines).where(
+      and(eq(routines.id, id), eq(routines.userId, userId))
+    );
+  }
+
+  async createRoutineExercise(routineExercise: InsertRoutineExercise): Promise<RoutineExercise> {
+    const [newRoutineExercise] = await db
+      .insert(routineExercises)
+      .values(routineExercise)
+      .returning();
+    return newRoutineExercise;
   }
 }
 
