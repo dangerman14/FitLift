@@ -308,29 +308,14 @@ function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: Exercis
           </div>
         ))}
 
-        {/* Add Set Input - show for first set if no sets exist, or when user clicks Add Set */}
-        {((workoutExercise.sets?.length || 0) === 0 || showAddSet) && (
-          <SetInput
-            setNumber={(workoutExercise.sets?.length || 0) + 1}
-            onComplete={(setData) => {
-              onCompleteSet(exerciseIndex, setData);
-              setShowAddSet(false);
-            }}
-            onCancel={() => setShowAddSet(false)}
-          />
-        )}
-        
-        {/* Add Set Button - always show when not actively adding a set */}
-        {!showAddSet && (
-          <Button
-            variant="outline"
-            className="w-full mt-3"
-            onClick={() => setShowAddSet(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Set
-          </Button>
-        )}
+        {/* Set Input Form - show when adding any set */}
+        <SetInput
+          setNumber={(workoutExercise.sets?.length || 0) + 1}
+          onComplete={(setData) => {
+            onCompleteSet(exerciseIndex, setData);
+          }}
+          onCancel={() => {}}
+        />
       </CardContent>
     </Card>
   );
