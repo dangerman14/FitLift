@@ -52,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Custom exercise creation - moved before generic route
+  // Custom exercise creation using separate table
   app.post('/api/exercises/custom', isAuthenticated, async (req, res) => {
     console.log("🎯 CUSTOM EXERCISE ROUTE HIT!");
     try {
@@ -60,18 +60,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Creating custom exercise for user:", userId);
       console.log("Request body:", req.body);
       
-      const exerciseData = {
+      const customExerciseData = {
         ...req.body,
-        muscleGroups: [...req.body.primaryMuscleGroups, ...req.body.secondaryMuscleGroups],
-        equipmentRequired: req.body.equipmentType ? [req.body.equipmentType] : [],
-        isCustom: true,
         createdBy: userId,
       };
       
-      console.log("Final exercise data:", exerciseData);
-      const exercise = await storage.createExercise(exerciseData);
-      console.log("Created exercise:", exercise);
-      res.status(201).json(exercise);
+      console.log("Final custom exercise data:", customExerciseData);
+      const customExercise = await storage.createCustomExercise(customExerciseData);
+      console.log("Created custom exercise:", customExercise);
+      res.status(201).json(customExercise);
     } catch (error) {
       console.error("Error creating custom exercise:", error);
       res.status(500).json({ message: "Failed to create custom exercise" });

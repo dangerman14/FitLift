@@ -356,3 +356,9 @@ export const insertExerciseSetSchema = createInsertSchema(exerciseSets).omit({
   createdAt: true,
   updatedAt: true,
 });
+
+export const insertCustomExerciseSchema = createInsertSchema(customExercises).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});

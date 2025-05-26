@@ -1,6 +1,7 @@
 import {
   users,
   exercises,
+  customExercises,
   workoutTemplates,
   templateExercises,
   workouts,
@@ -12,6 +13,8 @@ import {
   type UpsertUser,
   type Exercise,
   type InsertExercise,
+  type CustomExercise,
+  type InsertCustomExercise,
   type WorkoutTemplate,
   type InsertWorkoutTemplate,
   type TemplateExercise,
@@ -40,6 +43,10 @@ export interface IStorage {
   getExercisesByMuscleGroup(muscleGroup: string, userId?: string): Promise<Exercise[]>;
   getExercisesByEquipment(equipment: string, userId?: string): Promise<Exercise[]>;
   createExercise(exercise: InsertExercise): Promise<Exercise>;
+  
+  // Custom exercise operations
+  getCustomExercises(userId: string): Promise<CustomExercise[]>;
+  createCustomExercise(exercise: InsertCustomExercise): Promise<CustomExercise>;
   
   // Workout template operations
   getWorkoutTemplates(userId: string): Promise<WorkoutTemplate[]>;
@@ -167,6 +174,16 @@ export class DatabaseStorage implements IStorage {
   async createExercise(exercise: InsertExercise): Promise<Exercise> {
     const [newExercise] = await db.insert(exercises).values(exercise).returning();
     return newExercise;
+  }
+
+  // Custom exercise operations
+  async getCustomExercises(userId: string): Promise<CustomExercise[]> {
+    return await db.select().from(customExercises).where(eq(customExercises.createdBy, userId)).orderBy(customExercises.name);
+  }
+
+  async createCustomExercise(exercise: InsertCustomExercise): Promise<CustomExercise> {
+    const [newCustomExercise] = await db.insert(customExercises).values(exercise).returning();
+    return newCustomExercise;
   }
 
   // Workout template operations
