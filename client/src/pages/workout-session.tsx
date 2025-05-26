@@ -252,7 +252,7 @@ interface ExerciseCardProps {
 }
 
 function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: ExerciseCardProps) {
-  const [showAddSet, setShowAddSet] = useState(true); // Start with Set 1 visible
+  const [showAddSet, setShowAddSet] = useState(false); // Start with button enabled
 
   return (
     <Card>
@@ -308,8 +308,8 @@ function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: Exercis
           </div>
         ))}
 
-        {/* Add Set Input - show when adding a new set */}
-        {showAddSet && (
+        {/* Add Set Input - show for first set if no sets exist, or when user clicks Add Set */}
+        {((workoutExercise.sets?.length || 0) === 0 || showAddSet) && (
           <SetInput
             setNumber={(workoutExercise.sets?.length || 0) + 1}
             onComplete={(setData) => {
@@ -320,16 +320,17 @@ function ExerciseCard({ workoutExercise, exerciseIndex, onCompleteSet }: Exercis
           />
         )}
         
-        {/* Always visible Add Set Button */}
-        <Button
-          variant="outline"
-          className="w-full mt-3"
-          onClick={() => setShowAddSet(true)}
-          disabled={showAddSet}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Set
-        </Button>
+        {/* Add Set Button - only show if we have sets and not currently adding */}
+        {(workoutExercise.sets?.length || 0) > 0 && !showAddSet && (
+          <Button
+            variant="outline"
+            className="w-full mt-3"
+            onClick={() => setShowAddSet(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Set
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
