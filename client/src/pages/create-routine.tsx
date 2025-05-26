@@ -1,0 +1,353 @@
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
+  Plus, 
+  X,
+  ArrowLeft,
+  Save
+} from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+
+interface RoutineExercise {
+  exerciseId: number;
+  exerciseName: string;
+  sets: number;
+  reps: string;
+  weight?: string;
+  notes?: string;
+}
+
+export default function CreateRoutine() {
+  const [routineName, setRoutineName] = useState("");
+  const [routineDescription, setRoutineDescription] = useState("");
+  const [selectedExercises, setSelectedExercises] = useState<RoutineExercise[]>([]);
+  const [selectedExerciseId, setSelectedExerciseId] = useState("");
+  const [sets, setSets] = useState("3");
+  const [reps, setReps] = useState("10");
+  const [weight, setWeight] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch exercises for the dropdown
+  const { data: exercises = [] } = useQuery({
+    queryKey: ["/api/exercises"],
+  });
+
+  // Create routine mutation
+  const createRoutineMutation = useMutation({
+    mutationFn: async (routineData: any) => {
+      return await apiRequest({
+        method: "POST",
+        url: "/api/workout-templates",
+        body: JSON.stringify(routineData),
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/workout-templates"] });
+      toast({
+        title: "Success!",
+        description: "Your workout routine has been created.",
+      });
+      // Navigate back to routines page
+      window.location.href = "/routines";
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create routine. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const addExerciseToRoutine = () => {
+    if (!selectedExerciseId) {
+      toast({
+        title: "Select Exercise",
+        description: "Please select an exercise to add to your routine.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const exercise = exercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
+    if (!exercise) return;
+
+    const routineExercise: RoutineExercise = {
+      exerciseId: exercise.id,
+      exerciseName: exercise.name,
+      sets: parseInt(sets),
+      reps,
+      weight: weight || undefined,
+      notes: notes || undefined,
+    };
+
+    setSelectedExercises([...selectedExercises, routineExercise]);
+    setSelectedExerciseId("");
+    setSets("3");
+    setReps("10");
+    setWeight("");
+    setNotes("");
+  };
+
+  const removeExerciseFromRoutine = (index: number) => {
+    setSelectedExercises(selectedExercises.filter((_, i) => i !== index));
+  };
+
+  const handleCreateRoutine = () => {
+    if (!routineName.trim()) {
+      toast({
+        title: "Routine Name Required",
+        description: "Please enter a name for your routine.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedExercises.length === 0) {
+      toast({
+        title: "Add Exercises",
+        description: "Please add at least one exercise to your routine.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const routineData = {
+      name: routineName,
+      description: routineDescription,
+      exercises: selectedExercises,
+    };
+
+    createRoutineMutation.mutate(routineData);
+  };
+
+  const goBack = () => {
+    window.location.href = "/routines";
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="ghost"
+            onClick={goBack}
+            className="p-2"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Create New Routine
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Build your custom workout routine by adding exercises with specific sets and reps
+            </p>
+          </div>
+        </div>
+        <Button 
+          onClick={handleCreateRoutine}
+          disabled={createRoutineMutation.isPending || selectedExercises.length === 0}
+          className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
+        >
+          {createRoutineMutation.isPending ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Creating...
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              Save Routine
+            </>
+          )}
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Routine Details & Add Exercise */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Routine Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Routine Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="routineName">Routine Name *</Label>
+                <Input
+                  id="routineName"
+                  placeholder="e.g., Push Day, Upper Body, Morning Workout"
+                  value={routineName}
+                  onChange={(e) => setRoutineName(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="routineDescription">Description (Optional)</Label>
+                <Textarea
+                  id="routineDescription"
+                  placeholder="Describe your routine..."
+                  value={routineDescription}
+                  onChange={(e) => setRoutineDescription(e.target.value)}
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Add Exercise */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Add Exercise</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Exercise</Label>
+                <Select value={selectedExerciseId} onValueChange={setSelectedExerciseId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an exercise" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {exercises.map((exercise: any) => (
+                      <SelectItem key={exercise.id} value={exercise.id.toString()}>
+                        {exercise.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Sets</Label>
+                  <Input
+                    type="number"
+                    value={sets}
+                    onChange={(e) => setSets(e.target.value)}
+                    placeholder="3"
+                    min="1"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Reps</Label>
+                  <Input
+                    value={reps}
+                    onChange={(e) => setReps(e.target.value)}
+                    placeholder="10 or 30s"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Weight (Optional)</Label>
+                <Input
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  placeholder="e.g., 135 lbs, bodyweight"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Notes (Optional)</Label>
+                <Input
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="e.g., slow tempo, pause at bottom"
+                />
+              </div>
+              
+              <Button 
+                onClick={addExerciseToRoutine}
+                className="w-full"
+                variant="outline"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add to Routine
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Routine Preview */}
+        <div className="lg:col-span-2">
+          <Card className="h-fit">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Routine Exercises ({selectedExercises.length})</span>
+                {selectedExercises.length > 0 && (
+                  <span className="text-sm font-normal text-gray-600">
+                    Total: {selectedExercises.reduce((sum, ex) => sum + ex.sets, 0)} sets
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {selectedExercises.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedExercises.map((exercise, index) => (
+                    <div 
+                      key={`${exercise.exerciseId}-${index}`}
+                      className="flex items-center justify-between p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium text-lg">{exercise.exerciseName}</div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          <span className="font-medium">{exercise.sets} sets × {exercise.reps} reps</span>
+                          {exercise.weight && (
+                            <span className="ml-2 text-blue-600">@ {exercise.weight}</span>
+                          )}
+                        </div>
+                        {exercise.notes && (
+                          <div className="text-xs text-gray-500 mt-1 italic">
+                            {exercise.notes}
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        onClick={() => removeExerciseFromRoutine(index)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <Plus className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No exercises added yet</h3>
+                  <p className="text-gray-600">
+                    Start building your routine by adding exercises from the left panel.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
