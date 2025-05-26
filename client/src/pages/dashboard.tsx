@@ -34,11 +34,15 @@ export default function Dashboard() {
     queryKey: ["/api/workouts"],
   });
 
+  const { data: recentWorkoutsData } = useQuery({
+    queryKey: ["/api/workouts/recent"],
+  });
+
   const { data: workoutTemplates } = useQuery({
     queryKey: ["/api/workout-templates"],
   });
 
-  const recentWorkouts = (workouts && Array.isArray(workouts)) ? workouts.slice(0, 3) : [];
+  const recentWorkouts = (recentWorkoutsData && Array.isArray(recentWorkoutsData)) ? recentWorkoutsData : [];
   const lastWorkout = recentWorkouts[0];
 
   const handleStartWorkout = () => {
@@ -297,23 +301,24 @@ export default function Dashboard() {
                   {/* Exercise List */}
                   <div className="mb-4">
                     <div className="space-y-2">
-                      {/* Sample exercises with thumbnails */}
-                      <div className="flex items-center gap-3 text-sm text-neutral-700">
-                        {getExerciseThumbnail("Lat Pulldown (Cable)")}
-                        <span>3 × Lat Pulldown (Cable)</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm text-neutral-700">
-                        {getExerciseThumbnail("Incline Chest Press (Machine)")}
-                        <span>3 × Incline Chest Press (Machine)</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm text-neutral-700">
-                        {getExerciseThumbnail("Shoulder Press (Dumbbell)")}
-                        <span>3 × Shoulder Press (Dumbbell)</span>
-                      </div>
-                      {/* Show more exercises indicator */}
-                      {workout.exerciseCount > 3 && (
-                        <div className="text-sm text-neutral-500 italic pl-11">
-                          see {workout.exerciseCount - 3} more exercises
+                      {workout.exercises && workout.exercises.length > 0 ? (
+                        <>
+                          {workout.exercises.map((templateExercise: any, index: number) => (
+                            <div key={index} className="flex items-center gap-3 text-sm text-neutral-700">
+                              {getExerciseThumbnail(templateExercise.exercise.name, templateExercise.exercise.imageUrl)}
+                              <span>{templateExercise.sets || '3'} × {templateExercise.exercise.name}</span>
+                            </div>
+                          ))}
+                          {/* Show more exercises indicator */}
+                          {workout.totalExercises > 3 && (
+                            <div className="text-sm text-neutral-500 italic pl-11">
+                              see {workout.totalExercises - 3} more exercises
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="text-sm text-neutral-500 italic">
+                          No exercises recorded
                         </div>
                       )}
                     </div>
