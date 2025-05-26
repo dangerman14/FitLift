@@ -504,21 +504,6 @@ export default function WorkoutSession() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3 bg-white bg-opacity-20 px-6 py-3 rounded-2xl backdrop-blur-sm">
-              <Timer className="h-5 w-5 text-white" />
-              <Select value={Math.floor(elapsedTime / 60).toString()} onValueChange={updateWorkoutDuration}>
-                <SelectTrigger className="bg-transparent border-0 text-white font-bold text-lg h-auto p-0 focus:ring-0 [&>svg]:text-white">
-                  <SelectValue placeholder={formatTime(elapsedTime)} />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 120 }, (_, i) => i + 1).map(minute => (
-                    <SelectItem key={minute} value={minute.toString()}>
-                      {minute < 60 ? `${minute} min` : `${Math.floor(minute / 60)}h ${minute % 60 ? (minute % 60) + 'min' : ''}`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
             <Button 
               onClick={finishWorkout}
               style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
@@ -533,7 +518,18 @@ export default function WorkoutSession() {
         <div className="flex space-x-8 mt-3 text-sm">
           <div>
             <div className="text-neutral-500">Duration</div>
-            <div className="font-medium text-blue-600">{formatTime(elapsedTime)}</div>
+            <Select value={Math.floor(elapsedTime / 60).toString()} onValueChange={updateWorkoutDuration}>
+              <SelectTrigger className="bg-transparent border-0 font-medium text-blue-600 h-auto p-0 focus:ring-0 [&>svg]:text-blue-600">
+                <SelectValue placeholder={formatTime(elapsedTime)} />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 120 }, (_, i) => i + 1).map(minute => (
+                  <SelectItem key={minute} value={minute.toString()}>
+                    {minute < 60 ? `${minute} min` : `${Math.floor(minute / 60)}h ${minute % 60 ? (minute % 60) + 'min' : ''}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <div className="text-neutral-500">Volume</div>
