@@ -224,183 +224,220 @@ export default function Routines() {
       </div>
 
       {/* Folders Section */}
-      {folders.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-neutral-900 mb-4">Folders</h2>
-          <div className="space-y-4">
-            {folders.map((folder: any) => {
-              const folderRoutines = getRoutinesInFolder(folder.id);
-              const isExpanded = expandedFolders.has(folder.id);
-              
-              return (
-                <div key={folder.id}>
-                  <Card 
-                    className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200 cursor-pointer"
-                    onClick={() => toggleFolder(folder.id)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div 
-                            className="w-8 h-8 rounded-lg flex items-center justify-center"
-                            style={{ backgroundColor: folder.color }}
-                          >
-                            <Folder className="h-4 w-4 text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-neutral-900 truncate">
-                              {folder.name}
-                            </h3>
-                            <p className="text-sm text-neutral-500">
-                              {folderRoutines.length} routine{folderRoutines.length !== 1 ? 's' : ''}
-                            </p>
-                          </div>
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-neutral-900 mb-4">Folders</h2>
+        <div className="space-y-4">
+          {/* Regular folders */}
+          {folders.map((folder: any) => {
+            const folderRoutines = getRoutinesInFolder(folder.id);
+            const isExpanded = expandedFolders.has(folder.id);
+            
+            return (
+              <div key={folder.id}>
+                <Card 
+                  className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200 cursor-pointer"
+                  onClick={() => toggleFolder(folder.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div 
+                          className="w-8 h-8 rounded-lg flex items-center justify-center"
+                          style={{ backgroundColor: folder.color }}
+                        >
+                          <Folder className="h-4 w-4 text-white" />
                         </div>
-                        <div className="flex items-center">
-                          {isExpanded ? (
-                            <ChevronDown className="h-5 w-5 text-neutral-500" />
-                          ) : (
-                            <ChevronRight className="h-5 w-5 text-neutral-500" />
-                          )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-neutral-900 truncate">
+                            {folder.name}
+                          </h3>
+                          <p className="text-sm text-neutral-500">
+                            {folderRoutines.length} routine{folderRoutines.length !== 1 ? 's' : ''}
+                          </p>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                  
-                  {/* Expanded folder content */}
-                  {isExpanded && folderRoutines.length > 0 && (
-                    <div className="ml-4 mt-2 space-y-2">
-                      {folderRoutines.map((routine: any) => (
-                        <Card 
-                          key={routine.id} 
-                          className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200"
-                        >
-                          <CardHeader className="pb-4">
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <Link href={`/routine/${routine.slug}`}>
-                                  <CardTitle className="text-lg font-medium text-neutral-900 mb-2 hover:text-blue-600 cursor-pointer transition-colors">
-                                    {routine.name}
-                                  </CardTitle>
-                                </Link>
-                                {routine.description && (
-                                  <p className="text-sm text-neutral-600 line-clamp-2">
-                                    {routine.description}
-                                  </p>
-                                )}
-                              </div>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                  <DropdownMenuItem onClick={() => window.location.href = `/create-routine?edit=${routine.id}`}>
-                                    <Edit className="h-4 w-4 mr-2" />
-                                    Edit Routine
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem 
-                                    onClick={() => deleteRoutineMutation.mutate(routine.id)}
-                                    className="text-red-600"
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete Routine
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="pt-0">
-                            <div className="flex items-center justify-between text-sm text-neutral-600">
-                              <span>{getExerciseCount(routine)} exercises</span>
-                              <Button 
-                                size="sm" 
-                                onClick={() => window.location.href = `/workout?template=${routine.id}`}
-                                className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
-                              >
-                                <Play className="h-3 w-3 mr-1" />
-                                Start Workout
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                      <div className="flex items-center">
+                        {isExpanded ? (
+                          <ChevronDown className="h-5 w-5 text-neutral-500" />
+                        ) : (
+                          <ChevronRight className="h-5 w-5 text-neutral-500" />
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Expanded folder content */}
+                {isExpanded && folderRoutines.length > 0 && (
+                  <div className="ml-4 mt-2 space-y-2">
+                    {folderRoutines.map((routine: any) => (
+                      <Card 
+                        key={routine.id} 
+                        className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200"
+                      >
+                        <CardHeader className="pb-4">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <Link href={`/routine/${routine.slug}`}>
+                                <CardTitle className="text-lg font-medium text-neutral-900 mb-2 hover:text-blue-600 cursor-pointer transition-colors">
+                                  {routine.name}
+                                </CardTitle>
+                              </Link>
+                              {routine.description && (
+                                <p className="text-sm text-neutral-600 line-clamp-2">
+                                  {routine.description}
+                                </p>
+                              )}
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                <DropdownMenuItem onClick={() => window.location.href = `/create-routine?edit=${routine.id}`}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit Routine
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => deleteRoutineMutation.mutate(routine.id)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete Routine
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex items-center justify-between text-sm text-neutral-600">
+                            <span>{getExerciseCount(routine)} exercises</span>
+                            <Button 
+                              size="sm" 
+                              onClick={() => window.location.href = `/workout?template=${routine.id}`}
+                              className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
+                            >
+                              <Play className="h-3 w-3 mr-1" />
+                              Start Workout
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          
+          {/* Uncategorized folder for routines without folders */}
+          {(() => {
+            const uncategorizedRoutines = getRoutinesWithoutFolder();
+            const isUncategorizedExpanded = expandedFolders.has(-1);
+            
+            return uncategorizedRoutines.length > 0 ? (
+              <div key="uncategorized">
+                <Card 
+                  className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200 cursor-pointer"
+                  onClick={() => toggleFolder(-1)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-lg bg-neutral-400 flex items-center justify-center">
+                          <Folder className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-neutral-900 truncate">
+                            Uncategorized
+                          </h3>
+                          <p className="text-sm text-neutral-500">
+                            {uncategorizedRoutines.length} routine{uncategorizedRoutines.length !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        {isUncategorizedExpanded ? (
+                          <ChevronDown className="h-5 w-5 text-neutral-500" />
+                        ) : (
+                          <ChevronRight className="h-5 w-5 text-neutral-500" />
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Expanded uncategorized content */}
+                {isUncategorizedExpanded && (
+                  <div className="ml-4 mt-2 space-y-2">
+                    {uncategorizedRoutines.map((routine: any) => (
+                      <Card 
+                        key={routine.id} 
+                        className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200"
+                      >
+                        <CardHeader className="pb-4">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <Link href={`/routine/${routine.slug}`}>
+                                <CardTitle className="text-lg font-medium text-neutral-900 mb-2 hover:text-blue-600 cursor-pointer transition-colors">
+                                  {routine.name}
+                                </CardTitle>
+                              </Link>
+                              {routine.description && (
+                                <p className="text-sm text-neutral-600 line-clamp-2">
+                                  {routine.description}
+                                </p>
+                              )}
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                <DropdownMenuItem onClick={() => window.location.href = `/create-routine?edit=${routine.id}`}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit Routine
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => deleteRoutineMutation.mutate(routine.id)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete Routine
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex items-center justify-between text-sm text-neutral-600">
+                            <span>{getExerciseCount(routine)} exercises</span>
+                            <Button 
+                              size="sm" 
+                              onClick={() => window.location.href = `/workout?template=${routine.id}`}
+                              className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
+                            >
+                              <Play className="h-3 w-3 mr-1" />
+                              Start Workout
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null;
+          })()}
         </div>
-      )}
+      </div>
 
-      {/* Routines Grid */}
-      {routines.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {routines.map((routine: any) => (
-            <Card 
-              key={routine.id} 
-              className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-all duration-200"
-            >
-              <CardHeader className="pb-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <Link href={`/routine/${routine.slug}`}>
-                      <CardTitle className="text-lg font-medium text-neutral-900 mb-2 hover:text-blue-600 cursor-pointer transition-colors">
-                        {routine.name}
-                      </CardTitle>
-                    </Link>
-                    {routine.description && (
-                      <p className="text-sm text-neutral-600 line-clamp-2">
-                        {routine.description}
-                      </p>
-                    )}
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem 
-                        onClick={() => handleEditRoutine(routine.id)}
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => handleDeleteRoutine(routine.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <div className="space-y-3">
-                  <div className="text-sm text-neutral-600">
-                    {routine.totalExercises || 0} exercises
-                  </div>
-                  
-                  <Button 
-                    onClick={() => handleStartRoutine(routine)}
-                    className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    Start Workout
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
+      {/* Empty state when no routines and no folders exist */}
+      {routines.length === 0 && folders.length === 0 && (
         <Card className="text-center py-12">
           <CardContent>
             <div className="mx-auto w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mb-4">
