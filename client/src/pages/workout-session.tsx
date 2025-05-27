@@ -636,18 +636,13 @@ export default function WorkoutSession() {
     if (!activeWorkout) return;
     
     try {
-      // Extract duration from the header display (like "10:04")
-      const displayedDuration = formatTime(elapsedTime);
-      console.log("Finishing workout with displayed duration:", displayedDuration);
-      console.log("Elapsed time in seconds:", elapsedTime);
+      // Use the current elapsed time (which may have been manually adjusted by the user)
+      const totalSeconds = elapsedTime;
       
-      // Convert "13:06" format back to seconds
-      const [minutes, seconds] = displayedDuration.split(':').map(num => parseInt(num) || 0);
-      const totalSeconds = (minutes * 60) + seconds;
+      console.log("Finishing workout with elapsed time:", elapsedTime, "seconds");
+      console.log("Formatted duration:", formatTime(elapsedTime));
       
-      console.log("Converted to seconds:", totalSeconds);
-      
-      // Save the displayed duration to database
+      // Save the duration to database (respects any manual adjustments the user made)
       const response = await fetch(`/api/workouts/${activeWorkout.id}`, {
         method: "PATCH",
         body: JSON.stringify({
