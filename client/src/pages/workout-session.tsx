@@ -607,6 +607,15 @@ export default function WorkoutSession() {
     const newElapsedTime = parseInt(minutes) * 60; // Convert to seconds, reset seconds to 0
     setElapsedTime(newElapsedTime);
     setStartTime(Date.now() - newElapsedTime * 1000); // Adjust start time so elapsed time matches
+    
+    // Update the global workout context with the adjusted start time
+    if (activeWorkout) {
+      const adjustedStartTime = new Date(Date.now() - newElapsedTime * 1000).toISOString();
+      setActiveWorkout({
+        ...activeWorkout,
+        adjustedStartTime
+      });
+    }
   };
 
   const formatTime = (seconds: number) => {

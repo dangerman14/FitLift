@@ -42,7 +42,8 @@ export default function WorkoutProgressIndicator() {
   };
 
   const getElapsedTime = () => {
-    const startTime = new Date(activeWorkout.startTime);
+    // Use adjusted start time if available, otherwise use original start time
+    const startTime = new Date(activeWorkout.adjustedStartTime || activeWorkout.startTime);
     const diffInSeconds = Math.floor((currentTime.getTime() - startTime.getTime()) / 1000);
     
     const minutes = Math.floor(diffInSeconds / 60);

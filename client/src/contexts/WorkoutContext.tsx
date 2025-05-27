@@ -6,6 +6,7 @@ interface ActiveWorkout {
   name: string;
   startTime: string;
   slug: string;
+  adjustedStartTime?: string; // For when user manually changes duration
 }
 
 interface WorkoutContextType {
