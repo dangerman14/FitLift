@@ -435,6 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         perceivedExertion: req.body.perceivedExertion || null,
       };
       
+      console.log("Workout data with slug:", workoutData);
       const workout = await storage.createWorkout(workoutData);
       res.status(201).json(workout);
     } catch (error) {
