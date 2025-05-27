@@ -14,7 +14,10 @@ interface WorkoutSet {
   setNumber: number;
   weight: number;
   reps: number;
+  rpe?: number;
   completed: boolean;
+  previousWeight?: number;
+  previousReps?: number;
 }
 
 interface WorkoutExercise {
@@ -89,7 +92,10 @@ export default function WorkoutSessionSimple() {
                 setNumber: setIndex + 1,
                 weight: 0,
                 reps: 0,
-                completed: false
+                rpe: 0,
+                completed: false,
+                previousWeight: 75, // Mock previous data for now
+                previousReps: 10
               }))
             }));
             
@@ -213,18 +219,23 @@ export default function WorkoutSessionSimple() {
               </div>
 
               {/* Sets Table Header */}
-              <div className="grid grid-cols-5 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
+              <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
                 <div>SET</div>
+                <div>PREVIOUS</div>
                 <div>WEIGHT (KG)</div>
                 <div>REPS</div>
+                <div>RPE</div>
                 <div className="text-center">✓</div>
-                <div></div>
               </div>
 
               {/* Sets List */}
               {workoutExercise.sets.map((set, setIndex) => (
-                <div key={`set-${exerciseIndex}-${setIndex}`} className="grid grid-cols-5 gap-2 items-center py-2 px-1">
+                <div key={`set-${exerciseIndex}-${setIndex}`} className="grid grid-cols-6 gap-2 items-center py-2 px-1">
                   <div className="font-medium text-lg">{set.setNumber}</div>
+                  
+                  <div className="text-sm text-neutral-500">
+                    {set.previousWeight}kg x {set.previousReps}
+                  </div>
                   
                   <Input
                     type="number"
@@ -244,6 +255,17 @@ export default function WorkoutSessionSimple() {
                     disabled={set.completed}
                   />
                   
+                  <Input
+                    type="number"
+                    value={set.rpe || ""}
+                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
+                    className="h-10 text-center font-medium text-lg"
+                    placeholder="8"
+                    min="1"
+                    max="10"
+                    disabled={set.completed}
+                  />
+                  
                   <div className="flex justify-center">
                     <Checkbox
                       checked={set.completed}
@@ -251,8 +273,6 @@ export default function WorkoutSessionSimple() {
                       className="w-6 h-6 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                     />
                   </div>
-                  
-                  <div></div>
                 </div>
               ))}
 
