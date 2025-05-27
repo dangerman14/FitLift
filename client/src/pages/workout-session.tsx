@@ -484,7 +484,7 @@ export default function WorkoutSession() {
     setShowExerciseSelector(false);
   };
 
-  const completeSet = (exerciseIndex: number, setIndex: number) => {
+  const completeSet = async (exerciseIndex: number, setIndex: number) => {
     const exercise = workoutExercises[exerciseIndex];
     const set = exercise.sets[setIndex];
     
@@ -507,41 +507,98 @@ export default function WorkoutSession() {
       return;
     }
 
-    // Mark set as completed
-    setWorkoutExercises(prev => 
-      prev.map((ex, exIndex) => 
-        exIndex === exerciseIndex 
-          ? {
-              ...ex,
-              sets: ex.sets.map((s, sIndex) => 
-                sIndex === setIndex ? { ...s, completed: true } : s
-              )
-            }
-          : ex
-      )
-    );
+    try {
+      // Check for personal records before completing the set
+      const recordResponse = await fetch(`/api/exercises/${exercise.exercise?.id}/check-records`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weight: set.weight,
+          reps: set.reps
+        })
+      });
+      
+      const recordData = await recordResponse.json();
+      
+      // Mark set as completed with record achievements
+      setWorkoutExercises(prev => 
+        prev.map((ex, exIndex) => 
+          exIndex === exerciseIndex 
+            ? {
+                ...ex,
+                sets: ex.sets.map((s, sIndex) => 
+                  sIndex === setIndex ? { 
+                    ...s, 
+                    completed: true,
+                    isPersonalRecord: recordData.isHeaviestWeight || recordData.isBest1RM || recordData.isVolumeRecord,
+                    recordTypes: {
+                      heaviestWeight: recordData.isHeaviestWeight,
+                      best1RM: recordData.isBest1RM,
+                      volumeRecord: recordData.isVolumeRecord
+                    }
+                  } : s
+                )
+              }
+            : ex
+        )
+      );
 
-    // Start floating countdown timer
-    const restTime = exerciseRestTimes[exerciseIndex] || 180;
-    setFloatingCountdown({
-      exerciseIndex,
-      timeLeft: restTime
-    });
+      // Start floating countdown timer
+      const restTime = exerciseRestTimes[exerciseIndex] || 180;
+      setFloatingCountdown({
+        exerciseIndex,
+        timeLeft: restTime
+      });
 
-    // Save to database
-    console.log("Saving set for exercise ID:", exercise.id);
-    createSetMutation.mutate({
-      workoutExerciseId: exercise.id,
-      setNumber: set.setNumber,
-      weight: set.weight,
-      reps: set.reps,
-      rpe: set.rpe
-    });
+      // Save to database
+      console.log("Saving set for exercise ID:", exercise.id);
+      createSetMutation.mutate({
+        workoutExerciseId: exercise.id,
+        setNumber: set.setNumber,
+        weight: set.weight,
+        reps: set.reps,
+        rpe: set.rpe
+      });
 
-    toast({
-      title: "Set Completed!",
-      description: `${set.weight}kg × ${set.reps} reps`
-    });
+      // Show achievement notification
+      if (recordData.isHeaviestWeight || recordData.isBest1RM || recordData.isVolumeRecord) {
+        const achievements = [];
+        if (recordData.isHeaviestWeight) achievements.push("Heaviest Weight!");
+        if (recordData.isBest1RM) achievements.push("Best 1RM!");
+        if (recordData.isVolumeRecord) achievements.push("Volume Record!");
+        
+        toast({
+          title: "🏆 Personal Record!",
+          description: `${achievements.join(" + ")} - ${set.weight}kg × ${set.reps} reps`,
+          duration: 5000
+        });
+      } else {
+        toast({
+          title: "Set Completed!",
+          description: `${set.weight}kg × ${set.reps} reps`
+        });
+      }
+    } catch (error) {
+      console.error("Error checking records:", error);
+      // Still complete the set even if record check fails
+      setWorkoutExercises(prev => 
+        prev.map((ex, exIndex) => 
+          exIndex === exerciseIndex 
+            ? {
+                ...ex,
+                sets: ex.sets.map((s, sIndex) => 
+                  sIndex === setIndex ? { ...s, completed: true } : s
+                )
+              }
+            : ex
+        )
+      );
+      
+      toast({
+        title: "Set Completed!",
+        description: `${set.weight}kg × ${set.reps} reps`
+      });
+    }
   };
 
   const addSet = (exerciseIndex: number) => {
@@ -850,7 +907,30 @@ export default function WorkoutSession() {
               {/* Sets List */}
               {workoutExercise.sets.map((set, setIndex) => (
                 <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className="grid grid-cols-6 gap-2 items-center py-2 px-1">
-                  <div className="font-medium text-lg">{set.setNumber}</div>
+                  <div className="font-medium text-lg flex items-center space-x-1">
+                    {/* Desktop: Trophy next to set number */}
+                    <span className="hidden sm:inline">{set.setNumber}</span>
+                    {set.isPersonalRecord && (
+                      <span 
+                        className="text-yellow-500 hidden sm:inline" 
+                        title={`Personal Record: ${set.recordTypes?.heaviestWeight ? 'Heaviest Weight' : ''} ${set.recordTypes?.best1RM ? 'Best 1RM' : ''} ${set.recordTypes?.volumeRecord ? 'Volume Record' : ''}`.trim()}
+                      >
+                        🏆
+                      </span>
+                    )}
+                    
+                    {/* Mobile: Replace set number with trophy */}
+                    {set.isPersonalRecord ? (
+                      <span 
+                        className="text-yellow-500 sm:hidden" 
+                        title={`Personal Record: ${set.recordTypes?.heaviestWeight ? 'Heaviest Weight' : ''} ${set.recordTypes?.best1RM ? 'Best 1RM' : ''} ${set.recordTypes?.volumeRecord ? 'Volume Record' : ''}`.trim()}
+                      >
+                        🏆
+                      </span>
+                    ) : (
+                      <span className="sm:hidden">{set.setNumber}</span>
+                    )}
+                  </div>
                   
                   <div className="text-sm text-neutral-500">
                     {getDisplayWeight(set.previousWeight || 0)}{getWeightUnit()} x {set.previousReps}

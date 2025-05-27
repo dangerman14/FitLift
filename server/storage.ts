@@ -40,7 +40,7 @@ import {
   type InsertRoutineFolder,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, gte, lte, sql, count, sum, max, or } from "drizzle-orm";
+import { eq, desc, and, gte, lte, sql, count, sum, max, or, isNotNull } from "drizzle-orm";
 
 // Utility function to generate random alphanumeric slugs
 function generateRandomSlug(): string {
