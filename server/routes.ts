@@ -89,6 +89,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get individual exercise details
+  app.get('/api/exercises/:exerciseId', isAuthenticated, async (req: any, res) => {
+    try {
+      const exerciseId = parseInt(req.params.exerciseId);
+      const userId = req.user.claims.sub;
+      
+      // Get all exercises (system + custom) and find the specific one
+      const exercises = await storage.getExercises(userId);
+      const customExercises = await storage.getCustomExercises(userId);
+      const allExercises = [...exercises, ...customExercises];
+      
+      const exercise = allExercises.find(ex => ex.id === exerciseId);
+      
+      if (!exercise) {
+        return res.status(404).json({ message: "Exercise not found" });
+      }
+      
+      res.json(exercise);
+    } catch (error) {
+      console.error("Error fetching exercise details:", error);
+      res.status(500).json({ message: "Failed to fetch exercise details" });
+    }
+  });
+
+  // Get exercise history for progress tracking
+  app.get('/api/exercises/:exerciseId/history', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const exerciseId = parseInt(req.params.exerciseId);
+      
+      // Get all workouts for this user that included this exercise
+      const history = await storage.getStrengthProgress(userId, exerciseId);
+      
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching exercise history:", error);
+      res.status(500).json({ message: "Failed to fetch exercise history" });
+    }
+  });
+
+  // Get personal records for an exercise
+  app.get('/api/exercises/:exerciseId/records', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const exerciseId = parseInt(req.params.exerciseId);
+      
+      // Get strength progress data to calculate records
+      const progressData = await storage.getStrengthProgress(userId, exerciseId);
+      
+      let maxWeight = 0;
+      let maxWeightDate = null;
+      let bestVolume = 0;
+      let bestVolumeDate = null;
+      let lastPerformed = null;
+      
+      if (progressData && progressData.length > 0) {
+        // Find max weight
+        const maxWeightRecord = progressData.reduce((max, current) => 
+          current.maxWeight > max.maxWeight ? current : max
+        );
+        maxWeight = maxWeightRecord.maxWeight;
+        maxWeightDate = maxWeightRecord.date;
+        
+        // For volume, we'll use max weight as a proxy for now
+        bestVolume = maxWeight;
+        bestVolumeDate = maxWeightDate;
+        
+        // Last performed is the most recent date
+        lastPerformed = progressData[progressData.length - 1]?.date;
+      }
+      
+      const records = {
+        maxWeight,
+        maxWeightDate,
+        bestVolume,
+        bestVolumeDate,
+        timesPerformed: progressData?.length || 0,
+        lastPerformed
+      };
+      
+      res.json(records);
+    } catch (error) {
+      console.error("Error fetching exercise records:", error);
+      res.status(500).json({ message: "Failed to fetch exercise records" });
+    }
+  });
+
   // Custom exercise creation using separate table
   app.post('/api/exercises/custom', isAuthenticated, async (req, res) => {
     console.log("🎯 CUSTOM EXERCISE ROUTE HIT!");

@@ -58,7 +58,7 @@ export default function ExerciseCard({
   };
 
   return (
-    <Card className="group overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={handleCardClick}>
       {/* Exercise demonstration placeholder */}
       <div className="relative h-48 bg-muted">
         {(exercise.thumbnailUrl || exercise.imageUrl) ? (
@@ -104,7 +104,10 @@ export default function ExerciseCard({
                 ? "text-red-500 hover:text-red-600" 
                 : "text-muted-foreground hover:text-red-500"
             }`}
-            onClick={handleToggleFavorite}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleFavorite();
+            }}
           >
             <Heart className={`h-4 w-4 ${isFavorited ? 'fill-current' : ''}`} />
           </Button>
@@ -163,7 +166,10 @@ export default function ExerciseCard({
         {/* Action Buttons */}
         <div className="flex gap-2">
           <Button 
-            onClick={handleAddToWorkout}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddToWorkout();
+            }}
             className="flex-1 text-sm"
           >
             <Plus className="h-4 w-4 mr-1" />
@@ -171,7 +177,10 @@ export default function ExerciseCard({
           </Button>
           <Button 
             variant="outline" 
-            onClick={handleViewDetails}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetails();
+            }}
             className="flex-1 text-sm"
           >
             Details
