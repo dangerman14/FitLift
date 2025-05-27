@@ -559,6 +559,9 @@ export class DatabaseStorage implements IStorage {
     };
   }> {
     try {
+      console.log(`=== PERSONAL RECORDS CHECK START ===`);
+      console.log(`User: ${userId}, Exercise: ${exerciseId}, Weight: ${weight}, Reps: ${reps}`);
+      
       // Get all previous sets for this exercise by this user
       const previousSets = await db
         .select({
@@ -609,7 +612,7 @@ export class DatabaseStorage implements IStorage {
 
       console.log(`Previous records found: heaviest=${heaviestWeight}kg, best1RM=${best1RM}kg, bestVolume=${bestVolume}`);
 
-      return {
+      const result = {
         isHeaviestWeight: currentWeight > heaviestWeight,
         isBest1RM: current1RM > best1RM,
         isVolumeRecord: currentVolume > bestVolume,
@@ -619,6 +622,9 @@ export class DatabaseStorage implements IStorage {
           bestVolume: bestVolume > 0 ? bestVolume : undefined,
         },
       };
+      
+      console.log(`=== FINAL RESULT ===`, JSON.stringify(result, null, 2));
+      return result;
     } catch (error) {
       console.error('Error checking personal records:', error);
       return {
