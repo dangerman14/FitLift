@@ -94,7 +94,7 @@ export default function Settings() {
     onSuccess: () => {
       toast({
         title: "Settings Updated!",
-        description: "Your unit preferences have been saved successfully.",
+        description: "Your preferences have been saved successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
     },
@@ -126,21 +126,22 @@ export default function Settings() {
         </p>
       </div>
 
-      {/* Unit Preferences */}
-      <Card className="shadow-material-1 border border-neutral-200">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Scale className="h-5 w-5 mr-2 text-purple-600" />
-            Unit Preferences
-          </CardTitle>
-          <CardDescription>
-            Choose your preferred units for weight, distance, and body measurements.
-            These settings will be applied when creating new exercises and tracking progress.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      {/* Settings Form */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Unit Preferences */}
+          <Card className="shadow-material-1 border border-neutral-200">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Scale className="h-5 w-5 mr-2 text-purple-600" />
+                Unit Preferences
+              </CardTitle>
+              <CardDescription>
+                Choose your preferred units for weight, distance, and body measurements.
+                These settings will be applied when creating new exercises and tracking progress.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Weight Unit */}
                 <FormField
@@ -219,9 +220,8 @@ export default function Settings() {
                     </FormItem>
                   )}
                 />
-
               </div>
-            </div>
+            </CardContent>
           </Card>
 
           {/* Workout Settings */}
@@ -270,22 +270,22 @@ export default function Settings() {
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Save Button */}
-              <div className="flex justify-end pt-4">
-                <Button 
-                  type="submit" 
-                  disabled={updateSettingsMutation.isPending}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-lg"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {updateSettingsMutation.isPending ? "Saving..." : "Save Settings"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+          {/* Save Button */}
+          <div className="flex justify-end pt-4">
+            <Button 
+              type="submit" 
+              disabled={updateSettingsMutation.isPending}
+              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-lg"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              {updateSettingsMutation.isPending ? "Saving..." : "Save Settings"}
+            </Button>
+          </div>
+        </form>
+      </Form>
 
       {/* Unit Conversion Info */}
       <Card className="shadow-material-1 border border-neutral-200 mt-6">
@@ -305,7 +305,7 @@ export default function Settings() {
               <p>1 mile = 1.609 km</p>
             </div>
             <div>
-              <h4 className="font-medium text-neutral-800 mb-2">Length</h4>
+              <h4 className="font-medium text-neutral-800 mb-2">Body Measurements</h4>
               <p>1 cm = 0.394 inches</p>
               <p>1 inch = 2.54 cm</p>
             </div>
