@@ -173,6 +173,8 @@ export default function WorkoutComplete() {
       return response.json();
     },
     onSuccess: () => {
+      // Clear the active workout from context since it's now complete
+      setActiveWorkout(null);
       toast({
         title: "Workout saved!",
         description: "Your workout details have been updated.",
