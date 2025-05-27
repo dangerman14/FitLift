@@ -64,13 +64,17 @@ export default function WorkoutComplete() {
       // Calculate duration from workout start and end times
       if (workout.startTime && workout.endTime) {
         console.log("Calculating duration from:", workout.startTime, "to:", workout.endTime);
-        const durationMinutes = Math.round((new Date(workout.endTime).getTime() - new Date(workout.startTime).getTime()) / (1000 * 60));
+        const durationMilliseconds = new Date(workout.endTime).getTime() - new Date(workout.startTime).getTime();
+        const durationMinutes = Math.round(durationMilliseconds / (1000 * 60));
         console.log("Duration calculated:", durationMinutes, "minutes");
-        setWorkoutDuration(durationMinutes.toString());
+        
+        // If workout is less than 1 minute, show as 1 minute minimum
+        const finalDuration = Math.max(1, durationMinutes);
+        setWorkoutDuration(finalDuration.toString());
       } else {
         console.log("Missing time data - startTime:", workout.startTime, "endTime:", workout.endTime);
         // Set a default duration if times are missing
-        setWorkoutDuration("0");
+        setWorkoutDuration("1");
       }
     }
   }, [workout]);
