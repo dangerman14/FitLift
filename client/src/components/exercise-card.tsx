@@ -8,6 +8,7 @@ import {
   Plus
 } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Exercise } from "@shared/schema";
 
 interface ExerciseCardProps {
@@ -24,10 +25,15 @@ export default function ExerciseCard({
   onToggleFavorite 
 }: ExerciseCardProps) {
   const [isFavorited, setIsFavorited] = useState(false);
+  const [, setLocation] = useLocation();
 
   const handleToggleFavorite = () => {
     setIsFavorited(!isFavorited);
     onToggleFavorite?.(exercise);
+  };
+
+  const handleCardClick = () => {
+    setLocation(`/exercise/${exercise.id}`);
   };
 
   const handleAddToWorkout = () => {

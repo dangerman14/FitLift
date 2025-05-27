@@ -8,6 +8,7 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Workouts from "@/pages/workouts";
 import Exercises from "@/pages/exercises";
+import ExerciseDetails from "@/pages/exercise-details";
 import Routines from "@/pages/routines";
 import CreateRoutine from "@/pages/create-routine";
 import Progress from "@/pages/progress";
@@ -49,6 +50,7 @@ function Router() {
                 <Route path="/workout-complete/:workoutId" component={WorkoutComplete} />
                 <Route path="/workouts" component={Workouts} />
                 <Route path="/exercises" component={Exercises} />
+                <Route path="/exercise/:exerciseId" component={ExerciseDetails} />
                 <Route path="/routines" component={Routines} />
                 <Route path="/routine/:slug" component={RoutineDetails} />
                 <Route path="/create-routine" component={CreateRoutine} />
