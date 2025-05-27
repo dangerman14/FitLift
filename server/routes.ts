@@ -707,11 +707,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const exerciseId = parseInt(req.params.exerciseId);
       const { weight, reps } = req.body;
 
+      console.log(`Checking records for user ${userId}, exercise ${exerciseId}, weight ${weight}, reps ${reps}`);
+
       if (!weight || !reps) {
+        console.log("Missing weight or reps:", { weight, reps });
         return res.status(400).json({ message: "Weight and reps are required" });
       }
 
       const records = await storage.checkPersonalRecords(userId, exerciseId, weight, reps);
+      console.log("Records result:", records);
       res.json(records);
     } catch (error) {
       console.error("Error checking personal records:", error);
