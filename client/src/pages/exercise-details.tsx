@@ -328,18 +328,58 @@ export default function ExerciseDetails() {
               </CardHeader>
               <CardContent>
                 {exerciseHistory && exerciseHistory.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {exerciseHistory.map((session: any, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
-                        <div>
-                          <h3 className="font-semibold">{session.workoutName || 'Workout Session'}</h3>
-                          <p className="text-sm text-gray-600">{formatDate(session.date)}</p>
+                      <div key={index} className="bg-gray-50 rounded-lg border p-6">
+                        {/* Workout Header */}
+                        <div className="mb-4">
+                          <h3 className="text-lg font-semibold text-gray-800">
+                            {session.workoutName || 'Workout Session'}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {new Date(session.date).toLocaleDateString('en-US', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}, {new Date(session.date).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
                         </div>
-                        <div className="text-right">
-                          <div className="font-semibold">{session.sets} sets</div>
-                          <div className="text-sm text-gray-600">
-                            Max: {getWeightDisplay(session.maxWeight || 0)} × {session.maxReps || 0}
+
+                        {/* Sets Header */}
+                        <div className="mb-3">
+                          <div className="grid grid-cols-3 gap-4 text-sm font-medium text-gray-700 border-b border-gray-300 pb-2">
+                            <div>Set</div>
+                            <div>Weight & Reps</div>
+                            <div>RPE</div>
                           </div>
+                        </div>
+
+                        {/* Sets Data */}
+                        <div className="space-y-2">
+                          {session.sets && session.sets.length > 0 ? session.sets.map((set: any, setIndex: number) => (
+                            <div key={setIndex} className="grid grid-cols-3 gap-4 text-sm py-2 border-b border-gray-200 last:border-b-0">
+                              <div className="font-medium text-gray-600">
+                                {set.setNumber || setIndex + 1}
+                              </div>
+                              <div className="font-semibold">
+                                {getWeightDisplay(set.weight || 0)} × {set.reps || 0}
+                              </div>
+                              <div className="text-gray-600">
+                                {set.rpe ? `@ ${set.rpe} RPE` : '-'}
+                              </div>
+                            </div>
+                          )) : (
+                            <div className="grid grid-cols-3 gap-4 text-sm py-2">
+                              <div className="font-medium text-gray-600">1</div>
+                              <div className="font-semibold">
+                                {getWeightDisplay(session.maxWeight || 0)} × {session.maxReps || 0}
+                              </div>
+                              <div className="text-gray-600">-</div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
