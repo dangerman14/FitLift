@@ -50,8 +50,9 @@ export default function WorkoutSession() {
   // Parse URL to determine if we're editing existing workout or starting new one
   const urlParams = new URLSearchParams(window.location.search);
   const templateId = urlParams.get('template');
+  const editMode = urlParams.get('edit');
   const workoutSlug = location.split('/')[2]; // For /workout-session/abc123 format
-  const isEditingExisting = !templateId && workoutSlug;
+  const isEditingExisting = editMode === 'true' && workoutSlug;
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
@@ -181,12 +182,50 @@ export default function WorkoutSession() {
     },
   });
 
+  // Load existing workout for editing
+  useEffect(() => {
+    if (isEditingExisting && workoutSlug && !activeWorkout) {
+      const loadExistingWorkout = async () => {
+        try {
+          const response = await fetch(`/api/workouts/${workoutSlug}`, {
+            credentials: 'include'
+          });
+          const workoutData = await response.json();
+          
+          if (workoutData) {
+            setActiveWorkout(workoutData);
+            setStartTime(new Date(workoutData.startTime).getTime());
+            
+            // Load existing exercises and sets
+            const exercisesWithSets = workoutData.exercises || [];
+            const formattedExercises = exercisesWithSets.map((ex: any) => ({
+              ...ex,
+              sets: ex.sets.map((set: any) => ({
+                setNumber: set.setNumber,
+                weight: set.weight || 0,
+                reps: set.reps || 0,
+                completed: true, // Mark as completed since it's an existing workout
+                previousWeight: set.weight || 0,
+                previousReps: set.reps || 0
+              }))
+            }));
+            setWorkoutExercises(formattedExercises);
+          }
+        } catch (error) {
+          console.error('Error loading existing workout:', error);
+        }
+      };
+      
+      loadExistingWorkout();
+    }
+  }, [isEditingExisting, workoutSlug, activeWorkout]);
+
   // Load template from URL parameter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
     
-    if (templateId && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current) {
+    if (templateId && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current && !isEditingExisting) {
       // Fetch template and load it
       const loadTemplate = async () => {
         isCreatingWorkoutRef.current = true;
