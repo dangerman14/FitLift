@@ -316,7 +316,7 @@ export default function Routines() {
                             <span>{getExerciseCount(routine)} exercises</span>
                             <Button 
                               size="sm" 
-                              onClick={() => window.location.href = `/workout?template=${routine.id}`}
+                              onClick={() => window.location.href = `/workout-session?template=${routine.id}`}
                               className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
                             >
                               <Play className="h-3 w-3 mr-1" />
@@ -418,7 +418,7 @@ export default function Routines() {
                             <span>{getExerciseCount(routine)} exercises</span>
                             <Button 
                               size="sm" 
-                              onClick={() => window.location.href = `/workout?template=${routine.id}`}
+                              onClick={() => window.location.href = `/workout-session?template=${routine.id}`}
                               className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
                             >
                               <Play className="h-3 w-3 mr-1" />
