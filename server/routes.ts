@@ -527,6 +527,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log("Details endpoint update data:", updateData);
       
+      // Use direct SQL update to ensure it works
+      if (updateData.duration !== undefined || updateData.endTime || updateData.startTime) {
+        const { Pool } = require('pg');
+        const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        
+        let query = 'UPDATE workouts SET updated_at = NOW()';
+        const values = [];
+        let paramIndex = 1;
+        
+        if (updateData.duration !== undefined) {
+          query += `, duration = $${paramIndex}`;
+          values.push(updateData.duration);
+          paramIndex++;
+        }
+        if (updateData.startTime) {
+          query += `, start_time = $${paramIndex}`;
+          values.push(updateData.startTime);
+          paramIndex++;
+        }
+        if (updateData.endTime) {
+          query += `, end_time = $${paramIndex}`;
+          values.push(updateData.endTime);
+          paramIndex++;
+        }
+        if (updateData.name) {
+          query += `, name = $${paramIndex}`;
+          values.push(updateData.name);
+          paramIndex++;
+        }
+        if (updateData.description !== undefined) {
+          query += `, description = $${paramIndex}`;
+          values.push(updateData.description);
+          paramIndex++;
+        }
+        if (updateData.imageUrl !== undefined) {
+          query += `, image_url = $${paramIndex}`;
+          values.push(updateData.imageUrl);
+          paramIndex++;
+        }
+        
+        query += ` WHERE id = $${paramIndex} RETURNING *`;
+        values.push(id);
+        
+        console.log("Direct SQL query:", query, "Values:", values);
+        
+        const result = await pool.query(query, values);
+        const updatedWorkout = result.rows[0];
+        
+        // Convert snake_case to camelCase for response
+        const formattedWorkout = {
+          ...updatedWorkout,
+          startTime: updatedWorkout.start_time,
+          endTime: updatedWorkout.end_time,
+          imageUrl: updatedWorkout.image_url,
+          userId: updatedWorkout.user_id,
+          templateId: updatedWorkout.template_id,
+          perceivedExertion: updatedWorkout.perceived_exertion,
+          createdAt: updatedWorkout.created_at,
+          updatedAt: updatedWorkout.updated_at
+        };
+        
+        console.log("Direct SQL result:", formattedWorkout);
+        res.json(formattedWorkout);
+        return;
+      }
+      
       const updatedWorkout = await storage.updateWorkout(id, updateData);
       
       res.json(updatedWorkout);
