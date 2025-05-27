@@ -630,59 +630,67 @@ export class DatabaseStorage implements IStorage {
       rpe?: number;
     }>;
   }[]> {
-    // Get all workouts that included this exercise with detailed set information
-    const workoutSessions = await db
-      .select({
-        workoutId: workouts.id,
-        workoutName: workouts.name,
-        startTime: workouts.startTime,
-        setNumber: exerciseSets.setNumber,
-        weight: exerciseSets.weight,
-        reps: exerciseSets.reps,
-        rpe: exerciseSets.rpe,
-      })
-      .from(exerciseSets)
-      .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
-      .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
-      .where(
-        and(
-          eq(workouts.userId, userId),
-          eq(workoutExercises.exerciseId, exerciseId)
+    try {
+      // Get all workouts that included this exercise with detailed set information
+      const workoutSessions = await db
+        .select({
+          workoutId: workouts.id,
+          workoutName: workouts.name,
+          startTime: workouts.startTime,
+          setNumber: exerciseSets.setNumber,
+          weight: exerciseSets.weight,
+          reps: exerciseSets.reps,
+          rpe: exerciseSets.rpe,
+        })
+        .from(exerciseSets)
+        .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
+        .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
+        .where(
+          and(
+            eq(workouts.userId, userId),
+            eq(workoutExercises.exerciseId, exerciseId)
+          )
         )
-      )
-      .orderBy(desc(workouts.startTime), exerciseSets.setNumber);
+        .orderBy(desc(workouts.startTime), exerciseSets.setNumber);
 
-    // Group sets by workout
-    const workoutMap = new Map();
-    
-    for (const session of workoutSessions) {
-      const workoutKey = session.workoutId;
+      // Group sets by workout
+      const workoutMap = new Map();
       
-      if (!workoutMap.has(workoutKey)) {
-        workoutMap.set(workoutKey, {
-          date: session.startTime,
-          workoutName: session.workoutName,
-          workoutId: session.workoutId,
-          maxWeight: session.weight || 0,
-          sets: []
+      for (const session of workoutSessions) {
+        const workoutKey = session.workoutId;
+        
+        if (!workoutMap.has(workoutKey)) {
+          workoutMap.set(workoutKey, {
+            date: session.startTime,
+            workoutName: session.workoutName,
+            workoutId: session.workoutId,
+            maxWeight: Number(session.weight) || 0,
+            sets: []
+          });
+        }
+        
+        const workout = workoutMap.get(workoutKey);
+        workout.sets.push({
+          setNumber: session.setNumber || 1,
+          weight: Number(session.weight) || 0,
+          reps: Number(session.reps) || 0,
+          rpe: session.rpe ? Number(session.rpe) : undefined
         });
+        
+        // Update max weight for this workout
+        const currentWeight = Number(session.weight) || 0;
+        if (currentWeight > workout.maxWeight) {
+          workout.maxWeight = currentWeight;
+        }
       }
-      
-      const workout = workoutMap.get(workoutKey);
-      workout.sets.push({
-        setNumber: session.setNumber,
-        weight: session.weight || 0,
-        reps: session.reps || 0,
-        rpe: session.rpe
-      });
-      
-      // Update max weight for this workout
-      if ((session.weight || 0) > workout.maxWeight) {
-        workout.maxWeight = session.weight || 0;
-      }
-    }
 
-    return Array.from(workoutMap.values());
+      const result = Array.from(workoutMap.values());
+      console.log(`getStrengthProgress result for exercise ${exerciseId}:`, JSON.stringify(result, null, 2));
+      return result;
+    } catch (error) {
+      console.error('Error in getStrengthProgress:', error);
+      return [];
+    }
   }
 
   async getRoutines(userId: string): Promise<Routine[]> {
