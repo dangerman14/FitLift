@@ -572,9 +572,10 @@ export default function WorkoutSession() {
     if (!activeWorkout) return;
     
     try {
-      // Extract duration from the header display (like "13:06")
-      const displayedDuration = formatTime(Math.floor(elapsedTime / 1000));
+      // Extract duration from the header display (like "10:04")
+      const displayedDuration = formatTime(elapsedTime);
       console.log("Finishing workout with displayed duration:", displayedDuration);
+      console.log("Elapsed time in seconds:", elapsedTime);
       
       // Convert "13:06" format back to seconds
       const [minutes, seconds] = displayedDuration.split(':').map(num => parseInt(num) || 0);
