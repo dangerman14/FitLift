@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ export default function WorkoutSession() {
   const [workoutExercises, setWorkoutExercises] = useState<WorkoutExercise[]>([]);
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
+  const isCreatingWorkoutRef = useRef(false);
   
   // Parse URL to determine if we're editing existing workout or starting new one
   const urlParams = new URLSearchParams(window.location.search);
@@ -175,9 +176,10 @@ export default function WorkoutSession() {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
     
-    if (templateId && !activeWorkout && workoutExercises.length === 0) {
+    if (templateId && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current) {
       // Fetch template and load it
       const loadTemplate = async () => {
+        isCreatingWorkoutRef.current = true;
         try {
           const response = await fetch(`/api/workout-templates/${templateId}`, {
             credentials: 'include'
