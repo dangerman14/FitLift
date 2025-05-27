@@ -243,7 +243,7 @@ export default function WorkoutSession() {
                           return {
                             setNumber: setIndex + 1,
                             weight: setData.weight || 0,
-                            reps: minReps, // Default to min reps for input
+                            reps: 0, // Start empty
                             minReps,
                             maxReps,
                             completed: false,
@@ -254,7 +254,7 @@ export default function WorkoutSession() {
                       : Array.from({ length: templateEx.setsTarget || 3 }, (_, setIndex) => ({
                           setNumber: setIndex + 1,
                           weight: 0,
-                          reps: templateEx.repsTarget || 8,
+                          reps: 0, // Start empty
                           minReps: templateEx.repsTarget || 8,
                           maxReps: templateEx.repsTarget || 12,
                           completed: false,
