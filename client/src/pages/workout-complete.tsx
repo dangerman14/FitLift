@@ -77,8 +77,8 @@ export default function WorkoutComplete() {
         setWorkoutDuration(finalDuration.toString());
       } else {
         console.log("Missing time data - startTime:", workout.startTime, "endTime:", workout.endTime);
-        // Set a default duration if times are missing
-        setWorkoutDuration("1");
+        // Set a reasonable default duration when no duration is stored
+        setWorkoutDuration("20");
       }
     }
   }, [workout]);
