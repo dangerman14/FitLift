@@ -410,6 +410,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/workouts', isAuthenticated, async (req: any, res) => {
     try {
+      console.log("Creating workout with request body:", req.body);
+      
       // Generate random alphanumeric slug
       const generateRandomSlug = () => {
         const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -420,12 +422,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return result;
       };
 
+      const slug = generateRandomSlug();
+      console.log("Generated slug:", slug);
+
       // Create workout data directly without schema validation to avoid date issues
-      const workoutData = {
+      const workoutData: any = {
         name: req.body.name || "Quick Workout",
         userId: req.user.claims.sub,
         templateId: req.body.templateId || null,
-        slug: generateRandomSlug(),
+        slug: slug,
         startTime: req.body.startTime ? new Date(req.body.startTime) : new Date(),
         endTime: req.body.endTime ? new Date(req.body.endTime) : null,
         duration: req.body.duration || null,
@@ -436,7 +441,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       console.log("Workout data with slug:", workoutData);
+      console.log("Slug field specifically:", workoutData.slug);
       const workout = await storage.createWorkout(workoutData);
+      console.log("Created workout:", workout);
       res.status(201).json(workout);
     } catch (error) {
       console.error("Error creating workout:", error);
