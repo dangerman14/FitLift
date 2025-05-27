@@ -569,6 +569,12 @@ export default function WorkoutSession() {
       const startTime = new Date(activeWorkout.startTime);
       const endTime = new Date(startTime.getTime() + elapsedTime);
       
+      console.log("Finishing workout with timer data:");
+      console.log("Elapsed time (ms):", elapsedTime);
+      console.log("Duration (minutes):", durationMinutes);
+      console.log("Start time:", startTime.toISOString());
+      console.log("Calculated end time:", endTime.toISOString());
+      
       // Update workout with duration and calculated end time
       const response = await fetch(`/api/workouts/${activeWorkout.id}`, {
         method: "PATCH",
