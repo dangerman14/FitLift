@@ -114,9 +114,12 @@ export default function WorkoutComplete() {
       }
     });
 
-    const duration = workoutInfo.startTime && workoutInfo.endTime 
-      ? Math.round((new Date(workoutInfo.endTime).getTime() - new Date(workoutInfo.startTime).getTime()) / (1000 * 60))
-      : 0;
+    // Use stored duration from database if available, otherwise calculate from times
+    const duration = workoutInfo.duration && workoutInfo.duration > 0
+      ? Math.round(workoutInfo.duration / 60) // Convert seconds to minutes
+      : workoutInfo.startTime && workoutInfo.endTime 
+        ? Math.round((new Date(workoutInfo.endTime).getTime() - new Date(workoutInfo.startTime).getTime()) / (1000 * 60))
+        : parseInt(workoutDuration) || 0; // Use form value as fallback
 
     return {
       totalSets,
@@ -125,7 +128,7 @@ export default function WorkoutComplete() {
       exercisesCompleted,
       duration
     };
-  }, [exerciseData, workoutInfo]);
+  }, [exerciseData, workoutInfo, workoutDuration]);
 
   // Update workout details mutation
   const updateWorkoutMutation = useMutation({
