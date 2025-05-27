@@ -139,34 +139,8 @@ export default function WorkoutSession() {
     mutationFn: async (workoutData: any) => {
       return await apiRequest("POST", "/api/workouts", workoutData);
     },
-    onSuccess: async (workout) => {
+    onSuccess: (workout) => {
       setActiveWorkout(workout);
-      
-      // Create workout exercises in the database for each template exercise
-      const currentExercises = workoutExercises;
-      if (currentExercises.length > 0) {
-        for (let i = 0; i < currentExercises.length; i++) {
-          const exercise = currentExercises[i];
-          try {
-            const workoutExercise = await apiRequest("POST", "/api/workout-exercises", {
-              workoutId: workout.id,
-              exerciseId: exercise.exercise.id,
-              order: i + 1,
-              notes: exercise.comment || ""
-            });
-            
-            // Update the exercise with the database ID
-            setWorkoutExercises(prev => 
-              prev.map((ex, index) => 
-                index === i ? { ...ex, id: workoutExercise.id } : ex
-              )
-            );
-          } catch (error) {
-            console.error("Failed to create workout exercise:", error);
-          }
-        }
-      }
-      
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
     },
   });
@@ -568,7 +542,7 @@ export default function WorkoutSession() {
       {/* Exercise List */}
       <div className="p-4 space-y-4 pb-24">
         {workoutExercises.map((workoutExercise, exerciseIndex) => (
-          <Card key={workoutExercise.id} className="shadow-sm">
+          <Card key={`exercise-${exerciseIndex}-${workoutExercise.exercise?.id}`} className="shadow-sm">
             <CardContent className="p-4">
               {/* Exercise Header */}
               <div className="flex justify-between items-start mb-4">
