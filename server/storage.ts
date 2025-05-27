@@ -571,9 +571,7 @@ export class DatabaseStorage implements IStorage {
         .where(
           and(
             eq(workouts.userId, userId),
-            eq(workoutExercises.exerciseId, exerciseId),
-            isNotNull(exerciseSets.weight),
-            isNotNull(exerciseSets.reps)
+            eq(workoutExercises.exerciseId, exerciseId)
           )
         );
 
@@ -590,16 +588,26 @@ export class DatabaseStorage implements IStorage {
       let best1RM = 0;
       let bestVolume = 0;
 
+      console.log(`Processing ${previousSets.length} previous sets...`);
+
       for (const set of previousSets) {
         const setWeight = Number(set.weight) || 0;
         const setReps = Number(set.reps) || 0;
+        
+        // Skip sets with no weight or reps
+        if (setWeight <= 0 || setReps <= 0) continue;
+        
         const setVolume = setWeight * setReps;
         const set1RM = setWeight * (1 + setReps / 30);
+
+        console.log(`Set: ${setWeight}kg x ${setReps} reps, volume: ${setVolume}, 1RM: ${set1RM}`);
 
         if (setWeight > heaviestWeight) heaviestWeight = setWeight;
         if (set1RM > best1RM) best1RM = set1RM;
         if (setVolume > bestVolume) bestVolume = setVolume;
       }
+
+      console.log(`Previous records found: heaviest=${heaviestWeight}kg, best1RM=${best1RM}kg, bestVolume=${bestVolume}`);
 
       return {
         isHeaviestWeight: currentWeight > heaviestWeight,
