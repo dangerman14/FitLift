@@ -317,14 +317,23 @@ export default function WorkoutSession() {
   useEffect(() => {
     const interval = setInterval(() => {
       setFloatingCountdown(prev => {
-        if (!prev || prev.timeLeft <= 0) {
+        if (!prev) return null;
+        
+        if (prev.timeLeft <= 1) {
+          // Alert user when timer reaches 0
+          toast({
+            title: "Rest Complete! 🔔",
+            description: "Time for your next set!",
+            duration: 5000,
+          });
           return null;
         }
+        
         return { ...prev, timeLeft: prev.timeLeft - 1 };
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [toast]);
 
   const createWorkoutExerciseMutation = useMutation({
     mutationFn: async (exerciseData: any) => {
