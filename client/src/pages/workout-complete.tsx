@@ -21,6 +21,7 @@ export default function WorkoutComplete() {
   
   // Function to go back to edit the workout
   const handleBackToWorkout = () => {
+    setIsSaved(true); // Allow navigation back to workout
     if (workout.slug) {
       setLocation(`/workout-session/${workout.slug}?edit=true`);
     } else {
@@ -54,19 +55,38 @@ export default function WorkoutComplete() {
     setActiveWorkout(null);
   }, [setActiveWorkout]);
 
-  // Navigation guard - prevent leaving without saving or discarding
+  // Navigation guard - prevent leaving without saving, discarding, or going back to workout
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (!isSaved) {
         e.preventDefault();
-        e.returnValue = 'You have unsaved workout data. Are you sure you want to leave?';
+        e.returnValue = 'You have unsaved workout data. Please save your workout, discard it, or go back to edit it.';
         return e.returnValue;
       }
     };
 
+    const handlePopState = (e: PopStateEvent) => {
+      if (!isSaved) {
+        e.preventDefault();
+        const userChoice = window.confirm(
+          'You have unsaved workout data. Please save your workout, discard it, or go back to edit it.\n\nClick OK to stay on this page.'
+        );
+        if (userChoice) {
+          window.history.pushState(null, '', window.location.href);
+        }
+      }
+    };
+
+    // Block browser back button and navigation
     window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+    
+    // Push a state to handle back button
+    window.history.pushState(null, '', window.location.href);
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, [isSaved]);
 
