@@ -58,6 +58,11 @@ function generateSlug(name: string): string {
   return `${baseSlug}-${randomString}`;
 }
 
+function generateWorkoutSlug(): string {
+  // Generate 8-character random alphanumeric string for workout sessions
+  return Math.random().toString(36).substring(2, 10);
+}
+
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
@@ -90,6 +95,7 @@ export interface IStorage {
   // Workout operations
   getWorkouts(userId: string): Promise<Workout[]>;
   getWorkoutById(id: number): Promise<Workout | undefined>;
+  getWorkoutBySlug(slug: string): Promise<Workout | undefined>;
   createWorkout(workout: InsertWorkout): Promise<Workout>;
   updateWorkout(id: number, workout: Partial<InsertWorkout>): Promise<Workout>;
   
@@ -368,12 +374,14 @@ export class DatabaseStorage implements IStorage {
         imageUrl: workouts.imageUrl,
         userId: workouts.userId,
         templateId: workouts.templateId,
+        slug: workouts.slug,
         startTime: workouts.startTime,
         endTime: workouts.endTime,
         notes: workouts.notes,
         duration: workouts.duration,
         location: workouts.location,
         rating: workouts.rating,
+        perceivedExertion: workouts.perceivedExertion,
         createdAt: workouts.createdAt,
         updatedAt: workouts.updatedAt,
         templateName: workoutTemplates.name,
@@ -384,8 +392,41 @@ export class DatabaseStorage implements IStorage {
     return workout;
   }
 
+  async getWorkoutBySlug(slug: string): Promise<Workout | undefined> {
+    const [workout] = await db
+      .select({
+        id: workouts.id,
+        name: workouts.name,
+        description: workouts.description,
+        imageUrl: workouts.imageUrl,
+        userId: workouts.userId,
+        templateId: workouts.templateId,
+        slug: workouts.slug,
+        startTime: workouts.startTime,
+        endTime: workouts.endTime,
+        notes: workouts.notes,
+        duration: workouts.duration,
+        location: workouts.location,
+        rating: workouts.rating,
+        perceivedExertion: workouts.perceivedExertion,
+        createdAt: workouts.createdAt,
+        updatedAt: workouts.updatedAt,
+        templateName: workoutTemplates.name,
+      })
+      .from(workouts)
+      .leftJoin(workoutTemplates, eq(workouts.templateId, workoutTemplates.id))
+      .where(eq(workouts.slug, slug));
+    return workout;
+  }
+
   async createWorkout(workout: InsertWorkout): Promise<Workout> {
-    const [newWorkout] = await db.insert(workouts).values(workout).returning();
+    // Generate a unique slug if not provided
+    const workoutWithSlug = {
+      ...workout,
+      slug: workout.slug || generateWorkoutSlug()
+    };
+    
+    const [newWorkout] = await db.insert(workouts).values(workoutWithSlug).returning();
     return newWorkout;
   }
 
