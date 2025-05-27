@@ -426,12 +426,12 @@ export default function WorkoutSession() {
     },
   });
 
-  // Initialize workout (only if no template is being loaded)
+  // Initialize workout (only if no template is being loaded and not editing existing)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
     
-    if (!activeWorkout && !templateId) {
+    if (!activeWorkout && !templateId && !isEditingExisting) {
       const workoutData = {
         name: "Workout Session",
         startTime: new Date().toISOString(),
