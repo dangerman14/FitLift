@@ -61,8 +61,12 @@ export default function WorkoutComplete() {
         setWorkoutTime(startDate.toTimeString().slice(0, 5)); // HH:mm format
       }
       
-      // Calculate duration from workout start and end times
-      if (workout.startTime && workout.endTime) {
+      // Use stored duration if available, otherwise calculate from times
+      if (workout.duration && workout.duration > 0) {
+        console.log("Using stored duration:", workout.duration, "seconds");
+        const durationMinutes = Math.round(workout.duration / 60);
+        setWorkoutDuration(Math.max(1, durationMinutes).toString());
+      } else if (workout.startTime && workout.endTime) {
         console.log("Calculating duration from:", workout.startTime, "to:", workout.endTime);
         const durationMilliseconds = new Date(workout.endTime).getTime() - new Date(workout.startTime).getTime();
         const durationMinutes = Math.round(durationMilliseconds / (1000 * 60));
