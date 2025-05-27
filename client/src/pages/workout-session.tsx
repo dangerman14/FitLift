@@ -12,6 +12,7 @@ import { X, Plus, Timer, MoreVertical, Check, Edit3, Camera, Image } from "lucid
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useWorkout } from "@/contexts/WorkoutContext";
 
 interface WorkoutExercise {
   id: number;

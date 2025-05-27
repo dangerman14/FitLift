@@ -4,6 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { WorkoutProvider } from "@/contexts/WorkoutContext";
+import WorkoutProgressIndicator from "@/components/WorkoutProgressIndicator";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Workouts from "@/pages/workouts";
@@ -72,8 +74,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Router />
+        <WorkoutProvider>
+          <Toaster />
+          <Router />
+          <WorkoutProgressIndicator />
+        </WorkoutProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
