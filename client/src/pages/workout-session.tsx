@@ -43,7 +43,7 @@ interface WorkoutSet {
 export default function WorkoutSession() {
   const [location, setLocation] = useLocation();
   const [activeWorkout, setActiveWorkoutState] = useState<any>(null);
-  const { setActiveWorkout } = useWorkout();
+  const { setActiveWorkout, activeWorkout: globalActiveWorkout } = useWorkout();
   const [workoutExercises, setWorkoutExercises] = useState<WorkoutExercise[]>([]);
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -208,13 +208,18 @@ export default function WorkoutSession() {
           
           if (workoutData) {
             setActiveWorkoutState(workoutData);
+            // Check if there's an adjusted start time from global context
+            const adjustedStartTime = globalActiveWorkout?.adjustedStartTime;
+            const actualStartTime = adjustedStartTime || workoutData.startTime;
+            
             setActiveWorkout({
               id: workoutData.id.toString(),
               name: workoutData.name,
               startTime: workoutData.startTime,
-              slug: workoutData.slug
+              slug: workoutData.slug,
+              adjustedStartTime: adjustedStartTime
             });
-            setStartTime(new Date(workoutData.startTime).getTime());
+            setStartTime(new Date(actualStartTime).getTime());
             
             // Load existing exercises and sets
             const exercisesWithSets = workoutData.exercises || [];
