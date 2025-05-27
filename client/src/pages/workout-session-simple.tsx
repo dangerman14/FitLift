@@ -58,6 +58,7 @@ export default function WorkoutSessionSimple() {
       return await apiRequest("POST", "/api/workouts", workoutData);
     },
     onSuccess: (workout) => {
+      console.log("Created workout:", workout);
       setActiveWorkout(workout);
     },
   });
@@ -159,9 +160,17 @@ export default function WorkoutSessionSimple() {
   };
 
   const finishWorkout = async () => {
-    if (!activeWorkout) return;
+    if (!activeWorkout || !activeWorkout.id) {
+      toast({
+        title: "Error",
+        description: "No active workout found.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
+      console.log("Finishing workout with ID:", activeWorkout.id);
       await apiRequest("PATCH", `/api/workouts/${activeWorkout.id}`, {
         endTime: new Date().toISOString()
       });
@@ -171,7 +180,7 @@ export default function WorkoutSessionSimple() {
       console.error("Error finishing workout:", error);
       toast({
         title: "Error",
-        description: "Failed to finish workout.",
+        description: "Failed to finish workout. Please try again.",
         variant: "destructive",
       });
     }
@@ -188,6 +197,9 @@ export default function WorkoutSessionSimple() {
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-white drop-shadow-lg">Workout Session</h1>
+              {activeWorkout && (
+                <div className="text-sm opacity-90">Workout ID: {activeWorkout.id}</div>
+              )}
             </div>
           </div>
           <div className="flex items-center space-x-4">
