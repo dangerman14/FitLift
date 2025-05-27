@@ -105,6 +105,7 @@ export interface IStorage {
   getWorkoutBySlug(slug: string): Promise<Workout | undefined>;
   createWorkout(workout: InsertWorkout): Promise<Workout>;
   updateWorkout(id: number, workout: Partial<InsertWorkout>): Promise<Workout>;
+  deleteWorkout(id: number, userId: string): Promise<void>;
   
   // Workout exercise operations
   getWorkoutExercises(workoutId: number): Promise<(WorkoutExercise & { exercise: Exercise; sets: ExerciseSet[] })[]>;
@@ -490,6 +491,13 @@ export class DatabaseStorage implements IStorage {
       
     console.log("Updated workout returned from DB:", updatedWorkout);
     return updatedWorkout;
+  }
+
+  async deleteWorkout(id: number, userId: string): Promise<void> {
+    // Delete the workout (cascade will handle related data)
+    await db
+      .delete(workouts)
+      .where(and(eq(workouts.id, id), eq(workouts.userId, userId)));
   }
 
   // Workout exercise operations

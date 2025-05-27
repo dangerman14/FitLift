@@ -639,6 +639,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete workout
+  app.delete('/api/workouts/:param', isAuthenticated, async (req: any, res) => {
+    try {
+      const param = req.params.param;
+      const userId = req.user.claims.sub;
+      
+      // Check if param is numeric (ID) or slug
+      const isNumeric = /^\d+$/.test(param);
+      let existingWorkout;
+      
+      if (isNumeric) {
+        const id = parseInt(param);
+        existingWorkout = await storage.getWorkoutById(id);
+      } else {
+        // Handle slug
+        existingWorkout = await storage.getWorkoutBySlug(param);
+      }
+      
+      if (!existingWorkout || existingWorkout.userId !== userId) {
+        return res.status(404).json({ message: "Workout not found" });
+      }
+      
+      // Delete the workout (this should cascade to delete related data)
+      await storage.deleteWorkout(existingWorkout.id, userId);
+      
+      res.status(200).json({ message: "Workout deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting workout:", error);
+      res.status(500).json({ message: "Failed to delete workout" });
+    }
+  });
+
   // Workout exercise routes
   app.post('/api/workouts/:workoutId/exercises', isAuthenticated, async (req, res) => {
     try {
