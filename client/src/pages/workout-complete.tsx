@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Clock, Trophy, Target, Image, Camera, ArrowLeft } from "lucide-react";
+import { CheckCircle2, Clock, Trophy, Target, Image, Camera, ArrowLeft, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -32,6 +33,8 @@ export default function WorkoutComplete() {
   const [workoutDate, setWorkoutDate] = useState('');
   const [workoutTime, setWorkoutTime] = useState('');
   const [workoutDuration, setWorkoutDuration] = useState('');
+  const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -50,6 +53,22 @@ export default function WorkoutComplete() {
   useEffect(() => {
     setActiveWorkout(null);
   }, [setActiveWorkout]);
+
+  // Navigation guard - prevent leaving without saving or discarding
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isSaved) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved workout data. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isSaved]);
 
   // Initialize form with workout data
   useEffect(() => {
@@ -178,6 +197,7 @@ export default function WorkoutComplete() {
       return response.json();
     },
     onSuccess: () => {
+      setIsSaved(true);
       // Clear the active workout from context since it's now complete
       setActiveWorkout(null);
       toast({
@@ -186,7 +206,8 @@ export default function WorkoutComplete() {
       });
       // Refresh the workout data to show updated duration immediately
       queryClient.invalidateQueries({ queryKey: [`/api/workouts/${workoutId}`] });
-      // Stay on the page to see the updated values
+      queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
+      setLocation("/");
     },
     onError: () => {
       toast({
@@ -196,6 +217,39 @@ export default function WorkoutComplete() {
       });
     },
   });
+
+  // Discard workout mutation
+  const discardWorkoutMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/workouts/${workoutId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error('Failed to discard workout');
+      return response.json();
+    },
+    onSuccess: () => {
+      setIsSaved(true);
+      setActiveWorkout(null);
+      toast({
+        title: "Workout Discarded",
+        description: "Your workout has been discarded.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
+      setLocation("/");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to discard workout. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDiscard = () => {
+    discardWorkoutMutation.mutate();
+    setIsDiscardDialogOpen(false);
+  };
 
   const handleSave = () => {
     updateWorkoutMutation.mutate({
