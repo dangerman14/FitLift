@@ -47,6 +47,8 @@ export default function WorkoutSession() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
+  const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
+  const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
   const [weightUnitOverride, setWeightUnitOverride] = useState<'default' | 'kg' | 'lbs'>('default');
   const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
@@ -130,6 +132,19 @@ export default function WorkoutSession() {
       setWorkoutImageUrl(activeWorkout.imageUrl || '');
     }
   }, [activeWorkout]);
+
+  // Initialize exercise rest times when workout exercises load
+  useEffect(() => {
+    const initialRestTimes: {[key: number]: number} = {};
+    workoutExercises.forEach((exercise, index) => {
+      if (exerciseRestTimes[index] === undefined) {
+        initialRestTimes[index] = exercise.restTimer || 180; // Default 3 minutes
+      }
+    });
+    if (Object.keys(initialRestTimes).length > 0) {
+      setExerciseRestTimes(prev => ({ ...prev, ...initialRestTimes }));
+    }
+  }, [workoutExercises]);
 
   const { data: exercises } = useQuery({
     queryKey: ["/api/exercises"],
@@ -298,6 +313,19 @@ export default function WorkoutSession() {
     return () => clearInterval(interval);
   }, []);
 
+  // Floating countdown timer effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFloatingCountdown(prev => {
+        if (!prev || prev.timeLeft <= 0) {
+          return null;
+        }
+        return { ...prev, timeLeft: prev.timeLeft - 1 };
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const createWorkoutExerciseMutation = useMutation({
     mutationFn: async (exerciseData: any) => {
       const response = await apiRequest("POST", `/api/workouts/${activeWorkout?.id}/exercises`, exerciseData);
@@ -395,11 +423,12 @@ export default function WorkoutSession() {
       )
     );
 
-    // Start rest timer
-    setRestTimers(prev => ({
-      ...prev,
-      [exerciseIndex]: 270 // 4min 30s rest timer
-    }));
+    // Start floating countdown timer
+    const restTime = exerciseRestTimes[exerciseIndex] || 180;
+    setFloatingCountdown({
+      exerciseIndex,
+      timeLeft: restTime
+    });
 
     // Save to database
     console.log("Saving set for exercise ID:", exercise.id);
@@ -464,6 +493,21 @@ export default function WorkoutSession() {
         exIndex === exerciseIndex ? { ...ex, comment } : ex
       )
     );
+  };
+
+  const updateExerciseRestTime = (exerciseIndex: number, seconds: number) => {
+    setExerciseRestTimes(prev => ({
+      ...prev,
+      [exerciseIndex]: seconds
+    }));
+  };
+
+  const adjustFloatingCountdown = (adjustment: number) => {
+    setFloatingCountdown(prev => {
+      if (!prev) return null;
+      const newTime = Math.max(0, prev.timeLeft + adjustment);
+      return { ...prev, timeLeft: newTime };
+    });
   };
 
   const updateWorkoutDuration = (minutes: string) => {
@@ -610,6 +654,30 @@ export default function WorkoutSession() {
                       className="mt-2 text-sm resize-none min-h-[2rem] h-8"
                       rows={1}
                     />
+                    
+                    {/* Exercise Rest Timer */}
+                    <div className="flex items-center space-x-2 mt-3 p-2 bg-neutral-50 rounded-lg">
+                      <span className="text-lg">⏱️</span>
+                      <span className="text-sm text-neutral-600">Rest Timer:</span>
+                      <Select 
+                        value={(exerciseRestTimes[exerciseIndex] || 180).toString()} 
+                        onValueChange={(value) => updateExerciseRestTime(exerciseIndex, parseInt(value))}
+                      >
+                        <SelectTrigger className="h-8 w-24 text-sm">
+                          <SelectValue>
+                            {formatRestTime(exerciseRestTimes[exerciseIndex] || 180)}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="max-h-40">
+                          {/* 30 second intervals up to 10 minutes */}
+                          {Array.from({ length: 20 }, (_, i) => (i + 1) * 30).map(seconds => (
+                            <SelectItem key={seconds} value={seconds.toString()}>
+                              {formatRestTime(seconds)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
                 <Button variant="ghost" size="sm">
@@ -726,6 +794,49 @@ export default function WorkoutSession() {
           </Button>
         </div>
       </div>
+
+      {/* Floating Countdown Timer */}
+      {floatingCountdown && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 p-4">
+          <div className="flex items-center justify-between max-w-md mx-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => adjustFloatingCountdown(-15)}
+              className="px-3 py-2"
+            >
+              -15s
+            </Button>
+            
+            <div className="text-center">
+              <div className="text-lg font-bold text-blue-600">
+                {formatRestTime(floatingCountdown.timeLeft)}
+              </div>
+              <div className="text-xs text-neutral-500">
+                {workoutExercises[floatingCountdown.exerciseIndex]?.exercise?.name}
+              </div>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => adjustFloatingCountdown(15)}
+              className="px-3 py-2"
+            >
+              +15s
+            </Button>
+          </div>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setFloatingCountdown(null)}
+            className="absolute top-2 right-2 h-6 w-6 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       {/* Exercise Selector Modal */}
       {showExerciseSelector && (
