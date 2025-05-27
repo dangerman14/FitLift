@@ -451,13 +451,40 @@ export default function WorkoutComplete() {
 
         {/* Action Buttons */}
         <div className="flex gap-4">
-          <Button 
-            variant="outline" 
-            onClick={() => setLocation("/")}
-            className="flex-1"
-          >
-            Skip & Return Home
-          </Button>
+          <Dialog open={isDiscardDialogOpen} onOpenChange={setIsDiscardDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Discard Workout
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Discard Workout?</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to discard this workout? This action cannot be undone and all your exercise data will be lost.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsDiscardDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="destructive"
+                  onClick={handleDiscard}
+                  disabled={discardWorkoutMutation.isPending}
+                >
+                  {discardWorkoutMutation.isPending ? "Discarding..." : "Discard Workout"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <Button 
             onClick={handleSave}
             disabled={updateWorkoutMutation.isPending}
