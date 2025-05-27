@@ -27,7 +27,7 @@ export default function WorkoutComplete() {
 
   // Get workout details and statistics
   const { data: workoutData } = useQuery({
-    queryKey: ["/api/workouts", workoutId],
+    queryKey: [`/api/workouts/${workoutId}`],
     enabled: !!workoutId,
   });
 
