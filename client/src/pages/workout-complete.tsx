@@ -297,7 +297,10 @@ export default function WorkoutComplete() {
         description: "Your workout has been discarded.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
-      setLocation("/");
+      // Small delay to ensure state updates complete before navigation
+      setTimeout(() => {
+        setLocation("/");
+      }, 100);
     },
     onError: (error: any) => {
       console.error("Discard workout error:", error);
