@@ -384,14 +384,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const idParam = req.params.id;
       let workout;
       
+      console.log("Fetching workout with parameter:", idParam);
+      console.log("Is numeric test result:", /^\d+$/.test(idParam));
+      
       // Check if the parameter is a numeric ID or an alphanumeric slug
       if (/^\d+$/.test(idParam)) {
         // It's a numeric ID
+        console.log("Treating as numeric ID");
         const id = parseInt(idParam);
         workout = await storage.getWorkoutById(id);
       } else {
         // It's a slug - make sure we call the correct method
-        console.log("Looking up workout by slug:", idParam);
+        console.log("Treating as slug, looking up workout by slug:", idParam);
         workout = await storage.getWorkoutBySlug(idParam);
       }
       
