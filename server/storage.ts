@@ -58,10 +58,7 @@ function generateSlug(name: string): string {
   return `${baseSlug}-${randomString}`;
 }
 
-function generateWorkoutSlug(): string {
-  // Generate 8-character random alphanumeric string for workout sessions
-  return Math.random().toString(36).substring(2, 10);
-}
+
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -420,11 +417,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWorkout(workout: InsertWorkout): Promise<Workout> {
-    // Create workout without slug for now to avoid constraint issues
-    const workoutData = { ...workout };
-    delete workoutData.slug; // Remove slug to avoid constraints
-    
-    const [newWorkout] = await db.insert(workouts).values(workoutData).returning();
+    const [newWorkout] = await db.insert(workouts).values(workout).returning();
     return newWorkout;
   }
 
