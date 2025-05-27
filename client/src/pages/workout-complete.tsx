@@ -222,7 +222,12 @@ export default function WorkoutComplete() {
   const discardWorkoutMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("DELETE", `/api/workouts/${workoutId}`);
-      return response.json();
+      try {
+        return await response.json();
+      } catch (e) {
+        // If response is not JSON, just return success
+        return { success: true };
+      }
     },
     onSuccess: () => {
       setIsSaved(true);
