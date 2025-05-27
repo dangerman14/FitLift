@@ -221,9 +221,7 @@ export default function WorkoutComplete() {
   // Discard workout mutation
   const discardWorkoutMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest(`/api/workouts/${workoutId}`, {
-        method: "DELETE",
-      });
+      return await apiRequest(`/api/workouts/${workoutId}`, "DELETE");
     },
     onSuccess: () => {
       setIsSaved(true);
@@ -235,7 +233,8 @@ export default function WorkoutComplete() {
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
       setLocation("/");
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error("Discard workout error:", error);
       toast({
         title: "Error",
         description: "Failed to discard workout. Please try again.",
