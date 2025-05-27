@@ -38,23 +38,23 @@ export default function ExerciseCard({
     onViewDetails?.(exercise);
   };
 
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyVariant = (difficulty: string) => {
     switch (difficulty?.toLowerCase()) {
       case 'beginner':
-        return 'bg-secondary-500';
+        return 'default';
       case 'intermediate':
-        return 'bg-warning';
+        return 'secondary';
       case 'advanced':
-        return 'bg-accent-500';
+        return 'destructive';
       default:
-        return 'bg-neutral-500';
+        return 'outline';
     }
   };
 
   return (
-    <Card className="shadow-material-1 border border-neutral-200 overflow-hidden hover:shadow-material-2 transition-shadow">
+    <Card className="group overflow-hidden hover:shadow-lg transition-shadow">
       {/* Exercise demonstration placeholder */}
-      <div className="relative h-48 bg-neutral-200">
+      <div className="relative h-48 bg-muted">
         {(exercise.thumbnailUrl || exercise.imageUrl) ? (
           <img 
             src={exercise.thumbnailUrl || exercise.imageUrl} 
@@ -62,42 +62,41 @@ export default function ExerciseCard({
             className="w-full h-full object-cover" 
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300">
-            <Dumbbell className="h-12 w-12 text-neutral-400" />
+          <div className="w-full h-full flex items-center justify-center bg-muted">
+            <Dumbbell className="h-12 w-12 text-muted-foreground" />
           </div>
         )}
         
-        <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+        <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
           {(exercise.videoUrl || exercise.youtubeUrl) ? (
             <Button 
-              size="lg"
-              className="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center hover:bg-opacity-100 transition-all text-primary-600 hover:text-primary-700" 
+              size="icon"
+              variant="secondary"
+              className="h-12 w-12 rounded-full" 
               onClick={handleViewDetails}
             >
-              <Play className="h-5 w-5 ml-1" />
+              <Play className="h-5 w-5" />
             </Button>
           ) : (
-            <div className="text-white text-sm bg-black bg-opacity-50 px-3 py-1 rounded">
+            <div className="text-white text-sm bg-black/50 px-3 py-1 rounded-md">
               No video available
             </div>
           )}
         </div>
-        
-
       </div>
       
       <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-medium text-neutral-900 truncate">
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="text-lg font-semibold truncate">
             {exercise.name}
           </h3>
           <Button 
             variant="ghost" 
-            size="sm"
-            className={`p-1 hover:bg-transparent ${
+            size="icon"
+            className={`h-8 w-8 ${
               isFavorited 
-                ? "text-accent-500 hover:text-accent-600" 
-                : "text-neutral-400 hover:text-accent-500"
+                ? "text-red-500 hover:text-red-600" 
+                : "text-muted-foreground hover:text-red-500"
             }`}
             onClick={handleToggleFavorite}
           >
@@ -117,13 +116,13 @@ export default function ExerciseCard({
                 <Badge 
                   key={group} 
                   variant="secondary" 
-                  className="bg-secondary-100 text-secondary-700 text-xs capitalize"
+                  className="text-xs capitalize"
                 >
                   {group}
                 </Badge>
               ))}
               {allMuscleGroups.length > 3 && (
-                <Badge variant="secondary" className="bg-secondary-100 text-secondary-700 text-xs">
+                <Badge variant="secondary" className="text-xs">
                   +{allMuscleGroups.length - 3}
                 </Badge>
               )}
@@ -132,7 +131,7 @@ export default function ExerciseCard({
         })()}
         
         {/* Equipment */}
-        <div className="flex items-center text-sm text-neutral-600 mb-3">
+        <div className="flex items-center text-sm text-muted-foreground mb-3">
           <Dumbbell className="h-4 w-4 mr-2" />
           <span className="capitalize">
             {(() => {
@@ -150,16 +149,16 @@ export default function ExerciseCard({
         
         {/* Description */}
         {exercise.description && (
-          <p className="text-sm text-neutral-600 mb-3 line-clamp-2">
+          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
             {exercise.description}
           </p>
         )}
         
         {/* Action Buttons */}
-        <div className="flex space-x-2">
+        <div className="flex gap-2">
           <Button 
             onClick={handleAddToWorkout}
-            className="flex-1 bg-primary-500 text-white hover:bg-primary-600 text-sm font-medium"
+            className="flex-1 text-sm"
           >
             <Plus className="h-4 w-4 mr-1" />
             Add to Workout
@@ -167,7 +166,7 @@ export default function ExerciseCard({
           <Button 
             variant="outline" 
             onClick={handleViewDetails}
-            className="flex-1 border-neutral-300 text-neutral-700 hover:bg-neutral-50 text-sm font-medium"
+            className="flex-1 text-sm"
           >
             Details
           </Button>

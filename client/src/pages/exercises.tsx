@@ -68,38 +68,35 @@ export default function Exercises() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 space-y-8">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 text-white mx-4 rounded-3xl shadow-large p-8 mb-8">
-        <div className="flex justify-between items-center">
-          <div className="text-center flex-1">
-            <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
-              Exercise Library
-            </h1>
-            <p className="text-purple-100 text-lg">Discover and master new movements</p>
-          </div>
-          <div className="flex gap-3">
-            <Button 
-              onClick={() => setShowCustomExerciseModal(true)}
-              className="bg-white text-purple-600 hover:bg-purple-50 shadow-medium border-0 px-6 py-3 rounded-xl font-bold transform hover:scale-105 transition-all duration-200"
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Add Custom Exercise
-            </Button>
-          </div>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Exercise Library
+          </h1>
+          <p className="text-muted-foreground">
+            Discover and master new movements
+          </p>
         </div>
+        <Button 
+          onClick={() => setShowCustomExerciseModal(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Custom Exercise
+        </Button>
       </div>
 
       {/* Search and Filters */}
-      <div className="space-y-6 px-4">
+      <div className="space-y-4">
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-4 top-4 h-5 w-5 text-neutral-400" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search exercises..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 py-4 text-lg border-0 shadow-soft bg-white rounded-xl"
+            className="pl-9"
           />
         </div>
         
