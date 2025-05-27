@@ -59,95 +59,76 @@ export default function WorkoutComplete() {
 
   // Navigation guard - prevent leaving without saving, discarding, or going back to workout
   useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (!isSaved) {
+    if (!isSaved) {
+      // Override window navigation functions
+      const originalPushState = window.history.pushState;
+      const originalReplaceState = window.history.replaceState;
+      const originalBack = window.history.back;
+      const originalForward = window.history.forward;
+      const originalGo = window.history.go;
+
+      // Block history navigation
+      window.history.pushState = function() {
+        setShowExitWarning(true);
+        return false as any;
+      };
+      
+      window.history.replaceState = function() {
+        setShowExitWarning(true);
+        return false as any;
+      };
+      
+      window.history.back = function() {
+        setShowExitWarning(true);
+      };
+      
+      window.history.forward = function() {
+        setShowExitWarning(true);
+      };
+      
+      window.history.go = function() {
+        setShowExitWarning(true);
+      };
+
+      // Block all clicks on links and navigation
+      const handleAllClicks = (e: Event) => {
+        const target = e.target as HTMLElement;
+        const link = target.closest('a[href]');
+        
+        if (link) {
+          const href = link.getAttribute('href') || '';
+          // Allow same-page anchors but block everything else
+          if (href && !href.startsWith('#') && href !== window.location.pathname) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            setShowExitWarning(true);
+          }
+        }
+      };
+
+      // Block beforeunload
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
         e.preventDefault();
         e.returnValue = 'You have unsaved workout data. Please save your workout, discard it, or go back to edit it.';
         return e.returnValue;
-      }
-    };
+      };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isSaved) {
-        // Block common navigation shortcuts
-        if ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 't' || e.key === 'r')) {
-          e.preventDefault();
-          setShowExitWarning(true);
-        }
-        // Block F5 refresh
-        if (e.key === 'F5') {
-          e.preventDefault();
-          setShowExitWarning(true);
-        }
-        // Block Alt+F4
-        if (e.altKey && e.key === 'F4') {
-          e.preventDefault();
-          setShowExitWarning(true);
-        }
-      }
-    };
+      document.addEventListener('click', handleAllClicks, true);
+      window.addEventListener('beforeunload', handleBeforeUnload);
 
-    const handleLinkClick = (e: Event) => {
-      if (!isSaved) {
-        const target = e.target as HTMLElement;
+      return () => {
+        // Restore original functions
+        window.history.pushState = originalPushState;
+        window.history.replaceState = originalReplaceState;
+        window.history.back = originalBack;
+        window.history.forward = originalForward;
+        window.history.go = originalGo;
         
-        // Block ALL anchor tags that don't stay on the current page
-        const link = target.closest('a');
-        if (link && link.href) {
-          const currentPath = window.location.pathname;
-          const linkPath = new URL(link.href, window.location.origin).pathname;
-          
-          // If link goes to a different page, block it
-          if (linkPath !== currentPath) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            setShowExitWarning(true);
-            return false;
-          }
-        }
-        
-        // Block buttons that might navigate
-        const button = target.closest('button, [role="button"]');
-        if (button) {
-          const buttonText = button.textContent?.toLowerCase() || '';
-          const navigationWords = ['dashboard', 'home', 'back', 'menu', 'nav'];
-          
-          if (navigationWords.some(word => buttonText.includes(word))) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            setShowExitWarning(true);
-            return false;
-          }
-        }
-      }
-    };
-
-    const handlePopState = (e: PopStateEvent) => {
-      if (!isSaved) {
-        e.preventDefault();
-        window.history.pushState(null, '', window.location.href);
-        setShowExitWarning(true);
-      }
-    };
-
-    // Block browser back button and navigation
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handlePopState);
-    window.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('click', handleLinkClick, true);
-    
-    // Push a state to handle back button
-    if (!isSaved) {
-      window.history.pushState(null, '', window.location.href);
+        document.removeEventListener('click', handleAllClicks, true);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
     }
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('click', handleLinkClick, true);
-    };
-  }, [isSaved]);
+  }, [isSaved, setShowExitWarning]);
 
   // Initialize form with workout data
   useEffect(() => {
