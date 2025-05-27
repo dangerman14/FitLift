@@ -562,15 +562,21 @@ export default function WorkoutSession() {
     if (!activeWorkout) return;
     
     try {
-      console.log("Finishing workout - navigation to completion page");
-      console.log("Elapsed time (ms):", elapsedTime);
-      console.log("Start time:", activeWorkout.startTime);
+      // Extract duration from the header display (like "13:06")
+      const displayedDuration = formatTime(Math.floor(elapsedTime / 1000));
+      console.log("Finishing workout with displayed duration:", displayedDuration);
       
-      // Don't save timer duration automatically - let user enter correct duration on completion page
-      // Just mark the workout as finished by setting an endTime for completion
+      // Convert "13:06" format back to seconds
+      const [minutes, seconds] = displayedDuration.split(':').map(num => parseInt(num) || 0);
+      const totalSeconds = (minutes * 60) + seconds;
+      
+      console.log("Converted to seconds:", totalSeconds);
+      
+      // Save the displayed duration to database
       const response = await fetch(`/api/workouts/${activeWorkout.id}`, {
         method: "PATCH",
         body: JSON.stringify({
+          duration: totalSeconds,
           endTime: new Date().toISOString()
         }),
         headers: { "Content-Type": "application/json" },
