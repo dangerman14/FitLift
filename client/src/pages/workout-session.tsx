@@ -42,7 +42,8 @@ interface WorkoutSet {
 
 export default function WorkoutSession() {
   const [location, setLocation] = useLocation();
-  const [activeWorkout, setActiveWorkout] = useState<any>(null);
+  const [activeWorkout, setActiveWorkoutState] = useState<any>(null);
+  const { setActiveWorkout } = useWorkout();
   const [workoutExercises, setWorkoutExercises] = useState<WorkoutExercise[]>([]);
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -125,7 +126,13 @@ export default function WorkoutSession() {
       return await apiRequest("PATCH", `/api/workouts/${activeWorkout?.id}/details`, data);
     },
     onSuccess: (updatedWorkout) => {
-      setActiveWorkout(updatedWorkout);
+      setActiveWorkoutState(updatedWorkout);
+      setActiveWorkout({
+        id: updatedWorkout.id.toString(),
+        name: updatedWorkout.name,
+        startTime: updatedWorkout.startTime,
+        slug: updatedWorkout.slug
+      });
       setEditWorkoutOpen(false);
       toast({
         title: "Workout updated!",
@@ -174,7 +181,13 @@ export default function WorkoutSession() {
     },
     onSuccess: (workout) => {
       console.log("Workout created successfully with ID:", workout.id);
-      setActiveWorkout(workout);
+      setActiveWorkoutState(workout);
+      setActiveWorkout({
+        id: workout.id.toString(),
+        name: workout.name,
+        startTime: workout.startTime,
+        slug: workout.slug
+      });
       // Set the start time to match the workout's start time
       setStartTime(new Date(workout.startTime).getTime());
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
@@ -194,7 +207,13 @@ export default function WorkoutSession() {
           const workoutData = await response.json();
           
           if (workoutData) {
-            setActiveWorkout(workoutData);
+            setActiveWorkoutState(workoutData);
+            setActiveWorkout({
+              id: workoutData.id.toString(),
+              name: workoutData.name,
+              startTime: workoutData.startTime,
+              slug: workoutData.slug
+            });
             setStartTime(new Date(workoutData.startTime).getTime());
             
             // Load existing exercises and sets

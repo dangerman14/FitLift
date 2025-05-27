@@ -10,11 +10,13 @@ import { CheckCircle2, Clock, Trophy, Target, Image, Camera, ArrowLeft } from "l
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useWorkout } from "@/contexts/WorkoutContext";
 
 export default function WorkoutComplete() {
   const [, setLocation] = useLocation();
   const params = useParams();
   const workoutId = params.workoutId;
+  const { setActiveWorkout } = useWorkout();
   
   // Function to go back to edit the workout
   const handleBackToWorkout = () => {
