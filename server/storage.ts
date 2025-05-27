@@ -494,7 +494,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteWorkout(id: number, userId: string): Promise<void> {
-    // Delete the workout (cascade will handle related data)
+    // First get all workout exercises to delete their sets
+    const workoutExercisesList = await db
+      .select()
+      .from(workoutExercises)
+      .where(eq(workoutExercises.workoutId, id));
+
+    // Delete all exercise sets for each workout exercise
+    for (const workoutExercise of workoutExercisesList) {
+      await db
+        .delete(exerciseSets)
+        .where(eq(exerciseSets.workoutExerciseId, workoutExercise.id));
+    }
+
+    // Delete all workout exercises
+    await db
+      .delete(workoutExercises)
+      .where(eq(workoutExercises.workoutId, id));
+
+    // Finally delete the workout itself
     await db
       .delete(workouts)
       .where(and(eq(workouts.id, id), eq(workouts.userId, userId)));
