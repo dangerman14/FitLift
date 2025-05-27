@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, TrendingUp, Trophy, Calendar, Weight, Target, Play, ExternalLink } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useAuth } from "@/hooks/useAuth";
+import { Exercise } from "@shared/schema";
 
 export default function ExerciseDetails() {
   const [, setLocation] = useLocation();
@@ -20,19 +21,19 @@ export default function ExerciseDetails() {
   const [dateFilter, setDateFilter] = useState<'3months' | '1year' | 'all'>('3months');
 
   // Fetch exercise details
-  const { data: exercise, isLoading: exerciseLoading } = useQuery({
+  const { data: exercise, isLoading: exerciseLoading } = useQuery<Exercise>({
     queryKey: [`/api/exercises/${exerciseId}`],
     enabled: !!exerciseId,
   });
 
   // Fetch exercise history/progress
-  const { data: exerciseHistory } = useQuery({
+  const { data: exerciseHistory } = useQuery<any[]>({
     queryKey: [`/api/exercises/${exerciseId}/history`],
     enabled: !!exerciseId,
   });
 
   // Fetch personal records for this exercise
-  const { data: personalRecords } = useQuery({
+  const { data: personalRecords } = useQuery<any>({
     queryKey: [`/api/exercises/${exerciseId}/records`],
     enabled: !!exerciseId,
   });
