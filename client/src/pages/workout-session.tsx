@@ -519,6 +519,7 @@ export default function WorkoutSession() {
       });
       
       const recordData = await recordResponse.json();
+      console.log("Record checking response:", recordData);
       
       // Mark set as completed with record achievements
       setWorkoutExercises(prev => 
