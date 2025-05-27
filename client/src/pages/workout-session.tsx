@@ -778,7 +778,7 @@ export default function WorkoutSession() {
                     value={set.completed ? set.reps.toString() : (set.reps > 0 ? set.reps.toString() : "")}
                     onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
                     className="h-10 text-center font-medium text-lg"
-                    placeholder={formatRepsDisplay(set) || "12"}
+                    placeholder={set.minReps && set.maxReps && set.minReps !== set.maxReps ? `${set.minReps}-${set.maxReps}` : (set.maxReps?.toString() || "12")}
                   />
                   
                   <Input
