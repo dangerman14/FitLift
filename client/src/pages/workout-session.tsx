@@ -671,7 +671,6 @@ export default function WorkoutSession() {
                     }}
                     className="h-10 text-center font-medium text-lg"
                     placeholder={getWeightUnit() === 'lbs' ? "165" : "75"}
-                    disabled={set.completed}
                   />
                   
                   <Input
@@ -680,7 +679,6 @@ export default function WorkoutSession() {
                     onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
                     className="h-10 text-center font-medium text-lg"
                     placeholder={formatRepsDisplay(set) || "12"}
-                    disabled={set.completed}
                   />
                   
                   <Input
@@ -691,7 +689,6 @@ export default function WorkoutSession() {
                     placeholder="9"
                     min="1"
                     max="10"
-                    disabled={set.completed}
                   />
                   
                   <div className="flex justify-center">
