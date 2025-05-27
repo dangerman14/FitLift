@@ -700,6 +700,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check personal records for a set
+  app.post('/api/exercises/:exerciseId/check-records', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const exerciseId = parseInt(req.params.exerciseId);
+      const { weight, reps } = req.body;
+
+      if (!weight || !reps) {
+        return res.status(400).json({ message: "Weight and reps are required" });
+      }
+
+      const records = await storage.checkPersonalRecords(userId, exerciseId, weight, reps);
+      res.json(records);
+    } catch (error) {
+      console.error("Error checking personal records:", error);
+      res.status(500).json({ message: "Failed to check personal records" });
+    }
+  });
+
   // Fitness goal routes
   app.get('/api/fitness-goals', isAuthenticated, async (req: any, res) => {
     try {
