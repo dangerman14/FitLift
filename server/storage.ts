@@ -420,7 +420,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWorkout(workout: InsertWorkout): Promise<Workout> {
-    const [newWorkout] = await db.insert(workouts).values(workout).returning();
+    // Generate a unique slug to avoid constraint issues
+    const workoutWithSlug = {
+      ...workout,
+      slug: `workout-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`
+    };
+    
+    const [newWorkout] = await db.insert(workouts).values(workoutWithSlug).returning();
     return newWorkout;
   }
 
