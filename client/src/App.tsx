@@ -13,7 +13,7 @@ import CreateRoutine from "@/pages/create-routine";
 import Progress from "@/pages/progress";
 import Profile from "@/pages/profile";
 import Settings from "@/pages/settings";
-import WorkoutSession from "@/pages/workout-session-simple";
+import WorkoutSession from "@/pages/workout-session";
 import WorkoutComplete from "@/pages/workout-complete";
 import RoutineDetails from "@/pages/routine-details";
 import NotFound from "@/pages/not-found";

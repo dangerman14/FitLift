@@ -160,77 +160,95 @@ export default function WorkoutSession() {
           const template = await response.json();
           
           if (template && template.exercises) {
+            // Set workout name immediately
+            setWorkoutName(template.name);
+            setWorkoutDescription(template.description || `${template.name} workout`);
+            
             // Create a new workout session based on the template
-            createWorkoutMutation.mutate({
+            const workout = await apiRequest("POST", "/api/workouts", {
               name: template.name,
               description: template.description,
               templateId: parseInt(templateId),
               startTime: new Date().toISOString(),
             });
             
-            // Set workout name
-            setWorkoutName(template.name);
-            setWorkoutDescription(template.description || `${template.name} workout`);
+            setActiveWorkout(workout);
             
-            // Load template exercises with proper reps data parsing
-            const templateExercises = template.exercises.map((templateEx: any, index: number) => {
-              // Parse the notes JSON to get sets data
-              let setsData = [];
+            // Create workout exercises in the database first, then load them
+            const exerciseCreationPromises = template.exercises.map(async (templateEx: any, index: number) => {
               try {
-                const notesData = JSON.parse(templateEx.notes || '{}');
-                setsData = notesData.setsData || [];
-              } catch (error) {
-                console.log('Could not parse notes data:', error);
-              }
+                const workoutExercise = await apiRequest("POST", `/api/workouts/${workout.id}/exercises`, {
+                  exerciseId: templateEx.exercise.id,
+                  orderIndex: index,
+                  setsTarget: templateEx.setsTarget || 3,
+                  restDuration: templateEx.restDuration || 120,
+                });
 
-              // Create sets based on the parsed data
-              const sets = setsData.length > 0 
-                ? setsData.map((setData: any, setIndex: number) => {
-                    // Parse reps - could be single number or range like "8-12"
-                    let minReps = 0;
-                    let maxReps = 0;
-                    if (setData.reps) {
-                      if (setData.reps.includes('-')) {
-                        const [min, max] = setData.reps.split('-').map(Number);
-                        minReps = min;
-                        maxReps = max;
-                      } else {
-                        minReps = maxReps = parseInt(setData.reps);
+                // Parse the notes JSON to get sets data
+                let setsData = [];
+                try {
+                  const notesData = JSON.parse(templateEx.notes || '{}');
+                  setsData = notesData.setsData || [];
+                } catch (error) {
+                  console.log('Could not parse notes data:', error);
+                }
+
+                // Create sets based on the parsed data
+                const sets = setsData.length > 0 
+                  ? setsData.map((setData: any, setIndex: number) => {
+                      // Parse reps - could be single number or range like "8-12"
+                      let minReps = 0;
+                      let maxReps = 0;
+                      if (setData.reps) {
+                        if (setData.reps.includes('-')) {
+                          const [min, max] = setData.reps.split('-').map(Number);
+                          minReps = min;
+                          maxReps = max;
+                        } else {
+                          minReps = maxReps = parseInt(setData.reps);
+                        }
                       }
-                    }
 
-                    return {
+                      return {
+                        setNumber: setIndex + 1,
+                        weight: setData.weight || 0,
+                        reps: minReps, // Default to min reps for input
+                        minReps,
+                        maxReps,
+                        completed: false,
+                        previousWeight: 75,
+                        previousReps: 10
+                      };
+                    })
+                  : Array.from({ length: templateEx.setsTarget || 3 }, (_, setIndex) => ({
                       setNumber: setIndex + 1,
-                      weight: setData.weight || 0,
-                      reps: minReps, // Default to min reps for input
-                      minReps,
-                      maxReps,
+                      weight: 0,
+                      reps: templateEx.repsTarget || 8,
+                      minReps: templateEx.repsTarget || 8,
+                      maxReps: templateEx.repsTarget || 12,
                       completed: false,
-                      previousWeight: 0,
-                      previousReps: 0
-                    };
-                  })
-                : Array.from({ length: templateEx.setsTarget || 3 }, (_, setIndex) => ({
-                    setNumber: setIndex + 1,
-                    weight: 0,
-                    reps: templateEx.repsTarget || 0,
-                    minReps: templateEx.repsTarget || 0,
-                    maxReps: templateEx.repsTarget || 0,
-                    completed: false,
-                    previousWeight: 0,
-                    previousReps: 0
-                  }));
+                      previousWeight: 75,
+                      previousReps: 10
+                    }));
 
-              return {
-                id: null,
-                exercise: templateEx.exercise,
-                sets,
-                restTimer: templateEx.restDuration || 120,
-                comment: '' // Start with empty comment for user notes
-              };
+                return {
+                  id: workoutExercise.id, // Now we have a proper database ID
+                  exercise: templateEx.exercise,
+                  sets,
+                  restTimer: templateEx.restDuration || 120,
+                  comment: ''
+                };
+              } catch (error) {
+                console.error('Failed to create workout exercise:', error);
+                return null;
+              }
             });
-            
-            setWorkoutExercises(templateExercises);
+
+            // Wait for all workout exercises to be created, then set them
+            Promise.all(exerciseCreationPromises).then((exercises) => {
+              const validExercises = exercises.filter(ex => ex !== null);
+              setWorkoutExercises(validExercises);
+            });
           }
         } catch (error) {
           console.error('Failed to load template:', error);
