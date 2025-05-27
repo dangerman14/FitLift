@@ -280,7 +280,10 @@ export default function Dashboard() {
                     <div className="text-sm text-neutral-500 mb-1">
                       {formatDate(workout.startTime)}
                     </div>
-                    <h3 className="text-lg font-semibold text-neutral-900">
+                    <h3 
+                      className="text-lg font-semibold text-neutral-900 cursor-pointer hover:text-primary-600 transition-colors"
+                      onClick={() => setLocation(`/workout-complete/${workout.slug || workout.id}`)}
+                    >
                       {workout.name || "Workout Session"}
                     </h3>
                   </div>
