@@ -427,11 +427,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWorkout(workout: InsertWorkout): Promise<Workout> {
-    const workoutData = {
-      ...workout,
-      slug: generateRandomSlug(),
-    };
-    const [newWorkout] = await db.insert(workouts).values(workoutData).returning();
+    const [newWorkout] = await db.insert(workouts).values(workout).returning();
     return newWorkout;
   }
 

@@ -410,11 +410,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/workouts', isAuthenticated, async (req: any, res) => {
     try {
+      // Generate random alphanumeric slug
+      const generateRandomSlug = () => {
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+      };
+
       // Create workout data directly without schema validation to avoid date issues
       const workoutData = {
         name: req.body.name || "Quick Workout",
         userId: req.user.claims.sub,
         templateId: req.body.templateId || null,
+        slug: generateRandomSlug(),
         startTime: req.body.startTime ? new Date(req.body.startTime) : new Date(),
         endTime: req.body.endTime ? new Date(req.body.endTime) : null,
         duration: req.body.duration || null,
