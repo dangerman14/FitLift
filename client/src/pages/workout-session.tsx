@@ -512,11 +512,17 @@ export default function WorkoutSession() {
         throw new Error('Failed to finish workout');
       }
 
+      // Parse the response to get updated workout data
+      const updatedWorkout = await response.json();
+      
       // Invalidate workout cache to ensure fresh data on completion page
       queryClient.invalidateQueries({ queryKey: [`/api/workouts/${activeWorkout.id}`] });
       
-      // Navigate to completion screen
-      setLocation(`/workout-complete/${activeWorkout.id}`);
+      // Calculate the duration in minutes to pass to completion page
+      const durationMinutes = Math.round(elapsedTime / 60);
+      
+      // Navigate to completion screen with duration
+      setLocation(`/workout-complete/${activeWorkout.id}?duration=${durationMinutes}`);
     } catch (error) {
       console.error("Error finishing workout:", error);
       toast({
