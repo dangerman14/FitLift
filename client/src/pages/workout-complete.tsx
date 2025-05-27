@@ -316,7 +316,56 @@ export default function WorkoutComplete() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative">
+      {/* Blocking Overlay */}
+      {!isSaved && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-2xl p-6 max-w-md mx-4 border-2 border-amber-400">
+            <div className="text-center mb-6">
+              <Target className="h-12 w-12 text-amber-500 mx-auto mb-3" />
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Action Required</h2>
+              <p className="text-gray-600">
+                You must complete one of these actions before leaving this page:
+              </p>
+            </div>
+            
+            <div className="space-y-3">
+              <Button
+                onClick={() => {
+                  // Save workout form submission
+                  const saveButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
+                  if (saveButton) saveButton.click();
+                }}
+                className="w-full bg-green-600 hover:bg-green-700"
+                size="lg"
+              >
+                Save Completed Workout
+              </Button>
+              
+              <Button
+                onClick={handleBackToWorkout}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Go Back to Edit Workout
+              </Button>
+              
+              <Button
+                onClick={() => setIsDiscardDialogOpen(true)}
+                variant="destructive"
+                className="w-full"
+                size="lg"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Discard Workout
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {!isSaved && (
         <div className="bg-amber-500 text-white p-3 text-center">
           <div className="flex items-center justify-center gap-2 font-medium">
