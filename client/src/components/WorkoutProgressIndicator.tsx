@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useWorkout } from '@/contexts/WorkoutContext';
@@ -9,6 +9,15 @@ export default function WorkoutProgressIndicator() {
   const { activeWorkout, setActiveWorkout, isInWorkoutSession } = useWorkout();
   const [, setLocation] = useLocation();
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update current time every second to keep duration accurate
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Don't show if no active workout or if already in workout session
   if (!activeWorkout || isInWorkoutSession) {
@@ -31,16 +40,6 @@ export default function WorkoutProgressIndicator() {
   const handleCancelDiscard = () => {
     setShowDiscardDialog(false);
   };
-
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  // Update current time every second to keep duration accurate
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const getElapsedTime = () => {
     const startTime = new Date(activeWorkout.startTime);
