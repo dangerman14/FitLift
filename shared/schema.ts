@@ -150,7 +150,6 @@ export const workouts = pgTable("workouts", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   templateId: integer("template_id").references(() => workoutTemplates.id, { onDelete: "set null" }),
-  slug: varchar("slug"),
   name: varchar("name").notNull(),
   description: text("description"),
   imageUrl: varchar("image_url"),
