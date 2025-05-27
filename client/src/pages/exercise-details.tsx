@@ -27,8 +27,8 @@ export default function ExerciseDetails() {
   });
 
   // Fetch exercise history/progress
-  const { data: exerciseHistory } = useQuery<any[]>({
-    queryKey: [`/api/exercises/${exerciseId}/history`, Date.now()],
+  const { data: exerciseHistory, refetch: refetchHistory } = useQuery<any[]>({
+    queryKey: [`/api/exercises/${exerciseId}/history`],
     enabled: !!exerciseId,
   });
 
