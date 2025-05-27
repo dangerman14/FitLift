@@ -74,7 +74,7 @@ export interface IStorage {
   // User operations (mandatory for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  updateUserSettings(id: string, settings: { weightUnit?: string; distanceUnit?: string; bodyMeasurementUnit?: string }): Promise<User>;
+  updateUserSettings(id: string, settings: { weightUnit?: string; distanceUnit?: string; bodyMeasurementUnit?: string; previousWorkoutMode?: string }): Promise<User>;
   
   // Exercise operations
   getExercises(userId?: string): Promise<Exercise[]>;
@@ -113,6 +113,9 @@ export interface IStorage {
   // Exercise set operations
   createExerciseSet(set: InsertExerciseSet): Promise<ExerciseSet>;
   updateExerciseSet(id: number, set: Partial<InsertExerciseSet>): Promise<ExerciseSet>;
+  
+  // Previous exercise data
+  getPreviousExerciseData(userId: string, exerciseId: number, templateId?: number): Promise<{ weight: number; reps: number; setNumber: number }[]>;
   
   // Personal record operations
   checkPersonalRecords(userId: string, exerciseId: number, weight: number, reps: number): Promise<{
@@ -577,6 +580,67 @@ export class DatabaseStorage implements IStorage {
         bestVolume: isRecord ? 320 : undefined,
       },
     };
+  }
+
+  async getPreviousExerciseData(userId: string, exerciseId: number, templateId?: number): Promise<{ weight: number; reps: number; setNumber: number }[]> {
+    try {
+      // Get user's preference for previous workout mode
+      const user = await this.getUser(userId);
+      const previousWorkoutMode = user?.previousWorkoutMode || 'any_workout';
+
+      // Build base conditions
+      let conditions = [
+        eq(workouts.userId, userId),
+        eq(workoutExercises.exerciseId, exerciseId)
+      ];
+
+      // If mode is "same_routine" and templateId is provided, filter by template
+      if (previousWorkoutMode === 'same_routine' && templateId) {
+        conditions.push(eq(workouts.templateId, templateId));
+      }
+
+      const results = await db
+        .select({
+          weight: exerciseSets.weight,
+          reps: exerciseSets.reps,
+          setNumber: exerciseSets.setNumber,
+          workoutDate: workouts.startTime,
+        })
+        .from(exerciseSets)
+        .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
+        .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
+        .where(and(...conditions))
+        .orderBy(desc(workouts.startTime))
+        .limit(20); // Get more results to ensure we have a complete workout
+
+      // Group by workout and get the most recent workout's sets
+      const workoutGroups = results.reduce((acc, set) => {
+        const workoutDate = set.workoutDate?.toISOString() || '';
+        if (!acc[workoutDate] && set.weight && set.reps) {
+          acc[workoutDate] = [];
+        }
+        if (set.weight && set.reps) {
+          acc[workoutDate]?.push({
+            weight: Number(set.weight) || 0,
+            reps: Number(set.reps) || 0,
+            setNumber: set.setNumber || 1
+          });
+        }
+        return acc;
+      }, {} as Record<string, { weight: number; reps: number; setNumber: number }[]>);
+
+      // Get the most recent workout's sets and sort by set number
+      const workoutDates = Object.keys(workoutGroups).sort().reverse();
+      if (workoutDates.length > 0) {
+        const mostRecentSets = workoutGroups[workoutDates[0]];
+        return mostRecentSets.sort((a, b) => a.setNumber - b.setNumber);
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error getting previous exercise data:', error);
+      return [];
+    }
   }
 
   // Fitness goal operations

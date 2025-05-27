@@ -700,6 +700,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get previous exercise data
+  app.get('/api/exercises/:exerciseId/previous-data', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const exerciseId = parseInt(req.params.exerciseId);
+      const templateId = req.query.templateId ? parseInt(req.query.templateId) : undefined;
+
+      const previousData = await storage.getPreviousExerciseData(userId, exerciseId, templateId);
+      res.json(previousData);
+    } catch (error) {
+      console.error("Error getting previous exercise data:", error);
+      res.status(500).json({ message: "Failed to get previous exercise data" });
+    }
+  });
+
   // Check personal records for a set
   app.post('/api/exercises/:exerciseId/check-records', isAuthenticated, async (req: any, res) => {
     try {
