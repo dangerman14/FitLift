@@ -584,11 +584,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update workout details (name, description, image)
   app.patch('/api/workouts/:id/details', isAuthenticated, async (req: any, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const param = req.params.id;
       const userId = req.user.claims.sub;
       
-      // Validate that the workout belongs to the user
-      const existingWorkout = await storage.getWorkoutById(id);
+      // Check if parameter is numeric (ID) or string (slug)
+      const isNumeric = !isNaN(Number(param));
+      let existingWorkout;
+      
+      if (isNumeric) {
+        const id = parseInt(param);
+        existingWorkout = await storage.getWorkoutById(id);
+      } else {
+        // Handle slug
+        existingWorkout = await storage.getWorkoutBySlug(param);
+      }
+      
       if (!existingWorkout || existingWorkout.userId !== userId) {
         return res.status(404).json({ message: "Workout not found" });
       }
@@ -655,7 +665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         query += ` WHERE id = $${paramIndex} RETURNING *`;
-        values.push(id);
+        values.push(existingWorkout.id);
         
         console.log("Direct SQL query:", query, "Values:", values);
         
@@ -680,7 +690,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return;
       }
       
-      const updatedWorkout = await storage.updateWorkout(id, updateData);
+      const updatedWorkout = await storage.updateWorkout(existingWorkout.id, updateData);
       
       res.json(updatedWorkout);
     } catch (error) {
