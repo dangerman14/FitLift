@@ -716,7 +716,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const records = await storage.checkPersonalRecords(userId, exerciseId, weight, reps);
       console.log("Records result:", records);
-      res.json(records);
+      
+      // Ensure we return a proper JSON response
+      res.status(200).json(records);
     } catch (error) {
       console.error("Error checking personal records:", error);
       res.status(500).json({ message: "Failed to check personal records" });
