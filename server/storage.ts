@@ -420,13 +420,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWorkout(workout: InsertWorkout): Promise<Workout> {
-    // Generate a unique slug if not provided
-    const workoutWithSlug = {
-      ...workout,
-      slug: workout.slug || generateWorkoutSlug()
-    };
-    
-    const [newWorkout] = await db.insert(workouts).values(workoutWithSlug).returning();
+    const [newWorkout] = await db.insert(workouts).values(workout).returning();
     return newWorkout;
   }
 
