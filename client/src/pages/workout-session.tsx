@@ -589,7 +589,7 @@ export default function WorkoutSession() {
       </div>
 
       {/* Exercise List */}
-      <div className="p-4 space-y-4 pb-24">
+      <div className="p-4 space-y-4 pb-8">
         {workoutExercises.map((workoutExercise, exerciseIndex) => (
           <Card key={`exercise-${exerciseIndex}-${workoutExercise.exercise?.id}`} className="shadow-sm">
             <CardContent className="p-4">
@@ -713,18 +713,18 @@ export default function WorkoutSession() {
             </CardContent>
           </Card>
         ))}
-      </div>
 
-      {/* Fixed Add Exercise Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
-        <Button
-          onClick={() => setShowExerciseSelector(true)}
-          className="w-full py-4 text-lg"
-          style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Add Exercise
-        </Button>
+        {/* Add Exercise Button */}
+        <div className="p-4">
+          <Button
+            onClick={() => setShowExerciseSelector(true)}
+            className="w-full py-4 text-lg"
+            style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Add Exercise
+          </Button>
+        </div>
       </div>
 
       {/* Exercise Selector Modal */}
