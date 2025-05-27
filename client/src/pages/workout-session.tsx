@@ -140,6 +140,7 @@ export default function WorkoutSession() {
       return await apiRequest("POST", "/api/workouts", workoutData);
     },
     onSuccess: (workout) => {
+      console.log("Workout created successfully:", workout);
       setActiveWorkout(workout);
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
     },
@@ -160,94 +161,93 @@ export default function WorkoutSession() {
           const template = await response.json();
           
           if (template && template.exercises) {
-            // Set workout name immediately
-            setWorkoutName(template.name);
-            setWorkoutDescription(template.description || `${template.name} workout`);
-            
-            // Create a new workout session based on the template
-            const workout = await apiRequest("POST", "/api/workouts", {
+            // Create workout using the mutation to ensure proper state management
+            createWorkoutMutation.mutate({
               name: template.name,
               description: template.description,
               templateId: parseInt(templateId),
               startTime: new Date().toISOString(),
-            });
-            
-            setActiveWorkout(workout);
-            
-            // Create workout exercises in the database first, then load them
-            const exerciseCreationPromises = template.exercises.map(async (templateEx: any, index: number) => {
-              try {
-                const workoutExercise = await apiRequest("POST", `/api/workouts/${workout.id}/exercises`, {
-                  exerciseId: templateEx.exercise.id,
-                  orderIndex: index,
-                  setsTarget: templateEx.setsTarget || 3,
-                  restDuration: templateEx.restDuration || 120,
+            }, {
+              onSuccess: async (workout) => {
+                // Set workout name and description after successful creation
+                setWorkoutName(template.name);
+                setWorkoutDescription(template.description || `${template.name} workout`);
+                
+                // Now create workout exercises with the valid workout ID
+                const exerciseCreationPromises = template.exercises.map(async (templateEx: any, index: number) => {
+                  try {
+                    const workoutExercise = await apiRequest("POST", `/api/workouts/${workout.id}/exercises`, {
+                      exerciseId: templateEx.exercise.id,
+                      orderIndex: index,
+                      setsTarget: templateEx.setsTarget || 3,
+                      restDuration: templateEx.restDuration || 120,
+                    });
+
+                    // Parse the notes JSON to get sets data
+                    let setsData = [];
+                    try {
+                      const notesData = JSON.parse(templateEx.notes || '{}');
+                      setsData = notesData.setsData || [];
+                    } catch (error) {
+                      console.log('Could not parse notes data:', error);
+                    }
+
+                    // Create sets based on the parsed data
+                    const sets = setsData.length > 0 
+                      ? setsData.map((setData: any, setIndex: number) => {
+                          // Parse reps - could be single number or range like "8-12"
+                          let minReps = 0;
+                          let maxReps = 0;
+                          if (setData.reps) {
+                            if (setData.reps.includes('-')) {
+                              const [min, max] = setData.reps.split('-').map(Number);
+                              minReps = min;
+                              maxReps = max;
+                            } else {
+                              minReps = maxReps = parseInt(setData.reps);
+                            }
+                          }
+
+                          return {
+                            setNumber: setIndex + 1,
+                            weight: setData.weight || 0,
+                            reps: minReps, // Default to min reps for input
+                            minReps,
+                            maxReps,
+                            completed: false,
+                            previousWeight: 75,
+                            previousReps: 10
+                          };
+                        })
+                      : Array.from({ length: templateEx.setsTarget || 3 }, (_, setIndex) => ({
+                          setNumber: setIndex + 1,
+                          weight: 0,
+                          reps: templateEx.repsTarget || 8,
+                          minReps: templateEx.repsTarget || 8,
+                          maxReps: templateEx.repsTarget || 12,
+                          completed: false,
+                          previousWeight: 75,
+                          previousReps: 10
+                        }));
+
+                    return {
+                      id: workoutExercise.id, // Now we have a proper database ID
+                      exercise: templateEx.exercise,
+                      sets,
+                      restTimer: templateEx.restDuration || 120,
+                      comment: ''
+                    };
+                  } catch (error) {
+                    console.error('Failed to create workout exercise:', error);
+                    return null;
+                  }
                 });
 
-                // Parse the notes JSON to get sets data
-                let setsData = [];
-                try {
-                  const notesData = JSON.parse(templateEx.notes || '{}');
-                  setsData = notesData.setsData || [];
-                } catch (error) {
-                  console.log('Could not parse notes data:', error);
-                }
-
-                // Create sets based on the parsed data
-                const sets = setsData.length > 0 
-                  ? setsData.map((setData: any, setIndex: number) => {
-                      // Parse reps - could be single number or range like "8-12"
-                      let minReps = 0;
-                      let maxReps = 0;
-                      if (setData.reps) {
-                        if (setData.reps.includes('-')) {
-                          const [min, max] = setData.reps.split('-').map(Number);
-                          minReps = min;
-                          maxReps = max;
-                        } else {
-                          minReps = maxReps = parseInt(setData.reps);
-                        }
-                      }
-
-                      return {
-                        setNumber: setIndex + 1,
-                        weight: setData.weight || 0,
-                        reps: minReps, // Default to min reps for input
-                        minReps,
-                        maxReps,
-                        completed: false,
-                        previousWeight: 75,
-                        previousReps: 10
-                      };
-                    })
-                  : Array.from({ length: templateEx.setsTarget || 3 }, (_, setIndex) => ({
-                      setNumber: setIndex + 1,
-                      weight: 0,
-                      reps: templateEx.repsTarget || 8,
-                      minReps: templateEx.repsTarget || 8,
-                      maxReps: templateEx.repsTarget || 12,
-                      completed: false,
-                      previousWeight: 75,
-                      previousReps: 10
-                    }));
-
-                return {
-                  id: workoutExercise.id, // Now we have a proper database ID
-                  exercise: templateEx.exercise,
-                  sets,
-                  restTimer: templateEx.restDuration || 120,
-                  comment: ''
-                };
-              } catch (error) {
-                console.error('Failed to create workout exercise:', error);
-                return null;
+                // Wait for all workout exercises to be created, then set them
+                const exercises = await Promise.all(exerciseCreationPromises);
+                const validExercises = exercises.filter(ex => ex !== null);
+                setWorkoutExercises(validExercises);
               }
-            });
-
-            // Wait for all workout exercises to be created, then set them
-            Promise.all(exerciseCreationPromises).then((exercises) => {
-              const validExercises = exercises.filter(ex => ex !== null);
-              setWorkoutExercises(validExercises);
             });
           }
         } catch (error) {
