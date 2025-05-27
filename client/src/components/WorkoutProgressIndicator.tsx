@@ -32,10 +32,19 @@ export default function WorkoutProgressIndicator() {
     setShowDiscardDialog(false);
   };
 
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update current time every second to keep duration accurate
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const getElapsedTime = () => {
     const startTime = new Date(activeWorkout.startTime);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+    const diffInSeconds = Math.floor((currentTime.getTime() - startTime.getTime()) / 1000);
     
     const minutes = Math.floor(diffInSeconds / 60);
     const seconds = diffInSeconds % 60;

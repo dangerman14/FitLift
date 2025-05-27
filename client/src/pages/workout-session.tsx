@@ -54,7 +54,7 @@ export default function WorkoutSession() {
   const templateId = urlParams.get('template');
   const editMode = urlParams.get('edit');
   const workoutSlug = location.split('/')[2]; // For /workout-session/abc123 format
-  const isEditingExisting = editMode === 'true' && workoutSlug;
+  const isEditingExisting = workoutSlug && workoutSlug !== 'new'; // If there's a slug and it's not 'new', we're resuming/editing
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
@@ -451,7 +451,12 @@ export default function WorkoutSession() {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
     
-    if (!activeWorkout && !templateId && !isEditingExisting) {
+    // Only create a new workout if:
+    // 1. No active workout exists
+    // 2. No template is being loaded
+    // 3. We're not editing/resuming an existing workout
+    // 4. We don't have a workout slug (meaning this is truly a new session)
+    if (!activeWorkout && !templateId && !isEditingExisting && !workoutSlug) {
       const workoutData = {
         name: "Workout Session",
         startTime: new Date().toISOString(),
