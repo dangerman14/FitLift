@@ -621,9 +621,9 @@ export class DatabaseStorage implements IStorage {
   async getStrengthProgress(userId: string, exerciseId: number): Promise<{
     date: Date;
     maxWeight: number;
-    workoutName: string;
-    workoutId: number;
-    sets: Array<{
+    workoutName?: string;
+    workoutId?: number;
+    sets?: Array<{
       setNumber: number;
       weight: number;
       reps: number;
@@ -647,8 +647,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(workouts.userId, userId),
-          eq(workoutExercises.exerciseId, exerciseId),
-          isNotNull(exerciseSets.weight)
+          eq(workoutExercises.exerciseId, exerciseId)
         )
       )
       .orderBy(desc(workouts.startTime), exerciseSets.setNumber);

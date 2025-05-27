@@ -122,6 +122,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all workouts for this user that included this exercise
       const history = await storage.getStrengthProgress(userId, exerciseId);
       
+      console.log(`Exercise ${exerciseId} history for user ${userId}:`, JSON.stringify(history, null, 2));
+      
       res.json(history);
     } catch (error) {
       console.error("Error fetching exercise history:", error);
