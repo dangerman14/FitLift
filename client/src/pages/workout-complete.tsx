@@ -46,6 +46,11 @@ export default function WorkoutComplete() {
   const workout = workoutData || {};
   const workoutExercises = workoutData?.exercises || [];
 
+  // Clear active workout when reaching this page to hide "workout in progress" indicator
+  useEffect(() => {
+    setActiveWorkout(null);
+  }, [setActiveWorkout]);
+
   // Initialize form with workout data
   useEffect(() => {
     if (workout) {
