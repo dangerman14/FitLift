@@ -72,17 +72,29 @@ export default function WorkoutComplete() {
         // Block common navigation shortcuts
         if ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 't' || e.key === 'r')) {
           e.preventDefault();
-          alert('You cannot leave this page without saving your workout, discarding it, or going back to edit it.');
+          setShowExitWarning(true);
         }
         // Block F5 refresh
         if (e.key === 'F5') {
           e.preventDefault();
-          alert('You cannot refresh this page without saving your workout, discarding it, or going back to edit it.');
+          setShowExitWarning(true);
         }
         // Block Alt+F4
         if (e.altKey && e.key === 'F4') {
           e.preventDefault();
-          alert('You cannot leave this page without saving your workout, discarding it, or going back to edit it.');
+          setShowExitWarning(true);
+        }
+      }
+    };
+
+    const handleLinkClick = (e: Event) => {
+      if (!isSaved) {
+        const target = e.target as HTMLElement;
+        const link = target.closest('a[href]');
+        if (link && !link.href.includes('/workout-complete/')) {
+          e.preventDefault();
+          e.stopPropagation();
+          setShowExitWarning(true);
         }
       }
     };
@@ -99,6 +111,7 @@ export default function WorkoutComplete() {
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', handleLinkClick, true);
     
     // Push a state to handle back button
     if (!isSaved) {
@@ -109,6 +122,7 @@ export default function WorkoutComplete() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('click', handleLinkClick, true);
     };
   }, [isSaved]);
 
@@ -317,9 +331,9 @@ export default function WorkoutComplete() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative">
-      {/* Blocking Overlay */}
-      {!isSaved && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
+      {/* Navigation Blocking Overlay - only shows when trying to leave */}
+      {showExitWarning && !isSaved && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-2xl p-6 max-w-md mx-4 border-2 border-amber-400">
             <div className="text-center mb-6">
               <Target className="h-12 w-12 text-amber-500 mx-auto mb-3" />
@@ -332,9 +346,13 @@ export default function WorkoutComplete() {
             <div className="space-y-3">
               <Button
                 onClick={() => {
-                  // Save workout form submission
-                  const saveButton = document.querySelector('button[type="submit"]') as HTMLButtonElement;
-                  if (saveButton) saveButton.click();
+                  setShowExitWarning(false);
+                  // Trigger save workflow
+                  const form = document.querySelector('form') as HTMLFormElement;
+                  if (form) {
+                    const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                    form.dispatchEvent(submitEvent);
+                  }
                 }}
                 className="w-full bg-green-600 hover:bg-green-700"
                 size="lg"
@@ -343,7 +361,10 @@ export default function WorkoutComplete() {
               </Button>
               
               <Button
-                onClick={handleBackToWorkout}
+                onClick={() => {
+                  setShowExitWarning(false);
+                  handleBackToWorkout();
+                }}
                 variant="outline"
                 className="w-full"
                 size="lg"
@@ -353,7 +374,10 @@ export default function WorkoutComplete() {
               </Button>
               
               <Button
-                onClick={() => setIsDiscardDialogOpen(true)}
+                onClick={() => {
+                  setShowExitWarning(false);
+                  setIsDiscardDialogOpen(true);
+                }}
                 variant="destructive"
                 className="w-full"
                 size="lg"
@@ -361,16 +385,16 @@ export default function WorkoutComplete() {
                 <Trash2 className="h-4 w-4 mr-2" />
                 Discard Workout
               </Button>
+              
+              <Button
+                onClick={() => setShowExitWarning(false)}
+                variant="ghost"
+                className="w-full"
+                size="sm"
+              >
+                Cancel
+              </Button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {!isSaved && (
-        <div className="bg-amber-500 text-white p-3 text-center">
-          <div className="flex items-center justify-center gap-2 font-medium">
-            <Target className="h-5 w-5" />
-            Action Required: Save workout, discard it, or go back to edit before leaving this page
           </div>
         </div>
       )}
