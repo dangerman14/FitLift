@@ -562,11 +562,19 @@ export default function WorkoutSession() {
     if (!activeWorkout) return;
     
     try {
-      // Update workout with end time using fetch directly
+      // Calculate duration in minutes from the timer
+      const durationMinutes = Math.round(elapsedTime / (1000 * 60));
+      
+      // Calculate endTime based on startTime + duration
+      const startTime = new Date(activeWorkout.startTime);
+      const endTime = new Date(startTime.getTime() + elapsedTime);
+      
+      // Update workout with duration and calculated end time
       const response = await fetch(`/api/workouts/${activeWorkout.id}`, {
         method: "PATCH",
         body: JSON.stringify({
-          endTime: new Date().toISOString()
+          duration: durationMinutes,
+          endTime: endTime.toISOString()
         }),
         headers: { "Content-Type": "application/json" },
       });

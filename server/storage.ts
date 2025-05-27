@@ -456,8 +456,13 @@ export class DatabaseStorage implements IStorage {
     if (workout.perceivedExertion !== undefined) {
       updateData.perceivedExertion = workout.perceivedExertion;
     }
+    if (workout.startTime !== undefined) {
+      updateData.startTime = workout.startTime;
+    }
+    if (workout.endTime !== undefined) {
+      updateData.endTime = workout.endTime;
+    }
     
-    // For now, skip endTime to avoid date issues and just mark as updated
     updateData.updatedAt = new Date();
     
     const [updatedWorkout] = await db
