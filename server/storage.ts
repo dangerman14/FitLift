@@ -42,6 +42,16 @@ import {
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql, count, sum, max, or } from "drizzle-orm";
 
+// Utility function to generate random alphanumeric slugs
+function generateRandomSlug(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 8; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 // Utility function to generate unique slugs
 function generateSlug(name: string): string {
   const baseSlug = name
@@ -417,7 +427,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createWorkout(workout: InsertWorkout): Promise<Workout> {
-    const [newWorkout] = await db.insert(workouts).values(workout).returning();
+    const workoutData = {
+      ...workout,
+      slug: generateRandomSlug(),
+    };
+    const [newWorkout] = await db.insert(workouts).values(workoutData).returning();
     return newWorkout;
   }
 
