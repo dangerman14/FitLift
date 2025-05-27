@@ -61,20 +61,16 @@ export default function WorkoutComplete() {
         setWorkoutTime(startDate.toTimeString().slice(0, 5)); // HH:mm format
       }
       
-      // Check for duration in URL parameters first (from workout session)
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlDuration = urlParams.get('duration');
-      
-      if (urlDuration) {
-        console.log("Using duration from URL parameter:", urlDuration, "minutes");
-        setWorkoutDuration(urlDuration);
-      } else if (workout.startTime && workout.endTime) {
+      // Calculate duration from workout start and end times
+      if (workout.startTime && workout.endTime) {
         console.log("Calculating duration from:", workout.startTime, "to:", workout.endTime);
         const durationMinutes = Math.round((new Date(workout.endTime).getTime() - new Date(workout.startTime).getTime()) / (1000 * 60));
         console.log("Duration calculated:", durationMinutes, "minutes");
         setWorkoutDuration(durationMinutes.toString());
       } else {
         console.log("Missing time data - startTime:", workout.startTime, "endTime:", workout.endTime);
+        // Set a default duration if times are missing
+        setWorkoutDuration("0");
       }
     }
   }, [workout]);

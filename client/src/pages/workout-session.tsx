@@ -581,12 +581,9 @@ export default function WorkoutSession() {
       // Invalidate workout cache to ensure fresh data on completion page
       queryClient.invalidateQueries({ queryKey: [`/api/workouts/${activeWorkout.id}`] });
       
-      // Calculate the duration in minutes to pass to completion page
-      const durationMinutes = Math.round(elapsedTime / 60);
-      
-      // Navigate to completion screen using slug with duration
+      // Navigate to completion screen using slug (duration will be calculated from workout data)
       const slug = updatedWorkout.slug || activeWorkout.slug || activeWorkout.id;
-      setLocation(`/workout-complete/${slug}?duration=${durationMinutes}`);
+      setLocation(`/workout-complete/${slug}`);
     } catch (error) {
       console.error("Error finishing workout:", error);
       toast({

@@ -390,7 +390,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const id = parseInt(idParam);
         workout = await storage.getWorkoutById(id);
       } else {
-        // It's a slug
+        // It's a slug - make sure we call the correct method
+        console.log("Looking up workout by slug:", idParam);
         workout = await storage.getWorkoutBySlug(idParam);
       }
       
