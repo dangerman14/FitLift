@@ -621,11 +621,25 @@ export class DatabaseStorage implements IStorage {
   async getStrengthProgress(userId: string, exerciseId: number): Promise<{
     date: Date;
     maxWeight: number;
+    workoutName: string;
+    workoutId: number;
+    sets: Array<{
+      setNumber: number;
+      weight: number;
+      reps: number;
+      rpe?: number;
+    }>;
   }[]> {
-    const progress = await db
+    // Get all workouts that included this exercise with detailed set information
+    const workoutSessions = await db
       .select({
-        date: workouts.startTime,
-        maxWeight: max(exerciseSets.weight),
+        workoutId: workouts.id,
+        workoutName: workouts.name,
+        startTime: workouts.startTime,
+        setNumber: exerciseSets.setNumber,
+        weight: exerciseSets.weight,
+        reps: exerciseSets.reps,
+        rpe: exerciseSets.rpe,
       })
       .from(exerciseSets)
       .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
@@ -633,16 +647,43 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(workouts.userId, userId),
-          eq(workoutExercises.exerciseId, exerciseId)
+          eq(workoutExercises.exerciseId, exerciseId),
+          isNotNull(exerciseSets.weight)
         )
       )
-      .groupBy(workouts.startTime)
-      .orderBy(workouts.startTime);
+      .orderBy(desc(workouts.startTime), exerciseSets.setNumber);
 
-    return progress.map((p) => ({
-      date: p.date,
-      maxWeight: Number(p.maxWeight) || 0,
-    }));
+    // Group sets by workout
+    const workoutMap = new Map();
+    
+    for (const session of workoutSessions) {
+      const workoutKey = session.workoutId;
+      
+      if (!workoutMap.has(workoutKey)) {
+        workoutMap.set(workoutKey, {
+          date: session.startTime,
+          workoutName: session.workoutName,
+          workoutId: session.workoutId,
+          maxWeight: session.weight || 0,
+          sets: []
+        });
+      }
+      
+      const workout = workoutMap.get(workoutKey);
+      workout.sets.push({
+        setNumber: session.setNumber,
+        weight: session.weight || 0,
+        reps: session.reps || 0,
+        rpe: session.rpe
+      });
+      
+      // Update max weight for this workout
+      if ((session.weight || 0) > workout.maxWeight) {
+        workout.maxWeight = session.weight || 0;
+      }
+    }
+
+    return Array.from(workoutMap.values());
   }
 
   async getRoutines(userId: string): Promise<Routine[]> {
