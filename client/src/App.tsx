@@ -45,6 +45,7 @@ function Router() {
               <Switch>
                 <Route path="/" component={Dashboard} />
                 <Route path="/workout-session" component={WorkoutSession} />
+                <Route path="/workout-session/:slug" component={WorkoutSession} />
                 <Route path="/workout-complete/:workoutId" component={WorkoutComplete} />
                 <Route path="/workouts" component={Workouts} />
                 <Route path="/exercises" component={Exercises} />

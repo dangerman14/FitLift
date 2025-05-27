@@ -40,11 +40,17 @@ interface WorkoutSet {
 }
 
 export default function WorkoutSession() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [activeWorkout, setActiveWorkout] = useState<any>(null);
   const [workoutExercises, setWorkoutExercises] = useState<WorkoutExercise[]>([]);
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
+  
+  // Parse URL to determine if we're editing existing workout or starting new one
+  const urlParams = new URLSearchParams(window.location.search);
+  const templateId = urlParams.get('template');
+  const workoutSlug = location.split('/')[2]; // For /workout-session/abc123 format
+  const isEditingExisting = !templateId && workoutSlug;
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
@@ -574,8 +580,9 @@ export default function WorkoutSession() {
       // Calculate the duration in minutes to pass to completion page
       const durationMinutes = Math.round(elapsedTime / 60);
       
-      // Navigate to completion screen with duration
-      setLocation(`/workout-complete/${activeWorkout.id}?duration=${durationMinutes}`);
+      // Navigate to completion screen using slug with duration
+      const slug = updatedWorkout.slug || activeWorkout.slug || activeWorkout.id;
+      setLocation(`/workout-complete/${slug}?duration=${durationMinutes}`);
     } catch (error) {
       console.error("Error finishing workout:", error);
       toast({

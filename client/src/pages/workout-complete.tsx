@@ -15,6 +15,15 @@ export default function WorkoutComplete() {
   const [, setLocation] = useLocation();
   const params = useParams();
   const workoutId = params.workoutId;
+  
+  // Function to go back to edit the workout
+  const handleBackToWorkout = () => {
+    if (workout.slug) {
+      setLocation(`/workout-session/${workout.slug}`);
+    } else {
+      setLocation(`/workout-session?template=${workout.templateId}`);
+    }
+  };
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
   const [workoutImageUrl, setWorkoutImageUrl] = useState('');
