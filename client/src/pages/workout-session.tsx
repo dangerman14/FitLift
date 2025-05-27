@@ -512,6 +512,9 @@ export default function WorkoutSession() {
         throw new Error('Failed to finish workout');
       }
 
+      // Invalidate workout cache to ensure fresh data on completion page
+      queryClient.invalidateQueries({ queryKey: [`/api/workouts/${activeWorkout.id}`] });
+      
       // Navigate to completion screen
       setLocation(`/workout-complete/${activeWorkout.id}`);
     } catch (error) {
