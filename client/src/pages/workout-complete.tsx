@@ -582,40 +582,14 @@ export default function WorkoutComplete() {
 
         {/* Action Buttons */}
         <div className="flex gap-4">
-          <Dialog open={isDiscardDialogOpen} onOpenChange={setIsDiscardDialogOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Discard Workout
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Discard Workout?</DialogTitle>
-                <DialogDescription>
-                  Are you sure you want to discard this workout? This action cannot be undone and all your exercise data will be lost.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsDiscardDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  variant="destructive"
-                  onClick={handleDiscard}
-                  disabled={discardWorkoutMutation.isPending}
-                >
-                  {discardWorkoutMutation.isPending ? "Discarding..." : "Discard Workout"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            variant="outline" 
+            className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+            onClick={() => setIsDiscardDialogOpen(true)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Discard Workout
+          </Button>
           <Button 
             onClick={handleSave}
             disabled={updateWorkoutMutation.isPending}
@@ -626,48 +600,42 @@ export default function WorkoutComplete() {
         </div>
       </div>
 
-      {/* Exit Warning Modal */}
-      <AlertDialog open={showExitWarning} onOpenChange={setShowExitWarning}>
-        <AlertDialogContent className="max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-amber-500" />
-              Action Required
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              You cannot leave this page without taking one of these actions:
-              <ul className="mt-2 list-disc pl-5 space-y-1">
-                <li>Save your completed workout</li>
-                <li>Go back to edit your workout</li>
-                <li>Discard your workout data</li>
-              </ul>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col gap-2">
-            <div className="flex gap-2 w-full">
+      {/* Discard Confirmation Modal */}
+      {isDiscardDialogOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="text-center mb-6">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <Trash2 className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Discard Workout?
+              </h3>
+              <p className="text-gray-600">
+                Are you sure you want to discard this workout? This action cannot be undone and all your exercise data will be lost.
+              </p>
+            </div>
+            <div className="flex gap-3">
               <Button
-                onClick={handleBackToWorkout}
+                onClick={() => setIsDiscardDialogOpen(false)}
                 variant="outline"
                 className="flex-1"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Edit Workout
+                Cancel
               </Button>
               <Button
-                onClick={() => setIsDiscardDialogOpen(true)}
+                onClick={handleDiscard}
                 variant="destructive"
                 className="flex-1"
+                disabled={discardWorkoutMutation.isPending}
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Discard
+                {discardWorkoutMutation.isPending ? "Discarding..." : "Discard Workout"}
               </Button>
             </div>
-            <AlertDialogCancel className="w-full">
-              Stay on Page
-            </AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
