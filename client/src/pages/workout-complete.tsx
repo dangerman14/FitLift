@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock, Trophy, Target, Image, Camera, ArrowLeft, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -36,6 +37,7 @@ export default function WorkoutComplete() {
   const [workoutDuration, setWorkoutDuration] = useState('');
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [showExitWarning, setShowExitWarning] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -89,7 +91,7 @@ export default function WorkoutComplete() {
       if (!isSaved) {
         e.preventDefault();
         window.history.pushState(null, '', window.location.href);
-        alert('You cannot leave this page without saving your workout, discarding it, or going back to edit it. Please use one of the three buttons provided.');
+        setShowExitWarning(true);
       }
     };
 
@@ -546,6 +548,49 @@ export default function WorkoutComplete() {
           </Button>
         </div>
       </div>
+
+      {/* Exit Warning Modal */}
+      <AlertDialog open={showExitWarning} onOpenChange={setShowExitWarning}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-amber-500" />
+              Action Required
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You cannot leave this page without taking one of these actions:
+              <ul className="mt-2 list-disc pl-5 space-y-1">
+                <li>Save your completed workout</li>
+                <li>Go back to edit your workout</li>
+                <li>Discard your workout data</li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col gap-2">
+            <div className="flex gap-2 w-full">
+              <Button
+                onClick={handleBackToWorkout}
+                variant="outline"
+                className="flex-1"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Edit Workout
+              </Button>
+              <Button
+                onClick={() => setIsDiscardDialogOpen(true)}
+                variant="destructive"
+                className="flex-1"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Discard
+              </Button>
+            </div>
+            <AlertDialogCancel className="w-full">
+              Stay on Page
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
