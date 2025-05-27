@@ -63,6 +63,31 @@ export default function Dashboard() {
     });
   };
 
+  const getTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    // If more than 7 days ago, use regular date format
+    if (diffInDays > 7) {
+      return formatDate(dateString);
+    }
+
+    // Recent timestamps
+    if (diffInMinutes < 1) {
+      return "Just now";
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    } else {
+      return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+    }
+  };
+
   const formatVolume = (volume: number) => {
     const unit = user?.weightUnit || 'lbs';
     return `${Math.round(volume)} ${unit}`;
@@ -193,7 +218,7 @@ export default function Dashboard() {
               {lastWorkout && (
                 <>
                   <div className="text-sm text-neutral-600 mb-3">
-                    {formatDate(lastWorkout.startTime)} • {formatDuration(lastWorkout.duration || 0)}
+                    {getTimeAgo(lastWorkout.startTime)} • {formatDuration(lastWorkout.duration || 0)}
                   </div>
                   <Button 
                     variant="outline" 
@@ -278,7 +303,7 @@ export default function Dashboard() {
                   {/* Date and Title */}
                   <div className="mb-4">
                     <div className="text-sm text-neutral-500 mb-1">
-                      {formatDate(workout.startTime)}
+                      {getTimeAgo(workout.startTime)}
                     </div>
                     <h3 
                       className="text-lg font-semibold text-neutral-900 cursor-pointer hover:text-primary-600 transition-colors"
