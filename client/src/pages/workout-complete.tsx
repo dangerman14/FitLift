@@ -145,7 +145,8 @@ export default function WorkoutComplete() {
           description: data.description,
           imageUrl: data.imageUrl,
           startTime: startTime.toISOString(),
-          endTime: endTime.toISOString()
+          endTime: endTime.toISOString(),
+          duration: durationMinutes * 60 // Convert minutes to seconds for storage
         }),
         headers: { "Content-Type": "application/json" },
       });

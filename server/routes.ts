@@ -506,13 +506,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Workout not found" });
       }
       
-      const { name, description, imageUrl } = req.body;
+      const { name, description, imageUrl, startTime, endTime, duration } = req.body;
       
-      const updatedWorkout = await storage.updateWorkout(id, {
+      const updateData: any = {
         name,
         description,
         imageUrl
-      });
+      };
+      
+      // Convert date strings to Date objects if they exist
+      if (startTime) {
+        updateData.startTime = new Date(startTime);
+      }
+      if (endTime) {
+        updateData.endTime = new Date(endTime);
+      }
+      if (duration !== undefined) {
+        updateData.duration = duration;
+      }
+      
+      console.log("Details endpoint update data:", updateData);
+      
+      const updatedWorkout = await storage.updateWorkout(id, updateData);
       
       res.json(updatedWorkout);
     } catch (error) {
