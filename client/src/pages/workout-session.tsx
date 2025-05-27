@@ -173,6 +173,8 @@ export default function WorkoutSession() {
     onSuccess: (workout) => {
       console.log("Workout created successfully with ID:", workout.id);
       setActiveWorkout(workout);
+      // Set the start time to match the workout's start time
+      setStartTime(new Date(workout.startTime).getTime());
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
       // Redirect to the workout session using the workout slug
       setLocation(`/workout-session/${workout.slug}`);
