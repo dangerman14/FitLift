@@ -103,11 +103,7 @@ export default function WorkoutSession() {
   // Update workout details mutation
   const updateWorkoutDetailsMutation = useMutation({
     mutationFn: async (data: { name: string; description: string; imageUrl: string }) => {
-      return await apiRequest(`/api/workouts/${activeWorkout?.id}/details`, {
-        method: "PATCH",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" },
-      });
+      return await apiRequest("PATCH", `/api/workouts/${activeWorkout?.id}/details`, data);
     },
     onSuccess: (updatedWorkout) => {
       setActiveWorkout(updatedWorkout);
@@ -141,11 +137,36 @@ export default function WorkoutSession() {
 
   const createWorkoutMutation = useMutation({
     mutationFn: async (workoutData: any) => {
-      const response = await apiRequest("POST", "/api/workouts", workoutData);
-      return response.json();
+      return await apiRequest("POST", "/api/workouts", workoutData);
     },
-    onSuccess: (workout) => {
+    onSuccess: async (workout) => {
       setActiveWorkout(workout);
+      
+      // Create workout exercises in the database for each template exercise
+      const currentExercises = workoutExercises;
+      if (currentExercises.length > 0) {
+        for (let i = 0; i < currentExercises.length; i++) {
+          const exercise = currentExercises[i];
+          try {
+            const workoutExercise = await apiRequest("POST", "/api/workout-exercises", {
+              workoutId: workout.id,
+              exerciseId: exercise.exercise.id,
+              order: i + 1,
+              notes: exercise.comment || ""
+            });
+            
+            // Update the exercise with the database ID
+            setWorkoutExercises(prev => 
+              prev.map((ex, index) => 
+                index === i ? { ...ex, id: workoutExercise.id } : ex
+              )
+            );
+          } catch (error) {
+            console.error("Failed to create workout exercise:", error);
+          }
+        }
+      }
+      
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
     },
   });
