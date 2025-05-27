@@ -90,11 +90,34 @@ export default function WorkoutComplete() {
     const handleLinkClick = (e: Event) => {
       if (!isSaved) {
         const target = e.target as HTMLElement;
-        const link = target.closest('a[href]');
-        if (link && !link.href.includes('/workout-complete/')) {
-          e.preventDefault();
-          e.stopPropagation();
-          setShowExitWarning(true);
+        
+        // Block ALL anchor tags that don't stay on the current page
+        const link = target.closest('a');
+        if (link && link.href) {
+          const currentPath = window.location.pathname;
+          const linkPath = new URL(link.href, window.location.origin).pathname;
+          
+          // If link goes to a different page, block it
+          if (linkPath !== currentPath) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            setShowExitWarning(true);
+            return false;
+          }
+        }
+        
+        // Block buttons that might navigate
+        const button = target.closest('button, [role="button"]');
+        if (button) {
+          const buttonText = button.textContent?.toLowerCase() || '';
+          const navigationWords = ['dashboard', 'home', 'back', 'menu', 'nav'];
+          
+          if (navigationWords.some(word => buttonText.includes(word))) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            setShowExitWarning(true);
+            return false;
+          }
         }
       }
     };
