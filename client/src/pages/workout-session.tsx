@@ -122,9 +122,9 @@ export default function WorkoutSession() {
     },
   });
 
-  // Initialize workout details form when activeWorkout loads
+  // Initialize workout details form when activeWorkout loads (only if not already set)
   useEffect(() => {
-    if (activeWorkout) {
+    if (activeWorkout && !workoutName) {
       setWorkoutName(activeWorkout.name || '');
       setWorkoutDescription(activeWorkout.description || '');
       setWorkoutImageUrl(activeWorkout.imageUrl || '');
@@ -137,10 +137,11 @@ export default function WorkoutSession() {
 
   const createWorkoutMutation = useMutation({
     mutationFn: async (workoutData: any) => {
-      return await apiRequest("POST", "/api/workouts", workoutData);
+      const response = await apiRequest("POST", "/api/workouts", workoutData);
+      return await response.json();
     },
     onSuccess: (workout) => {
-      console.log("Workout created successfully:", workout);
+      console.log("Workout created successfully with ID:", workout.id);
       setActiveWorkout(workout);
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
     },
@@ -169,13 +170,21 @@ export default function WorkoutSession() {
               startTime: new Date().toISOString(),
             }, {
               onSuccess: async (workout) => {
+                console.log("Processing workout with ID:", workout.id);
                 // Set workout name and description after successful creation
                 setWorkoutName(template.name);
                 setWorkoutDescription(template.description || `${template.name} workout`);
                 
+                // Ensure we have a valid workout ID before proceeding
+                if (!workout.id) {
+                  console.error("Workout created but no ID returned:", workout);
+                  return;
+                }
+                
                 // Now create workout exercises with the valid workout ID
                 const exerciseCreationPromises = template.exercises.map(async (templateEx: any, index: number) => {
                   try {
+                    console.log("Creating exercise for workout ID:", workout.id);
                     const workoutExercise = await apiRequest("POST", `/api/workouts/${workout.id}/exercises`, {
                       exerciseId: templateEx.exercise.id,
                       orderIndex: index,
@@ -230,8 +239,9 @@ export default function WorkoutSession() {
                           previousReps: 10
                         }));
 
+                    const exerciseData = await workoutExercise.json();
                     return {
-                      id: workoutExercise.id, // Now we have a proper database ID
+                      id: exerciseData.id, // Now we have a proper database ID
                       exercise: templateEx.exercise,
                       sets,
                       restTimer: templateEx.restDuration || 120,
@@ -360,6 +370,17 @@ export default function WorkoutSession() {
       return;
     }
 
+    // Check if we have a valid exercise ID
+    if (!exercise.id) {
+      console.error("No exercise ID available for saving set:", exercise);
+      toast({
+        title: "Unable to save set",
+        description: "Exercise not properly loaded",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Mark set as completed
     setWorkoutExercises(prev => 
       prev.map((ex, exIndex) => 
@@ -381,6 +402,7 @@ export default function WorkoutSession() {
     }));
 
     // Save to database
+    console.log("Saving set for exercise ID:", exercise.id);
     createSetMutation.mutate({
       workoutExerciseId: exercise.id,
       setNumber: set.setNumber,
@@ -512,7 +534,7 @@ export default function WorkoutSession() {
               <X className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-white drop-shadow-lg">{workoutName || "Workout Session"}</h1>
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">{workoutName || "Loading Workout..."}</h1>
               {workoutDescription && <p className="text-green-100">{workoutDescription}</p>}
             </div>
           </div>
