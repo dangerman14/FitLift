@@ -139,8 +139,18 @@ export default function WorkoutComplete() {
     }) => {
       // Combine date and time to create new start time
       const startTime = new Date(`${data.date}T${data.time}`);
-      const durationMinutes = parseInt(data.duration) || 0;
-      const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
+      
+      // Parse duration - handle both "13" (minutes) and "13:06" (minutes:seconds) formats
+      let totalSeconds = 0;
+      if (data.duration.includes(':')) {
+        const [minutes, seconds] = data.duration.split(':').map(num => parseInt(num) || 0);
+        totalSeconds = (minutes * 60) + seconds;
+      } else {
+        const minutes = parseInt(data.duration) || 0;
+        totalSeconds = minutes * 60;
+      }
+      
+      const endTime = new Date(startTime.getTime() + totalSeconds * 1000);
       
       const response = await fetch(`/api/workouts/${workoutId}/details`, {
         method: "PATCH",
@@ -150,7 +160,7 @@ export default function WorkoutComplete() {
           imageUrl: data.imageUrl,
           startTime: startTime.toISOString(),
           endTime: endTime.toISOString(),
-          duration: durationMinutes * 60 // Convert minutes to seconds for storage
+          duration: totalSeconds // Store total seconds in database
         }),
         headers: { "Content-Type": "application/json" },
       });
@@ -162,7 +172,9 @@ export default function WorkoutComplete() {
         title: "Workout saved!",
         description: "Your workout details have been updated.",
       });
-      setLocation("/");
+      // Refresh the workout data to show updated duration immediately
+      queryClient.invalidateQueries({ queryKey: [`/api/workouts/${workoutId}`] });
+      // Stay on the page to see the updated values
     },
     onError: () => {
       toast({
