@@ -97,12 +97,17 @@ export default function ExerciseDetails() {
 
     return exerciseHistory
       .filter((record: any) => new Date(record.date) >= filterDate)
-      .map((record: any) => ({
-        date: formatDate(record.date),
-        weight: record.maxWeight || 0,
-        volume: record.totalVolume || 0,
-        reps: record.maxReps || 0
-      }));
+      .map((record: any) => {
+        // Calculate best set volume as weight × reps (assuming best set)
+        const bestSetVolume = (record.maxWeight || 0) * 10; // Estimate 10 reps for volume calculation
+        
+        return {
+          date: formatDate(record.date),
+          weight: record.maxWeight || 0,
+          volume: bestSetVolume,
+          reps: record.maxReps || 10
+        };
+      });
   };
 
   const chartData = getFilteredChartData();
@@ -186,33 +191,10 @@ export default function ExerciseDetails() {
             {/* Interactive Chart */}
             <Card className="shadow-xl">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Progress Chart
-                  </CardTitle>
-                  <div className="flex gap-2">
-                    <Select value={chartFilter} onValueChange={(value: 'volume' | 'weight') => setChartFilter(value)}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="weight">Heaviest Weight</SelectItem>
-                        <SelectItem value="volume">Best Set Volume</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select value={dateFilter} onValueChange={(value: '3months' | '1year' | 'all') => setDateFilter(value)}>
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3months">3 Months</SelectItem>
-                        <SelectItem value="1year">1 Year</SelectItem>
-                        <SelectItem value="all">All Time</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Progress Chart
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {chartData.length > 0 ? (
@@ -247,6 +229,54 @@ export default function ExerciseDetails() {
                     </div>
                   </div>
                 )}
+                
+                {/* Chart Filter Buttons */}
+                <div className="mt-4 flex flex-wrap gap-4 justify-center border-t pt-4">
+                  <div className="flex gap-2">
+                    <Button
+                      variant={chartFilter === 'weight' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setChartFilter('weight')}
+                      className="flex items-center gap-2"
+                    >
+                      <Weight className="h-4 w-4" />
+                      Heaviest Weight
+                    </Button>
+                    <Button
+                      variant={chartFilter === 'volume' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setChartFilter('volume')}
+                      className="flex items-center gap-2"
+                    >
+                      <Target className="h-4 w-4" />
+                      Best Set Volume
+                    </Button>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant={dateFilter === '3months' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setDateFilter('3months')}
+                    >
+                      3 Months
+                    </Button>
+                    <Button
+                      variant={dateFilter === '1year' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setDateFilter('1year')}
+                    >
+                      1 Year
+                    </Button>
+                    <Button
+                      variant={dateFilter === 'all' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setDateFilter('all')}
+                    >
+                      All Time
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
