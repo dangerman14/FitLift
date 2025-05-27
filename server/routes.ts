@@ -389,7 +389,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const exercises = await storage.getWorkoutExercises(id);
-      res.json({ ...workout, exercises });
+      
+      // If workout has a templateId, get the template name
+      let templateName = null;
+      if (workout.templateId) {
+        try {
+          const template = await storage.getWorkoutTemplateById(workout.templateId);
+          templateName = template?.name || null;
+        } catch (error) {
+          console.error(`Error fetching template name for workout ${id}:`, error);
+        }
+      }
+      
+      res.json({ ...workout, exercises, templateName });
     } catch (error) {
       console.error("Error fetching workout:", error);
       res.status(500).json({ message: "Failed to fetch workout" });
