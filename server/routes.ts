@@ -483,9 +483,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updateData.startTime = updateData.startTime instanceof Date ? updateData.startTime : new Date(updateData.startTime);
       }
       
-      console.log("Final update data:", updateData);
+      console.log("Final update data before storage:", updateData);
       
       const workout = await storage.updateWorkout(id, updateData);
+      console.log("Workout returned from storage:", workout);
       res.json(workout);
     } catch (error) {
       console.error("Error updating workout:", error);

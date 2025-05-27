@@ -465,11 +465,15 @@ export class DatabaseStorage implements IStorage {
     
     updateData.updatedAt = new Date();
     
+    console.log("Storage updateData being sent to DB:", updateData);
+    
     const [updatedWorkout] = await db
       .update(workouts)
       .set(updateData)
       .where(eq(workouts.id, id))
       .returning();
+      
+    console.log("Updated workout returned from DB:", updatedWorkout);
     return updatedWorkout;
   }
 
