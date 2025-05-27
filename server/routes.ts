@@ -119,11 +119,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const exerciseId = parseInt(req.params.exerciseId);
       
+      console.log(`Fetching exercise history for exercise ${exerciseId}, user ${userId}`);
+      
       // Get all workouts for this user that included this exercise
       const history = await storage.getStrengthProgress(userId, exerciseId);
       
       console.log(`Exercise ${exerciseId} history for user ${userId}:`, JSON.stringify(history, null, 2));
       
+      // Disable caching for this endpoint
+      res.set('Cache-Control', 'no-store');
       res.json(history);
     } catch (error) {
       console.error("Error fetching exercise history:", error);
