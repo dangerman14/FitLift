@@ -65,28 +65,48 @@ export default function WorkoutComplete() {
       }
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isSaved) {
+        // Block common navigation shortcuts
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 't' || e.key === 'r')) {
+          e.preventDefault();
+          alert('You cannot leave this page without saving your workout, discarding it, or going back to edit it.');
+        }
+        // Block F5 refresh
+        if (e.key === 'F5') {
+          e.preventDefault();
+          alert('You cannot refresh this page without saving your workout, discarding it, or going back to edit it.');
+        }
+        // Block Alt+F4
+        if (e.altKey && e.key === 'F4') {
+          e.preventDefault();
+          alert('You cannot leave this page without saving your workout, discarding it, or going back to edit it.');
+        }
+      }
+    };
+
     const handlePopState = (e: PopStateEvent) => {
       if (!isSaved) {
         e.preventDefault();
-        const userChoice = window.confirm(
-          'You have unsaved workout data. Please save your workout, discard it, or go back to edit it.\n\nClick OK to stay on this page.'
-        );
-        if (userChoice) {
-          window.history.pushState(null, '', window.location.href);
-        }
+        window.history.pushState(null, '', window.location.href);
+        alert('You cannot leave this page without saving your workout, discarding it, or going back to edit it. Please use one of the three buttons provided.');
       }
     };
 
     // Block browser back button and navigation
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('popstate', handlePopState);
+    window.addEventListener('keydown', handleKeyDown);
     
     // Push a state to handle back button
-    window.history.pushState(null, '', window.location.href);
+    if (!isSaved) {
+      window.history.pushState(null, '', window.location.href);
+    }
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isSaved]);
 
@@ -295,6 +315,15 @@ export default function WorkoutComplete() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {!isSaved && (
+        <div className="bg-amber-500 text-white p-3 text-center">
+          <div className="flex items-center justify-center gap-2 font-medium">
+            <Target className="h-5 w-5" />
+            Action Required: Save workout, discard it, or go back to edit before leaving this page
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       <div className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600 text-white px-6 py-8">
         <div className="max-w-4xl mx-auto">
