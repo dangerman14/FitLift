@@ -64,6 +64,7 @@ export default function WorkoutSession() {
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
   const [workoutImageUrl, setWorkoutImageUrl] = useState('');
+  const [previousExerciseData, setPreviousExerciseData] = useState<{[exerciseId: number]: {weight: number, reps: number, setNumber: number}[]}>({});
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -75,6 +76,15 @@ export default function WorkoutSession() {
     }, 1000);
     return () => clearInterval(timer);
   }, [startTime]);
+
+  // Fetch previous exercise data when workout exercises are loaded
+  useEffect(() => {
+    if (workoutExercises.length > 0) {
+      workoutExercises.forEach(workoutExercise => {
+        fetchPreviousExerciseData(workoutExercise.exercise.id);
+      });
+    }
+  }, [workoutExercises.length]);
 
   // Weight unit conversion helpers
   const getWeightUnit = () => {
@@ -96,6 +106,27 @@ export default function WorkoutSession() {
       return Math.round(displayWeight / 2.20462 * 10) / 10; // Convert lbs to kg for storage
     }
     return displayWeight;
+  };
+
+  // Fetch previous exercise data based on user's preference
+  const fetchPreviousExerciseData = async (exerciseId: number) => {
+    try {
+      const templateId = activeWorkout?.templateId;
+      const url = `/api/exercises/${exerciseId}/previous-data${templateId ? `?templateId=${templateId}` : ''}`;
+      const response = await fetch(url, { credentials: 'include' });
+      if (response.ok) {
+        const data = await response.json();
+        setPreviousExerciseData(prev => ({
+          ...prev,
+          [exerciseId]: data
+        }));
+        return data;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching previous exercise data:', error);
+      return [];
+    }
   };
 
   const handleWeightUnitChange = (value: 'default' | 'kg' | 'lbs') => {
@@ -957,7 +988,15 @@ export default function WorkoutSession() {
                   </div>
                   
                   <div className="text-sm text-neutral-500">
-                    {getDisplayWeight(set.previousWeight || 0)}{getWeightUnit()} x {set.previousReps}
+                    {(() => {
+                      const exerciseId = workoutExercise.exercise.id;
+                      const previousData = previousExerciseData[exerciseId];
+                      if (previousData && previousData[setIndex]) {
+                        const prevSet = previousData[setIndex];
+                        return `${getDisplayWeight(prevSet.weight)}${getWeightUnit()} x ${prevSet.reps}`;
+                      }
+                      return `${getDisplayWeight(set.previousWeight || 0)}${getWeightUnit()} x ${set.previousReps || 0}`;
+                    })()}
                   </div>
                   
                   <Input
