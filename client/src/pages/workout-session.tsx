@@ -669,8 +669,22 @@ export default function WorkoutSession() {
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent className="max-h-40">
-                          {/* 30 second intervals up to 10 minutes */}
-                          {Array.from({ length: 20 }, (_, i) => (i + 1) * 30).map(seconds => (
+                          {/* 5 second intervals up to 2 minutes */}
+                          {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
+                            <SelectItem key={seconds} value={seconds.toString()}>
+                              {formatRestTime(seconds)}
+                            </SelectItem>
+                          ))}
+                          
+                          {/* 15 second intervals from 2m 15s to 5 minutes */}
+                          {Array.from({ length: 11 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
+                            <SelectItem key={seconds} value={seconds.toString()}>
+                              {formatRestTime(seconds)}
+                            </SelectItem>
+                          ))}
+                          
+                          {/* 30 second intervals from 5m 30s to 15 minutes */}
+                          {Array.from({ length: 19 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
                             <SelectItem key={seconds} value={seconds.toString()}>
                               {formatRestTime(seconds)}
                             </SelectItem>
