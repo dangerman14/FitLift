@@ -587,14 +587,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const param = req.params.id;
       const userId = req.user.claims.sub;
       
-      console.log("Details endpoint - param:", param, "type:", typeof param);
-      console.log("Number(param):", Number(param), "isNaN:", isNaN(Number(param)));
-      
       // Check if parameter is numeric (ID) or string (slug)
       const isNumeric = !isNaN(Number(param)) && Number(param).toString() === param;
       let existingWorkout;
-      
-      console.log("isNumeric:", isNumeric);
       
       if (isNumeric) {
         const id = parseInt(param);
