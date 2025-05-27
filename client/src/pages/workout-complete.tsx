@@ -267,7 +267,10 @@ export default function WorkoutComplete() {
       // Refresh the workout data to show updated duration immediately
       queryClient.invalidateQueries({ queryKey: [`/api/workouts/${workoutId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
-      setLocation("/");
+      // Small delay to ensure state updates complete before navigation
+      setTimeout(() => {
+        setLocation("/");
+      }, 100);
     },
     onError: () => {
       toast({
