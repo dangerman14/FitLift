@@ -196,7 +196,7 @@ export default function WorkoutComplete() {
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={() => setLocation("/")}
+              onClick={handleBackToWorkout}
               className="text-white hover:bg-white/10"
             >
               <ArrowLeft className="h-5 w-5" />
