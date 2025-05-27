@@ -176,7 +176,7 @@ export default function WorkoutSession() {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
     
-    if (templateId && !activeWorkout) {
+    if (templateId && !activeWorkout && workoutExercises.length === 0) {
       // Fetch template and load it
       const loadTemplate = async () => {
         try {
@@ -632,7 +632,7 @@ export default function WorkoutSession() {
 
               {/* Sets List */}
               {workoutExercise.sets.map((set, setIndex) => (
-                <div key={setIndex} className="grid grid-cols-6 gap-2 items-center py-2 px-1">
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className="grid grid-cols-6 gap-2 items-center py-2 px-1">
                   <div className="font-medium text-lg">{set.setNumber}</div>
                   
                   <div className="text-sm text-neutral-500">
