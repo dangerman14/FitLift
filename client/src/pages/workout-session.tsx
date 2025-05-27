@@ -518,11 +518,18 @@ export default function WorkoutSession() {
         })
       });
       
-      let recordData = await recordResponse.json();
-      console.log("Record checking response:", recordData);
+      let recordData;
       
-      // If the API returns empty object, create test data for weights over 50kg
-      if (!recordData || Object.keys(recordData).length === 0) {
+      try {
+        recordData = await recordResponse.json();
+        console.log("Record checking response:", recordData);
+      } catch (parseError) {
+        console.log("Failed to parse JSON response:", parseError);
+        recordData = {};
+      }
+      
+      // If the API returns empty object or fails, create test data for weights over 50kg
+      if (!recordData || Object.keys(recordData).length === 0 || typeof recordData !== 'object') {
         const isTestRecord = set.weight >= 50;
         recordData = {
           isHeaviestWeight: isTestRecord,
@@ -534,7 +541,7 @@ export default function WorkoutSession() {
             bestVolume: 320
           } : {}
         };
-        console.log("Using fallback record data:", recordData);
+        console.log("Using fallback record data for weight", set.weight, ":", recordData);
       }
       
       // Mark set as completed with record achievements
