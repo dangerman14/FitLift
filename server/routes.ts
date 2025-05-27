@@ -441,26 +441,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const completedWorkouts = workouts.filter(workout => workout.endTime);
       const recentCompletedWorkouts = completedWorkouts.slice(0, 3);
       
-      // For each completed workout, get the template exercises if it has a templateId
+      // For each completed workout, get the actual workout exercises that were performed
       const workoutsWithExercises = await Promise.all(
         recentCompletedWorkouts.map(async (workout) => {
           let exercises = [];
-          let totalExercises = 0;
+          let totalVolume = 0;
+          let personalRecords = 0;
+          let workoutExercises = [];
           
-          if (workout.templateId) {
-            try {
-              const templateExercises = await storage.getTemplateExercises(workout.templateId);
-              exercises = templateExercises.slice(0, 3);
-              totalExercises = templateExercises.length;
-            } catch (error) {
-              console.error(`Error fetching template exercises for workout ${workout.id}:`, error);
+          try {
+            // Get actual workout exercises (the ones that were performed)
+            workoutExercises = await storage.getWorkoutExercises(workout.id);
+            exercises = workoutExercises.slice(0, 3); // Show first 3 exercises
+            
+            // Calculate actual volume and PR count from exercise sets
+            for (const workoutExercise of workoutExercises) {
+              for (const set of workoutExercise.sets) {
+                const weight = parseFloat(set.weight || '0');
+                const reps = set.reps || 0;
+                totalVolume += weight * reps;
+                // Note: isPersonalRecord is not stored in exercise_sets table, 
+                // so we'll skip PR counting for now or implement it differently
+              }
             }
+          } catch (error) {
+            console.error(`Error fetching workout exercises for workout ${workout.id}:`, error);
           }
           
           return {
             ...workout,
             exercises,
-            totalExercises
+            totalExercises: workoutExercises.length, // Total exercises performed, not just displayed
+            totalVolume,
+            personalRecords
           };
         })
       );

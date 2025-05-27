@@ -319,7 +319,7 @@ export default function Dashboard() {
                       <span className="font-medium">Duration:</span> {formatDuration(workout.duration || 0)}
                     </div>
                     <div>
-                      <span className="font-medium">Volume:</span> {formatVolume(workout.totalWeight || 0)}
+                      <span className="font-medium">Volume:</span> {formatVolume(workout.totalVolume || 0)}
                     </div>
                     <div>
                       <span className="font-medium">Records:</span> {workout.personalRecords || 0} PRs
@@ -331,10 +331,10 @@ export default function Dashboard() {
                     <div className="space-y-2">
                       {workout.exercises && workout.exercises.length > 0 ? (
                         <>
-                          {workout.exercises.map((templateExercise: any, index: number) => (
+                          {workout.exercises.map((workoutExercise: any, index: number) => (
                             <div key={index} className="flex items-center gap-3 text-sm text-neutral-700">
-                              {getExerciseThumbnail(templateExercise.exercise.name, templateExercise.exercise.imageUrl)}
-                              <span>{templateExercise.sets || '3'} × {templateExercise.exercise.name}</span>
+                              {getExerciseThumbnail(workoutExercise.exercise.name, workoutExercise.exercise.imageUrl)}
+                              <span>{workoutExercise.sets?.length || '0'} sets × {workoutExercise.exercise.name}</span>
                             </div>
                           ))}
                           {/* Show more exercises indicator */}
