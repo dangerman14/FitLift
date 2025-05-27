@@ -65,6 +65,14 @@ export default function WorkoutSession() {
   const { toast } = useToast();
   const { user } = useAuth();
 
+  // Timer effect to update elapsed time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [startTime]);
+
   // Weight unit conversion helpers
   const getWeightUnit = () => {
     if (weightUnitOverride === 'default') {
