@@ -38,6 +38,7 @@ export default function WorkoutComplete() {
   // Initialize form with workout data
   useEffect(() => {
     if (workout) {
+      console.log("Workout data received:", workout);
       // Use the workout template name if available, otherwise use the workout name
       const displayName = workout.templateName || workout.name || `Workout ${new Date().toLocaleDateString()}`;
       setWorkoutName(displayName);
@@ -53,8 +54,12 @@ export default function WorkoutComplete() {
       
       // Initialize duration from start and end times
       if (workout.startTime && workout.endTime) {
+        console.log("Calculating duration from:", workout.startTime, "to:", workout.endTime);
         const durationMinutes = Math.round((new Date(workout.endTime).getTime() - new Date(workout.startTime).getTime()) / (1000 * 60));
+        console.log("Duration calculated:", durationMinutes, "minutes");
         setWorkoutDuration(durationMinutes.toString());
+      } else {
+        console.log("Missing time data - startTime:", workout.startTime, "endTime:", workout.endTime);
       }
     }
   }, [workout]);
