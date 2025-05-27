@@ -220,16 +220,40 @@ export default function Settings() {
                   )}
                 />
 
+              </div>
+            </div>
+          </Card>
+
+          {/* Workout Settings */}
+          <Card className="border-2 border-gradient rounded-3xl shadow-lg">
+            <CardHeader className="pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-xl bg-green-100 dark:bg-green-900/20">
+                  <History className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-semibold">Workout Settings</CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground">
+                    Configure how your workouts display previous exercise data
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-6">
                 {/* Previous Workout Mode */}
                 <FormField
                   control={form.control}
                   name="previousWorkoutMode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center">
+                      <FormLabel className="flex items-center text-base font-medium">
                         <History className="h-4 w-4 mr-2" />
-                        Previous Workout Data
+                        Previous Workout Visualization
                       </FormLabel>
+                      <div className="text-sm text-muted-foreground mb-3">
+                        Choose how to display previous exercise data during workouts
+                      </div>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="rounded-xl border-2">
@@ -238,7 +262,7 @@ export default function Settings() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="any_workout">Any Workout - Last time you did this exercise</SelectItem>
-                          <SelectItem value="same_routine">Same Routine - Last time you did this routine</SelectItem>
+                          <SelectItem value="same_routine">Same Routine - Last time you did this specific routine</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
