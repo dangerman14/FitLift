@@ -381,14 +381,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/workouts/:id', isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      const workout = await storage.getWorkoutById(id);
+      const idParam = req.params.id;
+      let workout;
+      
+      // Check if the parameter is a numeric ID or an alphanumeric slug
+      if (/^\d+$/.test(idParam)) {
+        // It's a numeric ID
+        const id = parseInt(idParam);
+        workout = await storage.getWorkoutById(id);
+      } else {
+        // It's a slug
+        workout = await storage.getWorkoutBySlug(idParam);
+      }
       
       if (!workout) {
         return res.status(404).json({ message: "Workout not found" });
       }
       
-      const exercises = await storage.getWorkoutExercises(id);
+      const exercises = await storage.getWorkoutExercises(workout.id);
       
       // If workout has a templateId, get the template name
       let templateName = null;
@@ -397,7 +407,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const template = await storage.getWorkoutTemplateById(workout.templateId);
           templateName = template?.name || null;
         } catch (error) {
-          console.error(`Error fetching template name for workout ${id}:`, error);
+          console.error(`Error fetching template name for workout ${workout.id}:`, error);
         }
       }
       
