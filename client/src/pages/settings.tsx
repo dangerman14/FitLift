@@ -29,12 +29,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Settings as SettingsIcon, Save, Scale, MapPin, Ruler } from "lucide-react";
+import { Settings as SettingsIcon, Save, Scale, MapPin, Ruler, History } from "lucide-react";
 
 const settingsSchema = z.object({
   weightUnit: z.enum(["kg", "lbs"]),
   distanceUnit: z.enum(["km", "miles"]),
   bodyMeasurementUnit: z.enum(["cm", "inches"]),
+  previousWorkoutMode: z.enum(["any_workout", "same_routine"]),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -50,6 +51,7 @@ export default function Settings() {
       weightUnit: "kg",
       distanceUnit: "km", 
       bodyMeasurementUnit: "cm",
+      previousWorkoutMode: "any_workout",
     },
   });
 
@@ -60,6 +62,7 @@ export default function Settings() {
         weightUnit: (user as any)?.weightUnit || "kg",
         distanceUnit: (user as any)?.distanceUnit || "km",
         bodyMeasurementUnit: (user as any)?.bodyMeasurementUnit || "cm",
+        previousWorkoutMode: (user as any)?.previousWorkoutMode || "any_workout",
       });
     }
   }, [user, form]);
@@ -138,7 +141,7 @@ export default function Settings() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Weight Unit */}
                 <FormField
                   control={form.control}
@@ -210,6 +213,32 @@ export default function Settings() {
                         <SelectContent>
                           <SelectItem value="cm">Centimeters (cm)</SelectItem>
                           <SelectItem value="inches">Inches (in)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Previous Workout Mode */}
+                <FormField
+                  control={form.control}
+                  name="previousWorkoutMode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center">
+                        <History className="h-4 w-4 mr-2" />
+                        Previous Workout Data
+                      </FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="rounded-xl border-2">
+                            <SelectValue placeholder="Select previous workout mode" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="any_workout">Any Workout - Last time you did this exercise</SelectItem>
+                          <SelectItem value="same_routine">Same Routine - Last time you did this routine</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

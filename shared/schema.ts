@@ -42,6 +42,7 @@ export const users = pgTable("users", {
   weightUnit: varchar("weight_unit").default("kg"), // kg or lbs
   distanceUnit: varchar("distance_unit").default("km"), // km or miles
   bodyMeasurementUnit: varchar("body_measurement_unit").default("cm"), // cm or inches
+  previousWorkoutMode: varchar("previous_workout_mode").default("any_workout"), // any_workout or same_routine
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
