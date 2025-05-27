@@ -165,6 +165,8 @@ export default function WorkoutSession() {
       console.log("Workout created successfully with ID:", workout.id);
       setActiveWorkout(workout);
       queryClient.invalidateQueries({ queryKey: ["/api/workouts"] });
+      // Redirect to the workout session using the workout ID
+      setLocation(`/workout-session/${workout.id}`);
     },
   });
 
