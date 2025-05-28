@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { useWorkout } from "@/contexts/WorkoutContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,9 +37,12 @@ import { useState } from "react";
 export default function Routines() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { activeWorkout, setActiveWorkout } = useWorkout();
   const [newFolderName, setNewFolderName] = useState("");
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
+  const [showWorkoutInProgressModal, setShowWorkoutInProgressModal] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
   // Fetch routines using workout templates since that's where we're storing them
   const { data: routines = [], isLoading } = useQuery({
@@ -140,8 +144,25 @@ export default function Routines() {
   };
 
   const handleStartRoutine = (routine: any) => {
-    // Navigate to workout session with this routine
-    window.location.href = `/workout-session?template=${routine.id}`;
+    if (activeWorkout) {
+      setSelectedTemplateId(routine.id);
+      setShowWorkoutInProgressModal(true);
+    } else {
+      window.location.href = `/workout-session?template=${routine.id}`;
+    }
+  };
+
+  const handleResumeWorkout = () => {
+    setShowWorkoutInProgressModal(false);
+    window.location.href = `/workout-session/${activeWorkout?.slug}`;
+  };
+
+  const handleDiscardAndStartNew = () => {
+    setActiveWorkout(null);
+    setShowWorkoutInProgressModal(false);
+    if (selectedTemplateId) {
+      window.location.href = `/workout-session?template=${selectedTemplateId}`;
+    }
   };
 
   const navigateToCreateRoutine = () => {
@@ -316,7 +337,7 @@ export default function Routines() {
                             <span>{getExerciseCount(routine)} exercises</span>
                             <Button 
                               size="sm" 
-                              onClick={() => window.location.href = `/workout-session?template=${routine.id}`}
+                              onClick={() => handleStartRoutine(routine)}
                               className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
                             >
                               <Play className="h-3 w-3 mr-1" />
