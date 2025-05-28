@@ -64,7 +64,6 @@ export default function WorkoutSession() {
   const workoutSlug = location.split('/')[2]; // For /workout-session/abc123 format
   const isEditingExisting = workoutSlug && workoutSlug !== 'new'; // If there's a slug and it's not 'new', we're resuming/editing
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
-  const [showWorkoutInProgressModal, setShowWorkoutInProgressModal] = useState(false);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
@@ -357,31 +356,10 @@ export default function WorkoutSession() {
     }
   }, [isEditingExisting, workoutSlug, activeWorkout]);
 
-  // Protection handlers for active workout conflicts
-  const handleResumeActiveWorkout = () => {
-    setShowWorkoutInProgressModal(false);
-    if (globalActiveWorkout?.slug) {
-      setLocation(`/workout-session/${globalActiveWorkout.slug}`);
-    }
-  };
-
-  const handleDiscardActiveWorkout = () => {
-    setActiveWorkout(null); // Clear the active workout
-    setShowWorkoutInProgressModal(false);
-    // Continue with the new workout creation
-    window.location.reload(); // Reload to start fresh
-  };
-
-  // Check for active workout before loading template
+  // Load template from URL parameter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
-    
-    // If there's an active workout and we're trying to load a template, show protection modal
-    if (templateId && globalActiveWorkout && globalActiveWorkout.id !== workoutSlug) {
-      setShowWorkoutInProgressModal(true);
-      return;
-    }
     
     if (templateId && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current && !isEditingExisting) {
       // Fetch template and load it
@@ -1249,36 +1227,7 @@ export default function WorkoutSession() {
         </div>
       )}
 
-      {/* Workout In Progress Modal */}
-      <Dialog open={showWorkoutInProgressModal} onOpenChange={setShowWorkoutInProgressModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Workout In Progress</DialogTitle>
-            <DialogDescription>
-              You have an active workout "{globalActiveWorkout?.name}" in progress. What would you like to do?
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-3 pt-4">
-            <Button onClick={handleResumeActiveWorkout} className="w-full">
-              Resume Current Workout
-            </Button>
-            <Button 
-              onClick={handleDiscardActiveWorkout} 
-              variant="destructive" 
-              className="w-full"
-            >
-              Discard & Start New Workout
-            </Button>
-            <Button 
-              onClick={() => setShowWorkoutInProgressModal(false)} 
-              variant="outline" 
-              className="w-full"
-            >
-              Cancel
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 }
