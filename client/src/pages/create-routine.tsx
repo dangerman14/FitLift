@@ -206,10 +206,10 @@ export default function CreateRoutine() {
       exerciseName: exercise.name,
       sets: Array.from({ length: parseInt(sets) }, () => ({
         reps: repsValue,
-        weight: weight || undefined,
+        weight: undefined, // Will be set later in the routine
       })),
       restDuration: parseInt(restDuration),
-      notes: notes || undefined,
+      notes: undefined, // Will be set later in the routine
     };
 
     setSelectedExercises([...selectedExercises, routineExercise]);
@@ -218,8 +218,6 @@ export default function CreateRoutine() {
     setSingleReps("10");
     setMinReps("8");
     setMaxReps("12");
-    setWeight("");
-    setNotes("");
     setRestDuration("120"); // Reset to 2 minutes default
   };
 
@@ -617,23 +615,7 @@ export default function CreateRoutine() {
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label>Weight (Optional)</Label>
-                <Input
-                  value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                  placeholder="e.g., 135 lbs, bodyweight"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Notes (Optional)</Label>
-                <Input
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="e.g., slow tempo, pause at bottom"
-                />
-              </div>
+              {/* Weight and notes will be set after adding to routine */}
               
               <div className="space-y-2">
                 <Label>Rest Time Between Sets</Label>
