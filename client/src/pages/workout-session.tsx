@@ -1113,7 +1113,7 @@ export default function WorkoutSession() {
                     value={set.completed ? (set.rpe || "").toString() : ""}
                     onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
                     className="h-10 text-center font-medium text-lg"
-                    placeholder={set.rpe ? set.rpe.toString() : "9"}
+                    placeholder={set.rpe ? set.rpe.toString() : ""}
                     min="1"
                     max="10"
                   />
