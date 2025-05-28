@@ -28,7 +28,7 @@ import {
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
-  const { activeWorkout, setActiveWorkout } = useWorkout();
+  const { activeWorkout, setActiveWorkout, isContextLoaded } = useWorkout();
   const [showWorkoutInProgressModal, setShowWorkoutInProgressModal] = useState(false);
 
   const { data: workoutStats } = useQuery({

@@ -13,12 +13,14 @@ interface WorkoutContextType {
   activeWorkout: ActiveWorkout | null;
   setActiveWorkout: (workout: ActiveWorkout | null) => void;
   isInWorkoutSession: boolean;
+  isContextLoaded: boolean;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
 
 export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   const [activeWorkout, setActiveWorkoutState] = useState<ActiveWorkout | null>(null);
+  const [isContextLoaded, setIsContextLoaded] = useState(false);
   const [location] = useLocation();
   
   // Check if currently in a workout session
@@ -38,11 +40,13 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   // Load active workout from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem('activeWorkout');
+    console.log('Loading stored workout from localStorage:', stored);
     if (stored) {
       try {
         const workout = JSON.parse(stored);
         // Only set active workout if it's not already cleared
         if (workout && workout.id) {
+          console.log('Setting active workout from localStorage:', workout);
           setActiveWorkoutState(workout);
         }
       } catch (error) {
@@ -50,6 +54,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('activeWorkout');
       }
     }
+    setIsContextLoaded(true);
   }, []);
 
   // Don't automatically clear active workout - let it persist until explicitly cleared
@@ -59,7 +64,8 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     <WorkoutContext.Provider value={{
       activeWorkout,
       setActiveWorkout,
-      isInWorkoutSession
+      isInWorkoutSession,
+      isContextLoaded
     }}>
       {children}
     </WorkoutContext.Provider>
