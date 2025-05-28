@@ -266,17 +266,85 @@ export default function WorkoutSession() {
             
             // Load existing exercises and sets
             const exercisesWithSets = workoutData.exercises || [];
-            const formattedExercises = exercisesWithSets.map((ex: any) => ({
-              ...ex,
-              sets: ex.sets.map((set: any) => ({
-                setNumber: set.setNumber,
-                weight: set.weight || 0,
-                reps: set.reps || 0,
-                completed: true, // Mark as completed since it's an existing workout
-                previousWeight: set.weight || 0,
-                previousReps: set.reps || 0
-              }))
+            
+            // If this workout was created from a template and has no sets yet, 
+            // we need to create template sets instead of empty ones
+            const formattedExercises = await Promise.all(exercisesWithSets.map(async (ex: any) => {
+              if (ex.sets && ex.sets.length > 0) {
+                // Workout has existing sets, use them
+                return {
+                  ...ex,
+                  sets: ex.sets.map((set: any) => ({
+                    setNumber: set.setNumber,
+                    weight: set.weight || 0,
+                    reps: set.reps || 0,
+                    completed: true,
+                    previousWeight: set.weight || 0,
+                    previousReps: set.reps || 0
+                  }))
+                };
+              } else if (workoutData.templateId) {
+                // No sets but created from template, get template data
+                try {
+                  const templateResponse = await fetch(`/api/workout-templates/${workoutData.templateId}`, {
+                    credentials: 'include'
+                  });
+                  const template = await templateResponse.json();
+                  const templateEx = template.exercises?.find((te: any) => te.exerciseId === ex.exerciseId);
+                  
+                  if (templateEx && templateEx.notes) {
+                    const notesData = JSON.parse(templateEx.notes || '{}');
+                    const setsData = notesData.setsData || [];
+                    
+                    if (setsData.length > 0) {
+                      const templateSets = setsData.map((setData: any, setIndex: number) => {
+                        let minReps = 0;
+                        let maxReps = 0;
+                        if (setData.reps) {
+                          if (setData.reps.includes('-')) {
+                            const [min, max] = setData.reps.split('-').map(Number);
+                            minReps = min;
+                            maxReps = max;
+                          } else {
+                            minReps = maxReps = parseInt(setData.reps);
+                          }
+                        }
+                        
+                        return {
+                          setNumber: setIndex + 1,
+                          weight: setData.weight || 0,
+                          reps: 0,
+                          rpe: setData.rpe || 9,
+                          minReps,
+                          maxReps,
+                          completed: false,
+                          previousWeight: 75,
+                          previousReps: 10
+                        };
+                      });
+                      
+                      return { ...ex, sets: templateSets };
+                    }
+                  }
+                } catch (error) {
+                  console.error('Failed to load template data for existing workout:', error);
+                }
+              }
+              
+              // Fallback to basic set structure
+              return {
+                ...ex,
+                sets: [{
+                  setNumber: 1,
+                  weight: 0,
+                  reps: 0,
+                  completed: false,
+                  previousWeight: 75,
+                  previousReps: 10
+                }]
+              };
             }));
+            
             setWorkoutExercises(formattedExercises);
           }
         } catch (error) {
