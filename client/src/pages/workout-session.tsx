@@ -433,7 +433,7 @@ export default function WorkoutSession() {
                             setNumber: setIndex + 1,
                             weight: setData.weight || 0,
                             reps: 0, // Start empty
-                            rpe: setData.rpe || 9, // Use RPE from template
+                            rpe: setData.rpe || null, // Use RPE from template or leave blank
                             minReps,
                             maxReps,
                             completed: false,
@@ -445,7 +445,7 @@ export default function WorkoutSession() {
                           setNumber: setIndex + 1,
                           weight: 0,
                           reps: 0, // Start empty
-                          rpe: 9, // Default RPE
+                          rpe: null, // No default RPE
                           minReps: templateEx.repsTarget || 8,
                           maxReps: templateEx.repsTarget || 12,
                           completed: false,
