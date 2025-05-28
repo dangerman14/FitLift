@@ -20,6 +20,8 @@ interface WorkoutExercise {
     id: number;
     name: string;
     muscleGroups: string[];
+    type: string;
+    instructions?: string;
   };
   sets: WorkoutSet[];
   restTimer?: number;
@@ -30,14 +32,19 @@ interface WorkoutExercise {
 interface WorkoutSet {
   id?: number;
   setNumber: number;
-  weight: number;
-  reps: number;
+  weight?: number;
+  reps?: number;
+  duration?: number;
+  distance?: number;
+  assistanceWeight?: number;
   minReps?: number;
   maxReps?: number;
   rpe?: number;
   completed: boolean;
   previousWeight?: number;
   previousReps?: number;
+  previousDuration?: number;
+  previousDistance?: number;
 }
 
 export default function WorkoutSession() {

@@ -143,6 +143,12 @@ export interface IStorage {
   getBodyMeasurements(userId: string): Promise<BodyMeasurement[]>;
   createBodyMeasurement(measurement: InsertBodyMeasurement): Promise<BodyMeasurement>;
   
+  // Bodyweight tracking operations
+  getUserBodyweight(userId: string): Promise<UserBodyweight[]>;
+  getCurrentBodyweight(userId: string): Promise<number | null>;
+  createBodyweightEntry(entry: InsertUserBodyweight): Promise<UserBodyweight>;
+  updateUserCurrentBodyweight(userId: string, weight: number): Promise<User>;
+  
   // Analytics operations
   getWorkoutStats(userId: string, startDate?: Date, endDate?: Date): Promise<{
     totalWorkouts: number;
@@ -711,6 +717,43 @@ export class DatabaseStorage implements IStorage {
       .values(measurement)
       .returning();
     return newMeasurement;
+  }
+
+  // Bodyweight tracking operations
+  async getUserBodyweight(userId: string): Promise<UserBodyweight[]> {
+    return await db
+      .select()
+      .from(userBodyweight)
+      .where(eq(userBodyweight.userId, userId))
+      .orderBy(desc(userBodyweight.measurementDate));
+  }
+
+  async getCurrentBodyweight(userId: string): Promise<number | null> {
+    const [latestEntry] = await db
+      .select()
+      .from(userBodyweight)
+      .where(eq(userBodyweight.userId, userId))
+      .orderBy(desc(userBodyweight.measurementDate))
+      .limit(1);
+    
+    return latestEntry ? parseFloat(latestEntry.weight) : null;
+  }
+
+  async createBodyweightEntry(entry: InsertUserBodyweight): Promise<UserBodyweight> {
+    const [newEntry] = await db
+      .insert(userBodyweight)
+      .values(entry)
+      .returning();
+    return newEntry;
+  }
+
+  async updateUserCurrentBodyweight(userId: string, weight: number): Promise<User> {
+    const [updatedUser] = await db
+      .update(users)
+      .set({ currentBodyweight: weight.toString() })
+      .where(eq(users.id, userId))
+      .returning();
+    return updatedUser;
   }
 
   // Analytics operations
