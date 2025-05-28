@@ -229,7 +229,11 @@ export default function WorkoutSession() {
 
   // Load existing workout for editing
   useEffect(() => {
-    if (isEditingExisting && workoutSlug && !activeWorkout) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const templateId = urlParams.get('template');
+    
+    // Don't load existing workout if we're loading from a template
+    if (isEditingExisting && workoutSlug && !activeWorkout && !templateId) {
       const loadExistingWorkout = async () => {
         try {
           const response = await fetch(`/api/workouts/${workoutSlug}`, {
@@ -392,6 +396,7 @@ export default function WorkoutSession() {
                 // Wait for all workout exercises to be created, then set them
                 const exercises = await Promise.all(exerciseCreationPromises);
                 const validExercises = exercises.filter(ex => ex !== null);
+                console.log('Setting workout exercises with', validExercises.length, 'exercises');
                 setWorkoutExercises(validExercises);
               }
             });
