@@ -240,8 +240,8 @@ export default function WorkoutSession() {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
     
-    // Don't load existing workout if we're loading from a template
-    if (isEditingExisting && workoutSlug && !activeWorkout && !templateId) {
+    // Don't load existing workout if we're loading from a template or currently creating a workout
+    if (isEditingExisting && workoutSlug && !activeWorkout && !templateId && !isCreatingWorkoutRef.current) {
       const loadExistingWorkout = async () => {
         try {
           const response = await fetch(`/api/workouts/${workoutSlug}`, {
