@@ -17,13 +17,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useWorkout } from "@/contexts/WorkoutContext";
 
 export default function Workouts() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [showWorkoutInProgressModal, setShowWorkoutInProgressModal] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { activeWorkout, setActiveWorkout } = useWorkout();
 
   const { data: workoutTemplates, isLoading } = useQuery({
     queryKey: ["/api/workout-templates"],
@@ -57,8 +68,28 @@ export default function Workouts() {
   }) || [];
 
   const handleStartWorkout = (template: any) => {
-    // Navigate to workout session with template
-    window.location.href = `/workout-session?template=${template.id}`;
+    console.log('Workouts page - Checking for active workout:', activeWorkout);
+    if (activeWorkout) {
+      console.log('Active workout found in workouts page, showing modal');
+      setSelectedTemplateId(template.id);
+      setShowWorkoutInProgressModal(true);
+    } else {
+      console.log('No active workout in workouts page, proceeding with navigation');
+      window.location.href = `/workout-session?template=${template.id}`;
+    }
+  };
+
+  const handleResumeWorkout = () => {
+    setShowWorkoutInProgressModal(false);
+    window.location.href = `/workout-session/${activeWorkout?.slug}`;
+  };
+
+  const handleDiscardAndStartNew = () => {
+    setActiveWorkout(null);
+    setShowWorkoutInProgressModal(false);
+    if (selectedTemplateId) {
+      window.location.href = `/workout-session?template=${selectedTemplateId}`;
+    }
   };
 
   const handleCreateWorkout = () => {
@@ -212,6 +243,37 @@ export default function Workouts() {
           </CardContent>
         </Card>
       )}
+
+      {/* Workout In Progress Modal */}
+      <Dialog open={showWorkoutInProgressModal} onOpenChange={setShowWorkoutInProgressModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Workout In Progress</DialogTitle>
+            <DialogDescription>
+              You have an active workout "{activeWorkout?.name}" in progress. What would you like to do?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 pt-4">
+            <Button onClick={handleResumeWorkout} className="w-full">
+              Resume Current Workout
+            </Button>
+            <Button 
+              onClick={handleDiscardAndStartNew} 
+              variant="destructive" 
+              className="w-full"
+            >
+              Discard & Start New Workout
+            </Button>
+            <Button 
+              onClick={() => setShowWorkoutInProgressModal(false)} 
+              variant="outline" 
+              className="w-full"
+            >
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
