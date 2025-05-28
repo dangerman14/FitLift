@@ -45,6 +45,14 @@ export default function WorkoutSession() {
   const [activeWorkout, setActiveWorkoutState] = useState<any>(null);
   const { setActiveWorkout, activeWorkout: globalActiveWorkout } = useWorkout();
   const [workoutExercises, setWorkoutExercises] = useState<WorkoutExercise[]>([]);
+  
+  // Debug: Watch when workoutExercises changes
+  useEffect(() => {
+    console.log('workoutExercises state changed:', workoutExercises.length, 'exercises');
+    if (workoutExercises.length > 0) {
+      console.log('First exercise sets:', workoutExercises[0]?.sets);
+    }
+  }, [workoutExercises]);
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
   const isCreatingWorkoutRef = useRef(false);
@@ -413,7 +421,7 @@ export default function WorkoutSession() {
       
       loadTemplate();
     }
-  }, [activeWorkout, createWorkoutMutation]);
+  }, []);
 
   // Main workout timer
   useEffect(() => {
