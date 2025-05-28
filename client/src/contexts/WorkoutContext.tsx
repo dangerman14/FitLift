@@ -25,6 +25,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   const isInWorkoutSession = location.startsWith('/workout-session/');
 
   const setActiveWorkout = (workout: ActiveWorkout | null) => {
+    console.log('Setting active workout:', workout);
     setActiveWorkoutState(workout);
     // Store in localStorage for persistence
     if (workout) {
@@ -40,13 +41,19 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     if (stored) {
       try {
         const workout = JSON.parse(stored);
-        setActiveWorkoutState(workout);
+        // Only set active workout if it's not already cleared
+        if (workout && workout.id) {
+          setActiveWorkoutState(workout);
+        }
       } catch (error) {
         console.error('Failed to parse stored workout:', error);
         localStorage.removeItem('activeWorkout');
       }
     }
   }, []);
+
+  // Don't automatically clear active workout - let it persist until explicitly cleared
+  // This allows the protection system to work properly
 
   return (
     <WorkoutContext.Provider value={{

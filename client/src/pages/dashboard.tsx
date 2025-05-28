@@ -70,6 +70,7 @@ export default function Dashboard() {
   };
 
   const handleQuickStart = () => {
+    console.log('Quick start clicked, active workout:', activeWorkout);
     if (activeWorkout) {
       setShowWorkoutInProgressModal(true);
     } else {
