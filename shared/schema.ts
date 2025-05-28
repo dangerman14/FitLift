@@ -37,6 +37,7 @@ export const users = pgTable("users", {
   gender: varchar("gender"),
   height: integer("height"), // in cm
   weight: decimal("weight", { precision: 5, scale: 2 }), // in kg
+  currentBodyweight: decimal("current_bodyweight", { precision: 6, scale: 2 }), // current bodyweight for calculations
   experienceLevel: varchar("experience_level").default("beginner"),
   preferredUnits: varchar("preferred_units").default("metric"), // metric or imperial
   weightUnit: varchar("weight_unit").default("kg"), // kg or lbs
@@ -61,6 +62,16 @@ export const bodyMeasurements = pgTable("body_measurements", {
   thighLeft: decimal("thigh_left", { precision: 5, scale: 2 }),
   thighRight: decimal("thigh_right", { precision: 5, scale: 2 }),
   notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// New table for bodyweight history tracking
+export const userBodyweight = pgTable("user_bodyweight", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  weight: decimal("weight", { precision: 6, scale: 2 }).notNull(),
+  measurementDate: date("measurement_date").notNull(),
+  source: varchar("source").default("manual"), // manual, device_sync, etc.
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -94,7 +105,10 @@ export const exercises = pgTable("exercises", {
   equipmentType: varchar("equipment_type"), // None, Barbell, Dumbbell, etc.
   primaryMuscleGroups: jsonb("primary_muscle_groups").default([]),
   secondaryMuscleGroups: jsonb("secondary_muscle_groups").default([]),
-  exerciseType: varchar("exercise_type").default("weight_reps"), // weight_reps, bodyweight_reps, etc.
+  exerciseType: varchar("exercise_type").default("weight_reps"), // weight_reps, duration, duration_weight, distance_duration, weight_distance, bodyweight, assisted_bodyweight, weighted_bodyweight
+  defaultDurationUnit: varchar("default_duration_unit").default("seconds"), // seconds, minutes
+  defaultDistanceUnit: varchar("default_distance_unit").default("miles"), // miles, km, feet, meters
+  requiresBodyweight: boolean("requires_bodyweight").default(false),
   isCustom: boolean("is_custom").default(false),
   createdBy: varchar("created_by").references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at").defaultNow(),
@@ -113,6 +127,9 @@ export const customExercises = pgTable("custom_exercises", {
   primaryMuscleGroups: jsonb("primary_muscle_groups").default([]),
   secondaryMuscleGroups: jsonb("secondary_muscle_groups").default([]),
   exerciseType: varchar("exercise_type").default("weight_reps"),
+  defaultDurationUnit: varchar("default_duration_unit").default("seconds"),
+  defaultDistanceUnit: varchar("default_distance_unit").default("miles"),
+  requiresBodyweight: boolean("requires_bodyweight").default(false),
   createdBy: varchar("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -183,6 +200,12 @@ export const exerciseSets = pgTable("exercise_sets", {
   weight: decimal("weight", { precision: 6, scale: 2 }),
   reps: integer("reps"),
   rpe: integer("rpe"), // rate of perceived exertion 1-10
+  // New fields for different exercise types
+  duration: integer("duration"), // seconds for duration-based exercises
+  distance: decimal("distance", { precision: 8, scale: 2 }), // miles/km for distance exercises
+  assistanceWeight: decimal("assistance_weight", { precision: 6, scale: 2 }), // for assisted bodyweight exercises
+  pace: decimal("pace", { precision: 6, scale: 2 }), // calculated pace (minutes per mile/km)
+  effectiveWeight: decimal("effective_weight", { precision: 8, scale: 2 }), // calculated total weight including bodyweight
   isWarmup: boolean("is_warmup").default(false),
   isDropset: boolean("is_dropset").default(false),
   restAfter: integer("rest_after"), // in seconds
@@ -234,6 +257,7 @@ export const routineExercises = pgTable("routine_exercises", {
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   bodyMeasurements: many(bodyMeasurements),
+  userBodyweight: many(userBodyweight),
   fitnessGoals: many(fitnessGoals),
   workoutTemplates: many(workoutTemplates),
   workouts: many(workouts),
