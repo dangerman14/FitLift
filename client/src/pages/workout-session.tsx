@@ -314,7 +314,7 @@ export default function WorkoutSession() {
                           setNumber: setIndex + 1,
                           weight: setData.weight || 0,
                           reps: 0,
-                          rpe: setData.rpe || 9,
+                          rpe: setData.rpe || null,
                           minReps,
                           maxReps,
                           completed: false,
