@@ -439,7 +439,7 @@ export default function Routines() {
                             <span>{getExerciseCount(routine)} exercises</span>
                             <Button 
                               size="sm" 
-                              onClick={() => window.location.href = `/workout-session?template=${routine.id}`}
+                              onClick={() => handleStartRoutine(routine)}
                               className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
                             >
                               <Play className="h-3 w-3 mr-1" />
@@ -478,6 +478,37 @@ export default function Routines() {
           </CardContent>
         </Card>
       )}
+
+      {/* Workout In Progress Modal */}
+      <Dialog open={showWorkoutInProgressModal} onOpenChange={setShowWorkoutInProgressModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Workout In Progress</DialogTitle>
+            <DialogDescription>
+              You have an active workout "{activeWorkout?.name}" in progress. What would you like to do?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 pt-4">
+            <Button onClick={handleResumeWorkout} className="w-full">
+              Resume Current Workout
+            </Button>
+            <Button 
+              onClick={handleDiscardAndStartNew} 
+              variant="destructive" 
+              className="w-full"
+            >
+              Discard & Start New Workout
+            </Button>
+            <Button 
+              onClick={() => setShowWorkoutInProgressModal(false)} 
+              variant="outline" 
+              className="w-full"
+            >
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
