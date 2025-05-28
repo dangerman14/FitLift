@@ -9,6 +9,7 @@ import {
   exerciseSets,
   fitnessGoals,
   bodyMeasurements,
+  userBodyweight,
   type User,
   type UpsertUser,
   type Exercise,
@@ -29,6 +30,8 @@ import {
   type InsertFitnessGoal,
   type BodyMeasurement,
   type InsertBodyMeasurement,
+  type UserBodyweight,
+  type InsertUserBodyweight,
   routines,
   routineExercises,
   routineFolders,
@@ -38,6 +41,7 @@ import {
   type InsertRoutineExercise,
   type RoutineFolder,
   type InsertRoutineFolder,
+  type ExerciseType,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, gte, lte, sql, count, sum, max, or, isNotNull } from "drizzle-orm";

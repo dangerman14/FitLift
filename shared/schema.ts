@@ -15,6 +15,20 @@ import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Exercise type constants
+export const EXERCISE_TYPES = [
+  'weight_reps',
+  'duration', 
+  'duration_weight',
+  'distance_duration',
+  'weight_distance',
+  'bodyweight',
+  'assisted_bodyweight', 
+  'weighted_bodyweight'
+] as const;
+
+export type ExerciseType = typeof EXERCISE_TYPES[number];
+
 // Session storage table (mandatory for Replit Auth)
 export const sessions = pgTable(
   "sessions",
@@ -273,6 +287,13 @@ export const bodyMeasurementsRelations = relations(bodyMeasurements, ({ one }) =
   }),
 }));
 
+export const userBodyweightRelations = relations(userBodyweight, ({ one }) => ({
+  user: one(users, {
+    fields: [userBodyweight.userId],
+    references: [users.id],
+  }),
+}));
+
 export const fitnessGoalsRelations = relations(fitnessGoals, ({ one }) => ({
   user: one(users, {
     fields: [fitnessGoals.userId],
@@ -385,6 +406,9 @@ export type User = typeof users.$inferSelect;
 export type InsertBodyMeasurement = typeof bodyMeasurements.$inferInsert;
 export type BodyMeasurement = typeof bodyMeasurements.$inferSelect;
 
+export type InsertUserBodyweight = typeof userBodyweight.$inferInsert;
+export type UserBodyweight = typeof userBodyweight.$inferSelect;
+
 export type InsertFitnessGoal = typeof fitnessGoals.$inferInsert;
 export type FitnessGoal = typeof fitnessGoals.$inferSelect;
 
@@ -420,6 +444,11 @@ export type RoutineExercise = typeof routineExercises.$inferSelect;
 
 // Insert schemas
 export const insertBodyMeasurementSchema = createInsertSchema(bodyMeasurements).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserBodyweightSchema = createInsertSchema(userBodyweight).omit({
   id: true,
   createdAt: true,
 });
