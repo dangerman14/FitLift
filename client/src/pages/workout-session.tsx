@@ -327,11 +327,13 @@ export default function WorkoutSession() {
                     try {
                       const notesData = JSON.parse(templateEx.notes || '{}');
                       setsData = notesData.setsData || [];
+                      console.log('Parsed sets data for exercise:', templateEx.exercise.name, setsData);
                     } catch (error) {
-                      console.log('Could not parse notes data:', error);
+                      console.log('Could not parse notes data:', templateEx.notes, error);
                     }
 
                     // Create sets based on the parsed data
+                    console.log('About to create sets. setsData.length:', setsData.length);
                     const sets = setsData.length > 0 
                       ? setsData.map((setData: any, setIndex: number) => {
                           // Parse reps - could be single number or range like "8-12"
@@ -372,13 +374,15 @@ export default function WorkoutSession() {
                         }));
 
                     const exerciseData = await workoutExercise.json();
-                    return {
+                    const finalExercise = {
                       id: exerciseData.id, // Now we have a proper database ID
                       exercise: templateEx.exercise,
                       sets,
                       restTimer: templateEx.restDuration || 120,
                       comment: ''
                     };
+                    console.log('Final exercise object created:', finalExercise.exercise.name, 'with sets:', finalExercise.sets);
+                    return finalExercise;
                   } catch (error) {
                     console.error('Failed to create workout exercise:', error);
                     return null;
