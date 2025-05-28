@@ -1,10 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { useWorkout } from "@/contexts/WorkoutContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useState } from "react";
 import { 
   Play, 
   History, 
@@ -25,6 +28,8 @@ import {
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { activeWorkout, setActiveWorkout } = useWorkout();
+  const [showWorkoutInProgressModal, setShowWorkoutInProgressModal] = useState(false);
 
   const { data: workoutStats } = useQuery({
     queryKey: ["/api/analytics/stats"],
@@ -46,11 +51,30 @@ export default function Dashboard() {
   const lastWorkout = recentWorkouts[0];
 
   const handleStartWorkout = () => {
+    if (activeWorkout) {
+      setShowWorkoutInProgressModal(true);
+    } else {
+      setLocation("/workout-session");
+    }
+  };
+
+  const handleResumeWorkout = () => {
+    setShowWorkoutInProgressModal(false);
+    setLocation(`/workout-session/${activeWorkout?.slug}`);
+  };
+
+  const handleDiscardWorkout = () => {
+    setActiveWorkout(null);
+    setShowWorkoutInProgressModal(false);
     setLocation("/workout-session");
   };
 
   const handleQuickStart = () => {
-    setLocation("/workout-session");
+    if (activeWorkout) {
+      setShowWorkoutInProgressModal(true);
+    } else {
+      setLocation("/workout-session");
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -411,6 +435,36 @@ export default function Dashboard() {
         </div>
       </section>
 
+      {/* Workout In Progress Modal */}
+      <Dialog open={showWorkoutInProgressModal} onOpenChange={setShowWorkoutInProgressModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Workout In Progress</DialogTitle>
+            <DialogDescription>
+              You have an active workout "{activeWorkout?.name}" in progress. What would you like to do?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 pt-4">
+            <Button onClick={handleResumeWorkout} className="w-full">
+              Resume Current Workout
+            </Button>
+            <Button 
+              onClick={handleDiscardWorkout} 
+              variant="destructive" 
+              className="w-full"
+            >
+              Discard & Start New Workout
+            </Button>
+            <Button 
+              onClick={() => setShowWorkoutInProgressModal(false)} 
+              variant="outline" 
+              className="w-full"
+            >
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
