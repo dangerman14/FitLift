@@ -808,11 +808,19 @@ export default function CreateRoutine() {
                         </Button>
                         
                         {/* Exercise Notes */}
-                        {exercise.notes && (
-                          <div className="text-xs text-gray-500 mt-2 italic border-t pt-2">
-                            {exercise.notes}
-                          </div>
-                        )}
+                        <div className="mt-4 border-t pt-3">
+                          <Label className="text-sm text-gray-700">Exercise Notes</Label>
+                          <Input
+                            value={exercise.notes || ""}
+                            onChange={(e) => {
+                              const updatedExercises = [...selectedExercises];
+                              updatedExercises[exerciseIndex].notes = e.target.value;
+                              setSelectedExercises(updatedExercises);
+                            }}
+                            placeholder="e.g., slow tempo, pause at bottom, focus on form"
+                            className="mt-1"
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
