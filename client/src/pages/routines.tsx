@@ -144,10 +144,13 @@ export default function Routines() {
   };
 
   const handleStartRoutine = (routine: any) => {
+    console.log('Checking for active workout:', activeWorkout);
     if (activeWorkout) {
+      console.log('Active workout found, showing modal');
       setSelectedTemplateId(routine.id);
       setShowWorkoutInProgressModal(true);
     } else {
+      console.log('No active workout, proceeding with navigation');
       window.location.href = `/workout-session?template=${routine.id}`;
     }
   };
