@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 interface RoutineSet {
   reps: string; // Will store as "10-12" format
   weight?: string;
+  rpe?: string; // Rate of Perceived Exertion (1-10)
 }
 
 interface RoutineExercise {
@@ -207,6 +208,7 @@ export default function CreateRoutine() {
       sets: Array.from({ length: parseInt(sets) }, () => ({
         reps: repsValue,
         weight: undefined, // Will be set later in the routine
+        rpe: undefined, // Will be set later in the routine
       })),
       restDuration: parseInt(restDuration),
       notes: undefined, // Will be set later in the routine
@@ -240,6 +242,7 @@ export default function CreateRoutine() {
     updatedExercises[exerciseIndex].sets.push({
       reps: lastSet.reps,
       weight: lastSet.weight,
+      rpe: lastSet.rpe,
     });
     setSelectedExercises(updatedExercises);
   };
@@ -280,7 +283,8 @@ export default function CreateRoutine() {
       // Store individual sets data in notes field as JSON for now
       const setsData = exercise.sets.map(set => ({
         reps: set.reps,
-        weight: set.weight || null
+        weight: set.weight || null,
+        rpe: set.rpe || null
       }));
       
       const firstSet = exercise.sets[0];
@@ -703,6 +707,20 @@ export default function CreateRoutine() {
                               return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
                             })()}
                           </div>
+                          
+                          {/* Exercise Notes under title */}
+                          <div className="mt-2">
+                            <Input
+                              value={exercise.notes || ""}
+                              onChange={(e) => {
+                                const updatedExercises = [...selectedExercises];
+                                updatedExercises[exerciseIndex].notes = e.target.value;
+                                setSelectedExercises(updatedExercises);
+                              }}
+                              placeholder="Add exercise notes (e.g., slow tempo, pause at bottom)"
+                              className="text-sm"
+                            />
+                          </div>
                         </div>
                         
                         {/* Rest Time Selector */}
@@ -760,6 +778,17 @@ export default function CreateRoutine() {
                               Set {setIndex + 1}
                             </span>
                             
+                            {/* Weight Input */}
+                            <div className="flex-1">
+                              <Input
+                                value={set.weight || ""}
+                                onChange={(e) => updateSetField(exerciseIndex, setIndex, 'weight', e.target.value)}
+                                placeholder="135 lbs"
+                                className="h-8 text-sm"
+                              />
+                              <span className="text-xs text-gray-500">weight</span>
+                            </div>
+                            
                             {/* Reps Input */}
                             <div className="flex-1">
                               <Input
@@ -771,15 +800,18 @@ export default function CreateRoutine() {
                               <span className="text-xs text-gray-500">reps</span>
                             </div>
                             
-                            {/* Weight Input */}
+                            {/* RPE Input */}
                             <div className="flex-1">
                               <Input
-                                value={set.weight || ""}
-                                onChange={(e) => updateSetField(exerciseIndex, setIndex, 'weight', e.target.value)}
-                                placeholder="135 lbs"
+                                value={set.rpe || ""}
+                                onChange={(e) => updateSetField(exerciseIndex, setIndex, 'rpe', e.target.value)}
+                                placeholder="8"
+                                type="number"
+                                min="1"
+                                max="10"
                                 className="h-8 text-sm"
                               />
-                              <span className="text-xs text-gray-500">weight</span>
+                              <span className="text-xs text-gray-500">RPE</span>
                             </div>
                             
                             {/* Remove Set Button */}
@@ -807,20 +839,7 @@ export default function CreateRoutine() {
                           Add Set
                         </Button>
                         
-                        {/* Exercise Notes */}
-                        <div className="mt-4 border-t pt-3">
-                          <Label className="text-sm text-gray-700">Exercise Notes</Label>
-                          <Input
-                            value={exercise.notes || ""}
-                            onChange={(e) => {
-                              const updatedExercises = [...selectedExercises];
-                              updatedExercises[exerciseIndex].notes = e.target.value;
-                              setSelectedExercises(updatedExercises);
-                            }}
-                            placeholder="e.g., slow tempo, pause at bottom, focus on form"
-                            className="mt-1"
-                          />
-                        </div>
+
                       </div>
                     </div>
                   ))}
