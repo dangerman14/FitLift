@@ -569,58 +569,67 @@ export default function CreateRoutine() {
                     min="1"
                   />
                 </div>
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => setUseRepRange(!useRepRange)}
-                    className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                  >
-                    <Label className="cursor-pointer">
-                      {useRepRange ? "Rep Range" : "Reps"}
-                    </Label>
-                    <ChevronDown 
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        useRepRange ? 'rotate-180' : 'rotate-0'
-                      }`}
-                    />
-                  </button>
+                {/* Only show rep configuration for exercises that use reps */}
+                {(() => {
+                  const selectedExercise = exercises?.find((ex: any) => ex.id === parseInt(selectedExerciseId || "0"));
+                  const exerciseType = selectedExercise?.exerciseType || selectedExercise?.type || 'weight_reps';
+                  const needsReps = ['weight_reps', 'bodyweight', 'assisted_bodyweight', 'weighted_bodyweight'].includes(exerciseType);
                   
-                  {useRepRange ? (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
-                          placeholder="8"
-                          value={minReps}
-                          onChange={(e) => setMinReps(e.target.value)}
-                          min="1"
-                          className="flex-1"
+                  return needsReps ? (
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => setUseRepRange(!useRepRange)}
+                        className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                      >
+                        <Label className="cursor-pointer">
+                          {useRepRange ? "Rep Range" : "Reps"}
+                        </Label>
+                        <ChevronDown 
+                          className={`h-4 w-4 transition-transform duration-200 ${
+                            useRepRange ? 'rotate-180' : 'rotate-0'
+                          }`}
                         />
-                        <span className="text-gray-500 font-medium">-</span>
-                        <Input
-                          type="number"
-                          placeholder="12"
-                          value={maxReps}
-                          onChange={(e) => setMaxReps(e.target.value)}
-                          min="1"
-                          className="flex-1"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500">Set minimum and maximum reps (e.g., 8-12)</p>
-                    </>
-                  ) : (
-                    <>
-                      <Input
-                        type="number"
-                        placeholder="10"
-                        value={singleReps}
-                        onChange={(e) => setSingleReps(e.target.value)}
-                        min="1"
-                      />
-                      <p className="text-xs text-gray-500">Set exact number of reps</p>
-                    </>
-                  )}
-                </div>
+                      </button>
+                      
+                      {useRepRange ? (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              placeholder="8"
+                              value={minReps}
+                              onChange={(e) => setMinReps(e.target.value)}
+                              min="1"
+                              className="flex-1"
+                            />
+                            <span className="text-gray-500 font-medium">-</span>
+                            <Input
+                              type="number"
+                              placeholder="12"
+                              value={maxReps}
+                              onChange={(e) => setMaxReps(e.target.value)}
+                              min="1"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500">Set minimum and maximum reps (e.g., 8-12)</p>
+                        </>
+                      ) : (
+                        <>
+                          <Input
+                            type="number"
+                            placeholder="10"
+                            value={singleReps}
+                            onChange={(e) => setSingleReps(e.target.value)}
+                            min="1"
+                          />
+                          <p className="text-xs text-gray-500">Set exact number of reps</p>
+                        </>
+                      )}
+                    </div>
+                  ) : null;
+                })()}
               </div>
               
               {/* Weight and notes will be set after adding to routine */}
