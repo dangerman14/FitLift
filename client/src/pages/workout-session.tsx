@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorkout } from "@/contexts/WorkoutContext";
+import ExerciseSetInput from "@/components/exercise-set-input";
 
 interface WorkoutExercise {
   id: number;
@@ -1029,55 +1030,20 @@ export default function WorkoutSession() {
               )}
 
               {/* Sets Table Header */}
-              <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
+              <div className="grid grid-cols-4 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
                 <div>SET</div>
                 <div>PREVIOUS</div>
-                <div>
-                  <Select value={weightUnitOverride} onValueChange={handleWeightUnitChange}>
-                    <SelectTrigger className="h-6 text-xs border-0 shadow-none p-0 bg-transparent hover:bg-blue-50 focus:ring-0">
-                      <SelectValue className="text-xs font-medium">
-                        {getWeightUnitDisplay()}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="min-w-fit">
-                      <SelectItem value="default" className="text-xs">
-                        {(user?.weightUnit || 'kg').toUpperCase()} (Default)
-                      </SelectItem>
-                      <SelectItem value="kg" className="text-xs">KG</SelectItem>
-                      <SelectItem value="lbs" className="text-xs">LBS</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>REPS</div>
-                <div>RPE</div>
+                <div>EXERCISE DATA</div>
                 <div className="text-center">✓</div>
               </div>
 
               {/* Sets List */}
               {workoutExercise.sets.map((set, setIndex) => (
-                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className="grid grid-cols-6 gap-2 items-center py-2 px-1">
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className="grid grid-cols-4 gap-2 items-start py-3 px-1 border-b border-gray-100">
                   <div className="font-medium text-lg flex items-center space-x-1">
-                    {/* Desktop: Trophy next to set number */}
-                    <span className="hidden sm:inline">{set.setNumber}</span>
+                    <span>{set.setNumber}</span>
                     {set.isPersonalRecord && (
-                      <span 
-                        className="text-yellow-500 hidden sm:inline" 
-                        title={`Personal Record: ${set.recordTypes?.heaviestWeight ? 'Heaviest Weight' : ''} ${set.recordTypes?.best1RM ? 'Best 1RM' : ''} ${set.recordTypes?.volumeRecord ? 'Volume Record' : ''}`.trim()}
-                      >
-                        🏆
-                      </span>
-                    )}
-                    
-                    {/* Mobile: Replace set number with trophy */}
-                    {set.isPersonalRecord ? (
-                      <span 
-                        className="text-yellow-500 sm:hidden" 
-                        title={`Personal Record: ${set.recordTypes?.heaviestWeight ? 'Heaviest Weight' : ''} ${set.recordTypes?.best1RM ? 'Best 1RM' : ''} ${set.recordTypes?.volumeRecord ? 'Volume Record' : ''}`.trim()}
-                      >
-                        🏆
-                      </span>
-                    ) : (
-                      <span className="sm:hidden">{set.setNumber}</span>
+                      <span className="text-yellow-500" title="Personal Record">🏆</span>
                     )}
                   </div>
                   
@@ -1093,39 +1059,49 @@ export default function WorkoutSession() {
                     })()}
                   </div>
                   
-                  <Input
-                    type="number"
-                    value={set.weight || ""}
-                    onChange={(e) => {
-                      const value = parseFloat(e.target.value) || 0;
-                      updateSetValue(exerciseIndex, setIndex, 'weight', value);
-                    }}
-                    className="h-10 text-center font-medium text-lg"
-                    placeholder={getWeightUnit() === 'lbs' ? "165" : "75"}
-                  />
+                  <div className="space-y-2">
+                    <ExerciseSetInput
+                      exerciseType={workoutExercise.exercise.type || 'weight_reps'}
+                      set={{
+                        weight: set.weight,
+                        reps: set.reps,
+                        duration: set.duration,
+                        distance: set.distance,
+                        assistanceWeight: set.assistanceWeight,
+                        completed: set.completed
+                      }}
+                      onChange={(updates) => {
+                        Object.entries(updates).forEach(([key, value]) => {
+                          updateSetValue(exerciseIndex, setIndex, key, value);
+                        });
+                      }}
+                      previousData={{
+                        weight: set.previousWeight,
+                        reps: set.previousReps,
+                        duration: set.previousDuration,
+                        distance: set.previousDistance
+                      }}
+                      userBodyweight={user?.currentBodyweight ? parseFloat(user.currentBodyweight) : undefined}
+                      isCompleted={set.completed}
+                    />
+                    
+                    {/* RPE Input */}
+                    <div>
+                      <label className="text-xs text-muted-foreground">RPE (1-10)</label>
+                      <Input
+                        type="number"
+                        value={set.completed ? (set.rpe || "").toString() : ""}
+                        onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
+                        className="h-8 text-center"
+                        placeholder=""
+                        min="1"
+                        max="10"
+                        disabled={!set.completed}
+                      />
+                    </div>
+                  </div>
                   
-                  <Input
-                    type="number"
-                    value={set.completed ? set.reps.toString() : (set.reps > 0 ? set.reps.toString() : "")}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      updateSetValue(exerciseIndex, setIndex, 'reps', value === "" ? 0 : parseInt(value) || 0);
-                    }}
-                    className="h-10 text-center font-medium text-lg"
-                    placeholder={set.minReps && set.maxReps && set.minReps !== set.maxReps ? `${set.minReps}-${set.maxReps}` : (set.maxReps?.toString() || "12")}
-                  />
-                  
-                  <Input
-                    type="number"
-                    value={set.completed ? (set.rpe || "").toString() : ""}
-                    onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
-                    className="h-10 text-center font-medium text-lg"
-                    placeholder={set.rpe ? set.rpe.toString() : ""}
-                    min="1"
-                    max="10"
-                  />
-                  
-                  <div className="flex justify-center">
+                  <div className="flex justify-center items-start pt-2">
                     <Checkbox
                       checked={set.completed}
                       onCheckedChange={() => completeSet(exerciseIndex, setIndex)}
