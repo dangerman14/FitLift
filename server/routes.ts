@@ -51,6 +51,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get current body weight
+  app.get('/api/user/bodyweight/current', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const currentWeight = await storage.getCurrentBodyweight(userId);
+      res.json(currentWeight);
+    } catch (error) {
+      console.error("Error fetching current bodyweight:", error);
+      res.status(500).json({ message: "Failed to fetch current bodyweight" });
+    }
+  });
+
+  // Add/update body weight
+  app.post('/api/user/bodyweight', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { weight } = req.body;
+      
+      if (!weight || typeof weight !== 'number' || weight <= 0) {
+        return res.status(400).json({ message: "Valid weight is required" });
+      }
+      
+      // Create new bodyweight entry
+      const bodyweightEntry = await storage.createBodyweightEntry({
+        userId,
+        weight,
+        recordedAt: new Date(),
+      });
+      
+      // Update user's current bodyweight
+      await storage.updateUserCurrentBodyweight(userId, weight);
+      
+      res.json(bodyweightEntry);
+    } catch (error) {
+      console.error("Error updating bodyweight:", error);
+      res.status(500).json({ message: "Failed to update bodyweight" });
+    }
+  });
+
   // Exercise routes
   app.get('/api/exercises', isAuthenticated, async (req, res) => {
     try {
