@@ -806,19 +806,25 @@ export default function CreateRoutine() {
                               />
                             </div>
                             
-                            {/* RPE Input */}
-                            <div className="w-20">
-                              <Input
-                                value={set.rpe || ""}
-                                onChange={(e) => updateSetField(exerciseIndex, setIndex, 'rpe', e.target.value)}
-                                placeholder="8"
-                                type="number"
-                                min="1"
-                                max="10"
-                                className="h-8 text-sm"
-                              />
-                              <span className="text-xs text-gray-500">RPE</span>
-                            </div>
+                            {/* RPE Input - only show for exercises where RPE makes sense */}
+                            {(() => {
+                              const selectedExercise = exercises?.find((ex: any) => ex.id === exercise.exerciseId);
+                              const exerciseType = selectedExercise?.type || 'weight_reps';
+                              return !['weight_distance', 'distance_duration'].includes(exerciseType);
+                            })() && (
+                              <div className="w-20">
+                                <Input
+                                  value={set.rpe || ""}
+                                  onChange={(e) => updateSetField(exerciseIndex, setIndex, 'rpe', e.target.value)}
+                                  placeholder="8"
+                                  type="number"
+                                  min="1"
+                                  max="10"
+                                  className="h-8 text-sm"
+                                />
+                                <span className="text-xs text-gray-500">RPE</span>
+                              </div>
+                            )}
                             
                             {/* Remove Set Button */}
                             {exercise.sets.length > 1 && (

@@ -1085,20 +1085,22 @@ export default function WorkoutSession() {
                       isCompleted={set.completed}
                     />
                     
-                    {/* RPE Input */}
-                    <div>
-                      <label className="text-xs text-muted-foreground">RPE (1-10)</label>
-                      <Input
-                        type="number"
-                        value={set.completed ? (set.rpe || "").toString() : ""}
-                        onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
-                        className="h-8 text-center"
-                        placeholder=""
-                        min="1"
-                        max="10"
-                        disabled={!set.completed}
-                      />
-                    </div>
+                    {/* RPE Input - only show for exercises where RPE makes sense */}
+                    {!['weight_distance', 'distance_duration'].includes(workoutExercise.exercise.type || 'weight_reps') && (
+                      <div>
+                        <label className="text-xs text-muted-foreground">RPE (1-10)</label>
+                        <Input
+                          type="number"
+                          value={set.completed ? (set.rpe || "").toString() : ""}
+                          onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
+                          className="h-8 text-center"
+                          placeholder=""
+                          min="1"
+                          max="10"
+                          disabled={!set.completed}
+                        />
+                      </div>
+                    )}
                   </div>
                   
                   <div className="flex justify-center items-start pt-2">
