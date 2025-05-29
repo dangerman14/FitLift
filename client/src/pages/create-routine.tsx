@@ -787,7 +787,7 @@ export default function CreateRoutine() {
                               <ExerciseSetInput
                                 exerciseType={(() => {
                                   const selectedExercise = exercises?.find((ex: any) => ex.id === exercise.exerciseId);
-                                  return selectedExercise?.type || 'weight_reps';
+                                  return selectedExercise?.exerciseType || selectedExercise?.type || 'weight_reps';
                                 })()}
                                 set={{
                                   weight: set.weight ? parseFloat(set.weight) : undefined,
@@ -809,7 +809,7 @@ export default function CreateRoutine() {
                             {/* RPE Input - only show for exercises where RPE makes sense */}
                             {(() => {
                               const selectedExercise = exercises?.find((ex: any) => ex.id === exercise.exerciseId);
-                              const exerciseType = selectedExercise?.type || 'weight_reps';
+                              const exerciseType = selectedExercise?.exerciseType || selectedExercise?.type || 'weight_reps';
                               return !['weight_distance', 'distance_duration'].includes(exerciseType);
                             })() && (
                               <div className="w-20">

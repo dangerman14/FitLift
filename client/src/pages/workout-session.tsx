@@ -1061,7 +1061,7 @@ export default function WorkoutSession() {
                   
                   <div className="space-y-2">
                     <ExerciseSetInput
-                      exerciseType={workoutExercise.exercise.type || 'weight_reps'}
+                      exerciseType={workoutExercise.exercise.exerciseType || workoutExercise.exercise.type || 'weight_reps'}
                       set={{
                         weight: set.weight,
                         reps: set.reps,
@@ -1086,7 +1086,7 @@ export default function WorkoutSession() {
                     />
                     
                     {/* RPE Input - only show for exercises where RPE makes sense */}
-                    {!['weight_distance', 'distance_duration'].includes(workoutExercise.exercise.type || 'weight_reps') && (
+                    {!['weight_distance', 'distance_duration'].includes(workoutExercise.exercise.exerciseType || workoutExercise.exercise.type || 'weight_reps') && (
                       <div>
                         <label className="text-xs text-muted-foreground">RPE (1-10)</label>
                         <Input
