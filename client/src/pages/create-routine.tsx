@@ -23,10 +23,14 @@ import {
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import ExerciseSetInput from "@/components/exercise-set-input";
 
 interface RoutineSet {
-  reps: string; // Will store as "10-12" format
+  reps?: string; // Will store as "10-12" format
   weight?: string;
+  duration?: string; // For duration-based exercises
+  distance?: string; // For distance-based exercises
+  assistanceWeight?: string; // For assisted bodyweight exercises
   rpe?: string; // Rate of Perceived Exertion (1-10)
 }
 
@@ -778,30 +782,32 @@ export default function CreateRoutine() {
                               Set {setIndex + 1}
                             </span>
                             
-                            {/* Weight Input */}
+                            {/* Dynamic Exercise Input based on exercise type */}
                             <div className="flex-1">
-                              <Input
-                                value={set.weight || ""}
-                                onChange={(e) => updateSetField(exerciseIndex, setIndex, 'weight', e.target.value)}
-                                placeholder="135 lbs"
-                                className="h-8 text-sm"
+                              <ExerciseSetInput
+                                exerciseType={(() => {
+                                  const selectedExercise = exercises?.find((ex: any) => ex.id === exercise.exerciseId);
+                                  return selectedExercise?.type || 'weight_reps';
+                                })()}
+                                set={{
+                                  weight: set.weight ? parseFloat(set.weight) : undefined,
+                                  reps: set.reps ? parseInt(set.reps) : undefined,
+                                  duration: set.duration ? parseFloat(set.duration) : undefined,
+                                  distance: set.distance ? parseFloat(set.distance) : undefined,
+                                  assistanceWeight: set.assistanceWeight ? parseFloat(set.assistanceWeight) : undefined,
+                                  completed: false
+                                }}
+                                onChange={(updates) => {
+                                  Object.entries(updates).forEach(([key, value]) => {
+                                    updateSetField(exerciseIndex, setIndex, key, value?.toString() || '');
+                                  });
+                                }}
+                                isCompleted={false}
                               />
-                              <span className="text-xs text-gray-500">weight</span>
-                            </div>
-                            
-                            {/* Reps Input */}
-                            <div className="flex-1">
-                              <Input
-                                value={set.reps}
-                                onChange={(e) => updateSetField(exerciseIndex, setIndex, 'reps', e.target.value)}
-                                placeholder="10"
-                                className="h-8 text-sm"
-                              />
-                              <span className="text-xs text-gray-500">reps</span>
                             </div>
                             
                             {/* RPE Input */}
-                            <div className="flex-1">
+                            <div className="w-20">
                               <Input
                                 value={set.rpe || ""}
                                 onChange={(e) => updateSetField(exerciseIndex, setIndex, 'rpe', e.target.value)}
