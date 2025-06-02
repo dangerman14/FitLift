@@ -141,7 +141,7 @@ function SortableExerciseItem({
       }}
     >
       {/* Exercise Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+      <div className="flex items-center justify-between p-3 border-b bg-gray-50">
         <div className="flex items-center gap-2">
           <div 
             {...attributes} 
@@ -234,23 +234,21 @@ function SortableExerciseItem({
       </div>
       
       {/* Sets */}
-      <div className="mt-4">
-        <div className="flex items-center justify-between mb-2">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-3">
           <h4 className="font-medium">Sets</h4>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => addSet(exerciseIndex)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add Set
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => addSet(exerciseIndex)}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add Set
+          </Button>
         </div>
         
         {exercise.sets.map((set, setIndex) => (
-          <div key={setIndex} className="flex items-center gap-2 mb-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+          <div key={setIndex} className="flex items-center gap-2 mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
             <span className="text-sm font-medium min-w-[2rem]">#{setIndex + 1}</span>
             
             {/* Weight input */}
@@ -341,37 +339,39 @@ function SortableExerciseItem({
             </Button>
           </div>
         ))}
-      </div>
-      
-      {/* Rest Duration */}
-      <div className="mt-4">
-        <Label className="text-sm font-medium">Rest Duration (seconds)</Label>
-        <Input
-          type="number"
-          value={exercise.restDuration}
-          onChange={(e) => {
-            const newExercises = [...selectedExercises];
-            newExercises[exerciseIndex].restDuration = parseInt(e.target.value) || 0;
-            setSelectedExercises(newExercises);
-          }}
-          className="mt-1"
-        />
-      </div>
-      
-      {/* Notes */}
-      <div className="mt-4">
-        <Label className="text-sm font-medium">Notes</Label>
-        <Textarea
-          value={exercise.notes || ""}
-          onChange={(e) => {
-            const newExercises = [...selectedExercises];
-            newExercises[exerciseIndex].notes = e.target.value;
-            setSelectedExercises(newExercises);
-          }}
-          placeholder="Add any notes for this exercise..."
-          className="mt-1"
-          rows={2}
-        />
+        
+        {/* Rest Duration */}
+        <div className="mt-4 flex items-center gap-4">
+          <div className="flex-1">
+            <Label className="text-sm font-medium">Rest Duration (seconds)</Label>
+            <Input
+              type="number"
+              value={exercise.restDuration}
+              onChange={(e) => {
+                const newExercises = [...selectedExercises];
+                newExercises[exerciseIndex].restDuration = parseInt(e.target.value) || 0;
+                setSelectedExercises(newExercises);
+              }}
+              className="mt-1"
+            />
+          </div>
+        </div>
+        
+        {/* Notes */}
+        <div className="mt-4">
+          <Label className="text-sm font-medium">Notes</Label>
+          <Textarea
+            value={exercise.notes || ""}
+            onChange={(e) => {
+              const newExercises = [...selectedExercises];
+              newExercises[exerciseIndex].notes = e.target.value;
+              setSelectedExercises(newExercises);
+            }}
+            placeholder="Add any notes for this exercise..."
+            className="mt-1"
+            rows={2}
+          />
+        </div>
       </div>
     </div>
   );
