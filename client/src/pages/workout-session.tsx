@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorkout } from "@/contexts/WorkoutContext";
+import { OfflineManager } from "@/lib/offline";
 import ExerciseSetInput from "@/components/exercise-set-input";
 import { MiniProgressChart } from "@/components/MiniProgressChart";
 import { ExerciseMiniChart } from "@/components/ExerciseMiniChart";
@@ -243,8 +244,25 @@ export default function WorkoutSession() {
 
   const createWorkoutMutation = useMutation({
     mutationFn: async (workoutData: any) => {
-      const response = await apiRequest("POST", "/api/workouts", workoutData);
-      return await response.json();
+      const offlineManager = OfflineManager.getInstance();
+      
+      try {
+        const response = await apiRequest("POST", "/api/workouts", workoutData);
+        return await response.json();
+      } catch (error) {
+        // If offline, store workout locally for later sync
+        if (!offlineManager.getStatus()) {
+          const offlineWorkout = {
+            ...workoutData,
+            id: `offline-${Date.now()}`,
+            isOffline: true,
+            createdAt: new Date().toISOString()
+          };
+          offlineManager.storeOfflineWorkout(offlineWorkout);
+          return offlineWorkout;
+        }
+        throw error;
+      }
     },
     onSuccess: (workout) => {
       console.log("Workout created successfully with ID:", workout.id);
