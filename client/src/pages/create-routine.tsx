@@ -1408,7 +1408,7 @@ export default function CreateRoutine() {
         {/* Right Column - Routine Preview (Desktop) / Main Content (Mobile) */}
         <div className="col-span-1 lg:col-span-2">
           <Card className="h-fit">
-            <CardHeader>
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center justify-between flex-1">
                   <span>Routine Exercises ({selectedExercises.length})</span>
@@ -1457,7 +1457,7 @@ export default function CreateRoutine() {
                 </div>
               )}
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               {selectedExercises.length > 0 ? (
                 <>
                   {/* Desktop Layout with Drag & Drop */}
