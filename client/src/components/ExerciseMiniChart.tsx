@@ -12,9 +12,6 @@ export function ExerciseMiniChart({ exerciseId }: ExerciseMiniChartProps) {
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  // Debug logging
-  console.log(`Mini chart for exercise ${exerciseId}:`, { chartData, isLoading, error });
-
   if (!exerciseId) {
     return null;
   }

@@ -281,16 +281,24 @@ export default function WorkoutSession() {
             // we need to create template sets instead of empty ones
             const formattedExercises = await Promise.all(exercisesWithSets.map(async (ex: any) => {
               if (ex.sets && ex.sets.length > 0) {
-                // Workout has existing sets, use them
+                // Workout has existing sets, use them and preserve their completion status
                 return {
                   ...ex,
                   sets: ex.sets.map((set: any) => ({
                     setNumber: set.setNumber,
-                    weight: set.weight || 0,
+                    weight: parseFloat(set.weight) || 0,
                     reps: set.reps || 0,
-                    completed: true,
-                    previousWeight: set.weight || 0,
-                    previousReps: set.reps || 0
+                    duration: set.duration || undefined,
+                    distance: set.distance || undefined,
+                    assistanceWeight: set.assistanceWeight || undefined,
+                    rpe: set.rpe || undefined,
+                    completed: set.completed || false, // Preserve original completion status
+                    previousWeight: parseFloat(set.weight) || 0,
+                    previousReps: set.reps || 0,
+                    previousDuration: set.duration || undefined,
+                    previousDistance: set.distance || undefined,
+                    minReps: set.minReps || undefined,
+                    maxReps: set.maxReps || undefined
                   }))
                 };
               } else if (workoutData.templateId) {

@@ -925,7 +925,6 @@ export class DatabaseStorage implements IStorage {
       }
 
       const result = Array.from(workoutMap.values());
-      console.log(`getStrengthProgress result for exercise ${exerciseId}:`, JSON.stringify(result, null, 2));
       return result;
     } catch (error) {
       console.error('Error in getStrengthProgress:', error);
