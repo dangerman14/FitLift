@@ -720,6 +720,31 @@ export default function WorkoutSession() {
       // Set is marked as completed in frontend state only
       // Database save will happen when workout is finished
       console.log("Set completed - stored in session only");
+      
+      // Save the updated state to localStorage to persist checkbox states
+      const updatedExercises = workoutExercises.map((ex, exIndex) => 
+        exIndex === exerciseIndex 
+          ? {
+              ...ex,
+              sets: ex.sets.map((s, sIndex) => 
+                sIndex === setIndex ? {
+                  ...s,
+                  completed: true,
+                  isPersonalRecord: recordData.isHeaviestWeight || recordData.isBest1RM || recordData.isVolumeRecord,
+                  recordTypes: {
+                    heaviestWeight: recordData.isHeaviestWeight,
+                    best1RM: recordData.isBest1RM,
+                    volumeRecord: recordData.isVolumeRecord
+                  }
+                } : s
+              )
+            }
+          : ex
+      );
+      
+      if (activeWorkout) {
+        localStorage.setItem(`workout_session_${activeWorkout.id}`, JSON.stringify(updatedExercises));
+      }
 
       // Show achievement notification
       if (recordData.isHeaviestWeight || recordData.isBest1RM || recordData.isVolumeRecord) {
