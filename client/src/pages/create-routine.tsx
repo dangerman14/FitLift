@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { OfflineManager } from "@/lib/offline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -571,9 +572,31 @@ export default function CreateRoutine() {
     queryKey: ["/api/auth/user"],
   });
 
-  // Fetch exercises for the dropdown
+  // Fetch exercises for the dropdown with offline support
   const { data: exercises = [] } = useQuery({
     queryKey: ["/api/exercises"],
+    queryFn: async () => {
+      const offlineManager = OfflineManager.getInstance();
+      
+      try {
+        const response = await fetch("/api/exercises");
+        if (!response.ok) throw new Error("Failed to fetch exercises");
+        const data = await response.json();
+        
+        // Cache exercises for offline use
+        offlineManager.cacheExercises(data);
+        return data;
+      } catch (error) {
+        // If offline, return cached exercises
+        if (!offlineManager.getStatus()) {
+          const cachedExercises = offlineManager.getCachedExercises();
+          if (cachedExercises.length > 0) {
+            return cachedExercises;
+          }
+        }
+        throw error;
+      }
+    },
   });
 
   const { data: folders = [] } = useQuery({

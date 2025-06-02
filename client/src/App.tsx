@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { WorkoutProvider } from "@/contexts/WorkoutContext";
 import WorkoutProgressIndicator from "@/components/WorkoutProgressIndicator";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Workouts from "@/pages/workouts";
@@ -86,6 +87,7 @@ function App() {
       <TooltipProvider>
         <WorkoutProvider>
           <Toaster />
+          <OfflineIndicator />
           <Router />
           <WorkoutProgressIndicator />
         </WorkoutProvider>
