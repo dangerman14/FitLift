@@ -44,18 +44,14 @@ import {
   Legend
 } from "recharts";
 
-const bodyWeightSchema = z.object({
-  weight: z.number().min(0.1, "Weight must be greater than 0"),
-});
 
-type BodyWeightForm = z.infer<typeof bodyWeightSchema>;
 
 export default function BodyTracking() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
-  const [weightInput, setWeightInput] = useState("");
+
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Get current body weight
@@ -89,51 +85,7 @@ export default function BodyTracking() {
     queryFn: () => fetch("/api/body-measurements", { credentials: "include" }).then(res => res.json()),
   });
 
-  // Update weight input when current bodyweight is loaded
-  useEffect(() => {
-    if (currentBodyweight && typeof currentBodyweight === 'number') {
-      setWeightInput(currentBodyweight.toString());
-    }
-  }, [currentBodyweight]);
 
-  // Body weight update mutation
-  const updateBodyweightMutation = useMutation({
-    mutationFn: async (weight: number) => {
-      const response = await fetch("/api/user/bodyweight", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ weight }),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to update body weight: ${response.status} - ${errorText}`);
-      }
-      
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Body Weight Added!",
-        description: "Your body weight entry has been saved successfully.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/bodyweight/current"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/bodyweight"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      setWeightInput("");
-    },
-    onError: (error: any) => {
-      console.error("Body weight update error:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update body weight. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
 
   // Photo upload mutation
   const uploadPhotoMutation = useMutation({
@@ -168,18 +120,7 @@ export default function BodyTracking() {
     },
   });
 
-  const handleBodyWeightSubmit = () => {
-    const weight = parseFloat(weightInput);
-    if (isNaN(weight) || weight <= 0) {
-      toast({
-        title: "Invalid Weight",
-        description: "Please enter a valid weight greater than 0.",
-        variant: "destructive",
-      });
-      return;
-    }
-    updateBodyweightMutation.mutate(weight);
-  };
+
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -347,39 +288,6 @@ export default function BodyTracking() {
               </TabsList>
               
               <TabsContent value="weight" className="space-y-6">
-                {/* Enhanced Weight Entry Card */}
-                <Card className="border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="number"
-                            value={weightInput}
-                            onChange={(e) => setWeightInput(e.target.value)}
-                            placeholder="Enter your current weight"
-                            step="0.1"
-                            min="0"
-                            className="rounded-xl border-2 border-blue-200 focus:border-blue-400"
-                            disabled={isLoadingBodyweight}
-                          />
-                          <span className="text-sm text-muted-foreground min-w-[30px] font-medium">
-                            {(user as any)?.weightUnit || "kg"}
-                          </span>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={handleBodyWeightSubmit}
-                        disabled={updateBodyweightMutation.isPending || !weightInput}
-                        className="bg-blue-500 hover:bg-blue-600 shadow-lg"
-                      >
-                        <Save className="h-4 w-4 mr-2" />
-                        {updateBodyweightMutation.isPending ? "Saving..." : "Add Entry"}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-                
                 {/* Enhanced Weight Progress Chart */}
                 <Card className="border border-neutral-200">
                   <CardHeader>
