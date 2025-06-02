@@ -1404,36 +1404,36 @@ export default function CreateRoutine() {
                   >
                     <div className="space-y-4">
                       {selectedExercises.map((exercise, exerciseIndex) => (
-                        <SortableExerciseItem
-                          key={`${exercise.exerciseId}-${exerciseIndex}`}
-                          exercise={exercise}
-                          exerciseIndex={exerciseIndex}
-                          groupingMode={groupingMode}
-                          selectedForGrouping={selectedForGrouping}
-                          getSupersetColor={getSupersetColor}
-                          toggleExerciseSelection={toggleExerciseSelection}
-                          removeExercise={removeExercise}
-                          removeFromSuperset={removeFromSuperset}
-                          openSupersetModal={openSupersetModal}
-                          addToSuperset={addToSuperset}
-                          getSupersetsInUse={getSupersetsInUse}
-                          addSet={addSet}
-                          removeSet={removeSet}
-                          updateSet={updateSet}
-                        >
+                        <div key={`${exercise.exerciseId}-${exerciseIndex}`} className="w-full">
                           {/* Desktop Layout - Hidden on mobile */}
                           <div className="hidden lg:block">
-                            <div 
-                              className={`relative border rounded-lg bg-white ${
-                                exercise.supersetId 
-                                  ? `border-l-4 ${getSupersetColor(exercise.supersetId)} bg-gradient-to-r from-gray-50 to-white`
-                                  : 'border-gray-200'
-                              } ${
-                                groupingMode && selectedForGrouping.includes(exerciseIndex)
-                                  ? 'ring-2 ring-blue-500 bg-blue-50'
-                                  : ''
-                              }`}
+                            <SortableExerciseItem
+                              exercise={exercise}
+                              exerciseIndex={exerciseIndex}
+                              groupingMode={groupingMode}
+                              selectedForGrouping={selectedForGrouping}
+                              getSupersetColor={getSupersetColor}
+                              toggleExerciseSelection={toggleExerciseSelection}
+                              removeExercise={removeExercise}
+                              removeFromSuperset={removeFromSuperset}
+                              openSupersetModal={openSupersetModal}
+                              addToSuperset={addToSuperset}
+                              getSupersetsInUse={getSupersetsInUse}
+                              addSet={addSet}
+                              removeSet={removeSet}
+                              updateSet={updateSet}
                             >
+                              <div 
+                                className={`relative border rounded-lg bg-white ${
+                                  exercise.supersetId 
+                                    ? `border-l-4 ${getSupersetColor(exercise.supersetId)} bg-gradient-to-r from-gray-50 to-white`
+                                    : 'border-gray-200'
+                                } ${
+                                  groupingMode && selectedForGrouping.includes(exerciseIndex)
+                                    ? 'ring-2 ring-blue-500 bg-blue-50'
+                                    : ''
+                                }`}
+                              >
                             {groupingMode && (
                               <div className="absolute top-2 left-2">
                                 <Checkbox
@@ -1622,7 +1622,8 @@ export default function CreateRoutine() {
                               </div>
                             </div>
                           </div>
-                        </div>
+                            </SortableExerciseItem>
+                          </div>
                           
                           {/* Mobile Layout - Shown only on mobile */}
                           <div className="block lg:hidden">
@@ -1719,7 +1720,7 @@ export default function CreateRoutine() {
                               </div>
                             </div>
                           </div>
-                        </SortableExerciseItem>
+                        </div>
                       ))}
                     </div>
                   </SortableContext>
