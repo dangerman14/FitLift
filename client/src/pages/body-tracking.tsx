@@ -528,10 +528,23 @@ export default function BodyTracking() {
                     {/* Core & Lower Body Chart */}
                     <Card className="border border-neutral-200">
                       <CardHeader>
-                        <CardTitle className="text-lg flex items-center">
-                          <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
-                          Core & Lower Body Progress
-                        </CardTitle>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg flex items-center">
+                            <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
+                            Core & Lower Body Progress
+                          </CardTitle>
+                          <Select value={measurementDateFilter} onValueChange={setMeasurementDateFilter}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="30d">30 Days</SelectItem>
+                              <SelectItem value="3m">3 Months</SelectItem>
+                              <SelectItem value="1y">1 Year</SelectItem>
+                              <SelectItem value="all">All Time</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </CardHeader>
                       <CardContent>
                         <div className="h-80">
@@ -573,15 +586,28 @@ export default function BodyTracking() {
                     {/* Body Fat Percentage Chart */}
                     <Card className="border border-neutral-200">
                       <CardHeader>
-                        <CardTitle className="text-lg flex items-center">
-                          <Scale className="h-5 w-5 mr-2 text-red-600" />
-                          Body Fat Percentage
-                        </CardTitle>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg flex items-center">
+                            <Scale className="h-5 w-5 mr-2 text-red-600" />
+                            Body Fat Percentage
+                          </CardTitle>
+                          <Select value={measurementDateFilter} onValueChange={setMeasurementDateFilter}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="30d">30 Days</SelectItem>
+                              <SelectItem value="3m">3 Months</SelectItem>
+                              <SelectItem value="1y">1 Year</SelectItem>
+                              <SelectItem value="all">All Time</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </CardHeader>
                       <CardContent>
                         <div className="h-64">
                           <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={bodyMeasurements.slice().reverse()} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                            <AreaChart data={filteredBodyMeasurements.slice().reverse()} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                               <defs>
                                 <linearGradient id="bodyFatGradient" x1="0" y1="0" x2="0" y2="1">
                                   <stop offset="5%" stopColor="#dc2626" stopOpacity={0.8}/>
