@@ -142,12 +142,14 @@ export interface IStorage {
   // Body measurement operations
   getBodyMeasurements(userId: string): Promise<BodyMeasurement[]>;
   createBodyMeasurement(measurement: InsertBodyMeasurement): Promise<BodyMeasurement>;
+  updateBodyMeasurement(id: number, updates: Partial<InsertBodyMeasurement>): Promise<BodyMeasurement>;
   
   // Bodyweight tracking operations
   getUserBodyweight(userId: string): Promise<UserBodyweight[]>;
   getCurrentBodyweight(userId: string): Promise<number | null>;
   createBodyweightEntry(entry: InsertUserBodyweight): Promise<UserBodyweight>;
   updateUserCurrentBodyweight(userId: string, weight: number): Promise<User>;
+  updateExistingBodyweight(id: number, weight: number): Promise<UserBodyweight>;
   
   // Progress photo operations
   getProgressPhotos(userId: string): Promise<ProgressPhoto[]>;
@@ -759,6 +761,15 @@ export class DatabaseStorage implements IStorage {
     return newMeasurement;
   }
 
+  async updateBodyMeasurement(id: number, updates: Partial<InsertBodyMeasurement>): Promise<BodyMeasurement> {
+    const [updatedMeasurement] = await db
+      .update(bodyMeasurements)
+      .set(updates)
+      .where(eq(bodyMeasurements.id, id))
+      .returning();
+    return updatedMeasurement;
+  }
+
   // Bodyweight tracking operations
   async getUserBodyweight(userId: string): Promise<UserBodyweight[]> {
     return await db
@@ -794,6 +805,15 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return updatedUser;
+  }
+
+  async updateExistingBodyweight(id: number, weight: number): Promise<UserBodyweight> {
+    const [updatedEntry] = await db
+      .update(userBodyweight)
+      .set({ weight: weight.toString() })
+      .where(eq(userBodyweight.id, id))
+      .returning();
+    return updatedEntry;
   }
 
   // Analytics operations
