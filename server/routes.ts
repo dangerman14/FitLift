@@ -1167,7 +1167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const measurements: any = {};
       let hasMeasurements = false;
       
-      ['chest', 'waist', 'hips', 'bicepsLeft', 'bicepsRight', 'thighLeft', 'thighRight', 'bodyFatPercentage'].forEach(field => {
+      ['chest', 'shoulders', 'waist', 'abdomen', 'hips', 'bicepsLeft', 'bicepsRight', 'thighLeft', 'thighRight', 'bodyFatPercentage'].forEach(field => {
         if (formData[field] && !isNaN(parseFloat(formData[field]))) {
           measurements[field] = parseFloat(formData[field]).toString();
           hasMeasurements = true;
