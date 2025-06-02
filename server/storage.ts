@@ -149,6 +149,23 @@ export interface IStorage {
   createBodyweightEntry(entry: InsertUserBodyweight): Promise<UserBodyweight>;
   updateUserCurrentBodyweight(userId: string, weight: number): Promise<User>;
   
+  // Progress photo operations
+  getProgressPhotos(userId: string): Promise<ProgressPhoto[]>;
+  createProgressPhoto(photo: InsertProgressPhoto): Promise<ProgressPhoto>;
+  deleteProgressPhoto(id: number, userId: string): Promise<void>;
+  
+  // Comprehensive body entry
+  createBodyEntry(entry: {
+    userId: string;
+    weight?: number;
+    measurements?: InsertBodyMeasurement;
+    photo?: { imageUrl: string; notes?: string };
+  }): Promise<{ 
+    bodyweight?: UserBodyweight; 
+    measurement?: BodyMeasurement; 
+    photo?: ProgressPhoto 
+  }>;
+  
   // Analytics operations
   getWorkoutStats(userId: string, startDate?: Date, endDate?: Date): Promise<{
     totalWorkouts: number;

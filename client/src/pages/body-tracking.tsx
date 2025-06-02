@@ -224,12 +224,31 @@ export default function BodyTracking() {
           </Card>
         </div>
 
+        {/* Add Entry Button */}
+        <Card className="shadow-material-1 border border-neutral-200">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <Button
+                onClick={() => setLocation('/add-body-entry')}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-8 py-3 text-lg"
+                size="lg"
+              >
+                <Save className="h-5 w-5 mr-2" />
+                Add New Body Entry
+              </Button>
+              <p className="text-sm text-neutral-600 mt-2">
+                Record weight, measurements, and progress photos all in one place
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Main Tracking Interface */}
         <Card className="shadow-material-1 border border-neutral-200">
           <CardHeader>
             <CardTitle className="flex items-center">
               <TrendingUp className="h-5 w-5 mr-2 text-blue-600" />
-              Track Your Progress
+              Your Progress History
             </CardTitle>
           </CardHeader>
           <CardContent>
