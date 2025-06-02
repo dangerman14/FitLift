@@ -40,8 +40,30 @@ import {
   Replace,
   Scale,
   Link,
-  Dumbbell
+  Dumbbell,
+  GripVertical,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import ExerciseSetInput from "@/components/exercise-set-input";
@@ -62,6 +84,128 @@ interface RoutineExercise {
   restDuration: number; // Rest time in seconds for all sets
   notes?: string;
   supersetId?: string; // Groups exercises into supersets
+}
+
+// Sortable Exercise Item Component
+function SortableExerciseItem({ 
+  exercise, 
+  exerciseIndex,
+  onRemove,
+  onAddSet,
+  onUpdateSet,
+  weightUnitOverride,
+  allExercises
+}: { 
+  exercise: RoutineExercise; 
+  exerciseIndex: number;
+  onRemove: (index: number) => void;
+  onAddSet: (exerciseIndex: number) => void;
+  onUpdateSet: (exerciseIndex: number, setIndex: number, field: string, value: string) => void;
+  weightUnitOverride: { [key: number]: string };
+  allExercises: any[];
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: `exercise-${exerciseIndex}` });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  // Get the exercise details
+  const exerciseDetails = allExercises?.find(ex => ex.id === exercise.exerciseId);
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      <div 
+        className={`border rounded-lg bg-white border-l-4 transition-all duration-200 ${
+          exercise.supersetId 
+            ? getSupersetColor(exercise.supersetId)
+            : 'border-l-gray-200'
+        } ${
+          isDragging ? 'shadow-lg' : 'hover:shadow-md'
+        }`}
+      >
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-3">
+              {/* Drag Handle */}
+              <div {...listeners} className="cursor-grab active:cursor-grabbing">
+                <GripVertical className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+              </div>
+              <h4 className="font-medium text-gray-900">{exercise.exerciseName}</h4>
+            </div>
+            <div className="flex items-center space-x-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onRemove(exerciseIndex)}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Remove Exercise
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
+          {/* Sets */}
+          <div className="space-y-2">
+            {exercise.sets.map((set, setIndex) => (
+              <div key={setIndex} className="grid grid-cols-4 gap-2 items-center">
+                <div className="text-sm font-medium text-gray-600">
+                  Set {setIndex + 1}
+                </div>
+                <Input
+                  placeholder="Reps"
+                  value={set.reps || ""}
+                  onChange={(e) => onUpdateSet(exerciseIndex, setIndex, "reps", e.target.value)}
+                  className="text-center"
+                />
+                <div className="relative">
+                  <Input
+                    placeholder="Weight"
+                    value={set.weight || ""}
+                    onChange={(e) => onUpdateSet(exerciseIndex, setIndex, "weight", e.target.value)}
+                    className="text-center pr-10"
+                  />
+                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
+                    {weightUnitOverride[exercise.exerciseId] || (exerciseDetails?.weightUnit === 'bodyweight' ? 'bw' : 'kg')}
+                  </span>
+                </div>
+                <Input
+                  placeholder="RPE"
+                  value={set.rpe || ""}
+                  onChange={(e) => onUpdateSet(exerciseIndex, setIndex, "rpe", e.target.value)}
+                  className="text-center"
+                />
+              </div>
+            ))}
+          </div>
+
+          <Button
+            onClick={() => onAddSet(exerciseIndex)}
+            variant="outline"
+            size="sm"
+            className="w-full mt-2"
+          >
+            <Plus className="h-3 w-3 mr-1" />
+            Add Set
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function CreateRoutine() {
@@ -295,6 +439,54 @@ export default function CreateRoutine() {
       title: "Superset Created!",
       description: `${selectedForGrouping.length} exercises grouped into ${newSupersetId}`,
     });
+  };
+
+  // Drag and drop functionality
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setSelectedExercises((exercises) => {
+        const oldIndex = exercises.findIndex((exercise, index) => 
+          `exercise-${index}` === active.id
+        );
+        const newIndex = exercises.findIndex((exercise, index) => 
+          `exercise-${index}` === over?.id
+        );
+
+        return arrayMove(exercises, oldIndex, newIndex);
+      });
+    }
+  };
+
+  // Manual reordering functions
+  const moveExerciseUp = (exerciseIndex: number) => {
+    if (exerciseIndex > 0) {
+      setSelectedExercises(prev => {
+        const newExercises = [...prev];
+        [newExercises[exerciseIndex - 1], newExercises[exerciseIndex]] = 
+        [newExercises[exerciseIndex], newExercises[exerciseIndex - 1]];
+        return newExercises;
+      });
+    }
+  };
+
+  const moveExerciseDown = (exerciseIndex: number) => {
+    if (exerciseIndex < selectedExercises.length - 1) {
+      setSelectedExercises(prev => {
+        const newExercises = [...prev];
+        [newExercises[exerciseIndex], newExercises[exerciseIndex + 1]] = 
+        [newExercises[exerciseIndex + 1], newExercises[exerciseIndex]];
+        return newExercises;
+      });
+    }
   };
 
   // Filter exercises based on search and filters
@@ -907,11 +1099,24 @@ export default function CreateRoutine() {
             </CardHeader>
             <CardContent>
               {selectedExercises.length > 0 ? (
-                <div className="space-y-4">
-                  {selectedExercises.map((exercise, exerciseIndex) => (
-                    <div 
-                      key={`${exercise.exerciseId}-${exerciseIndex}`}
-                      className={`border rounded-lg bg-white border-l-4 transition-all duration-200 ${
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={selectedExercises.map((_, index) => `exercise-${index}`)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-4">
+                      {selectedExercises.map((exercise, exerciseIndex) => (
+                        <SortableExerciseItem
+                          key={`${exercise.exerciseId}-${exerciseIndex}`}
+                          exercise={exercise}
+                          exerciseIndex={exerciseIndex}
+                        >
+                          <div 
+                            className={`border rounded-lg bg-white border-l-4 transition-all duration-200 ${
                         exercise.supersetId 
                           ? getSupersetColor(exercise.supersetId)
                           : 'border-l-gray-200'
@@ -1143,8 +1348,12 @@ export default function CreateRoutine() {
 
                       </div>
                     </div>
-                  ))}
-                </div>
+                          </div>
+                        </SortableExerciseItem>
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
               ) : (
                 <div className="text-center py-12">
                   <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
