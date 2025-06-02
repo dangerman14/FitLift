@@ -232,53 +232,7 @@ export default function Settings() {
             </CardContent>
           </Card>
 
-          {/* Body Weight Section */}
-          <Card className="shadow-material-1 border border-neutral-200">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <User className="h-5 w-5 mr-2 text-blue-600" />
-                Body Weight
-              </CardTitle>
-              <CardDescription>
-                Track your current body weight for accurate bodyweight exercise calculations.
-                This is used for exercises like weighted pull-ups and assisted dips.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={weightInput}
-                      onChange={(e) => setWeightInput(e.target.value)}
-                      placeholder="Enter your current weight"
-                      step="0.1"
-                      min="0"
-                      className="rounded-xl border-2"
-                      disabled={isLoadingBodyweight}
-                    />
-                    <span className="text-sm text-muted-foreground min-w-[30px]">
-                      {form.watch("weightUnit") || "kg"}
-                    </span>
-                  </div>
-                  {currentBodyweight && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Current: {currentBodyweight} {form.watch("weightUnit") || "kg"}
-                    </p>
-                  )}
-                </div>
-                <Button
-                  onClick={handleBodyWeightSubmit}
-                  disabled={updateBodyweightMutation.isPending || !weightInput}
-                  className="bg-blue-500 hover:bg-blue-600"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {updateBodyweightMutation.isPending ? "Saving..." : "Update"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* Workout Settings */}
           <Card className="border-2 border-gradient rounded-3xl shadow-lg">
