@@ -2288,7 +2288,7 @@ export default function CreateRoutine() {
             </DialogTitle>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="flex-1 overflow-hidden p-6 flex flex-col space-y-4">
             {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -2345,7 +2345,7 @@ export default function CreateRoutine() {
             </div>
 
             {/* Exercise List */}
-            <div className="space-y-2 max-h-80 overflow-y-auto border rounded-lg p-2 bg-gray-50">
+            <div className="space-y-2 flex-1 overflow-y-auto border rounded-lg p-2 bg-gray-50">
               {filteredExercises.map((exercise: any) => (
                 <button
                   key={exercise.id}
@@ -2373,10 +2373,11 @@ export default function CreateRoutine() {
                 </button>
               ))}
             </div>
+          </div>
 
-            {/* Configuration Section - Only show when exercise is selected */}
-            {selectedExerciseId && (
-              <div className="space-y-4 pt-4 border-t pb-20">
+          {/* Configuration Section - Fixed at bottom when exercise is selected */}
+          {selectedExerciseId && (
+            <div className="border-t bg-white p-6 space-y-4 pb-24">
                 {/* Sets Configuration */}
                 <div className="space-y-2">
                   <Label>Sets</Label>
@@ -2489,9 +2490,8 @@ export default function CreateRoutine() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Floating Add to Routine Button */}
           {selectedExerciseId && (
