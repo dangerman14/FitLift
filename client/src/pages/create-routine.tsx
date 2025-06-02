@@ -267,7 +267,10 @@ function SortableExerciseItem({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => openSupersetModal(exerciseIndex)}>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Create New Superset clicked for exercise index:', exerciseIndex);
+                  openSupersetModal(exerciseIndex);
+                }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create New Superset
                 </DropdownMenuItem>
