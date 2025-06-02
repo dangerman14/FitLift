@@ -1181,7 +1181,37 @@ export default function WorkoutSession() {
                   <div className="flex justify-center">
                     <Checkbox
                       checked={set.completed}
-                      onCheckedChange={() => completeSet(exerciseIndex, setIndex)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          completeSet(exerciseIndex, setIndex);
+                        } else {
+                          // Uncheck the set
+                          setWorkoutExercises(prev => {
+                            const updated = prev.map((ex, exIndex) => 
+                              exIndex === exerciseIndex 
+                                ? {
+                                    ...ex,
+                                    sets: ex.sets.map((s, sIndex) => 
+                                      sIndex === setIndex ? { 
+                                        ...s, 
+                                        completed: false,
+                                        isPersonalRecord: false,
+                                        recordTypes: undefined
+                                      } : s
+                                    )
+                                  }
+                                : ex
+                            );
+                            
+                            // Save to localStorage
+                            if (activeWorkout) {
+                              localStorage.setItem(`workout_session_${activeWorkout.id}`, JSON.stringify(updated));
+                            }
+                            
+                            return updated;
+                          });
+                        }
+                      }}
                       className="w-6 h-6 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                     />
                   </div>
