@@ -26,7 +26,7 @@ import {
   Search,
   Filter,
   ChevronDown,
-  MoreVertical,
+  MoreHorizontal,
   Move,
   Replace,
   Scale,
@@ -147,6 +147,63 @@ export default function CreateRoutine() {
       }
     }
   }, [existingRoutine, isEditMode]);
+
+  // Superset helper functions
+  const generateSupersetId = () => {
+    return `SS${supersetCounter}`;
+  };
+
+  const getSupersetsInUse = () => {
+    const supersets = new Set<string>();
+    selectedExercises.forEach(exercise => {
+      if (exercise.supersetId) {
+        supersets.add(exercise.supersetId);
+      }
+    });
+    return Array.from(supersets);
+  };
+
+  const getSupersetColor = (supersetId: string) => {
+    const colors = [
+      'border-l-blue-500 bg-blue-50',
+      'border-l-green-500 bg-green-50', 
+      'border-l-purple-500 bg-purple-50',
+      'border-l-orange-500 bg-orange-50',
+      'border-l-pink-500 bg-pink-50',
+      'border-l-cyan-500 bg-cyan-50',
+      'border-l-yellow-500 bg-yellow-50',
+      'border-l-red-500 bg-red-50'
+    ];
+    const supersets = getSupersetsInUse().sort();
+    const index = supersets.indexOf(supersetId);
+    return colors[index % colors.length] || 'border-l-gray-500 bg-gray-50';
+  };
+
+  const addToSuperset = (exerciseIndex: number, supersetId?: string) => {
+    const newSupersetId = supersetId || generateSupersetId();
+    
+    setSelectedExercises(prev => 
+      prev.map((exercise, index) => 
+        index === exerciseIndex 
+          ? { ...exercise, supersetId: newSupersetId }
+          : exercise
+      )
+    );
+
+    if (!supersetId) {
+      setSupersetCounter(prev => prev + 1);
+    }
+  };
+
+  const removeFromSuperset = (exerciseIndex: number) => {
+    setSelectedExercises(prev => 
+      prev.map((exercise, index) => 
+        index === exerciseIndex 
+          ? { ...exercise, supersetId: undefined }
+          : exercise
+      )
+    );
+  };
 
   // Filter exercises based on search and filters
   const filteredExercises = exercises.filter((exercise: any) => {
@@ -723,12 +780,23 @@ export default function CreateRoutine() {
                   {selectedExercises.map((exercise, exerciseIndex) => (
                     <div 
                       key={`${exercise.exerciseId}-${exerciseIndex}`}
-                      className="border rounded-lg bg-white"
+                      className={`border rounded-lg bg-white border-l-4 ${
+                        exercise.supersetId 
+                          ? getSupersetColor(exercise.supersetId)
+                          : 'border-l-gray-200'
+                      }`}
                     >
                       {/* Exercise Header */}
                       <div className="flex items-center justify-between p-4 border-b bg-gray-50">
                         <div className="flex-1">
-                          <div className="font-medium text-lg">{exercise.exerciseName}</div>
+                          <div className="flex items-center gap-2">
+                            <div className="font-medium text-lg">{exercise.exerciseName}</div>
+                            {exercise.supersetId && (
+                              <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                                {exercise.supersetId}
+                              </span>
+                            )}
+                          </div>
                           <div className="text-sm text-gray-600">
                             {exercise.sets.length} sets • Rest: {(() => {
                               const seconds = exercise.restDuration;
@@ -786,6 +854,48 @@ export default function CreateRoutine() {
                             </SelectContent>
                           </Select>
                           
+                          {/* Exercise Options Dropdown */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {exercise.supersetId ? (
+                                <DropdownMenuItem onClick={() => removeFromSuperset(exerciseIndex)}>
+                                  Remove from Superset
+                                </DropdownMenuItem>
+                              ) : (
+                                <>
+                                  <DropdownMenuItem onClick={() => addToSuperset(exerciseIndex)}>
+                                    Create New Superset
+                                  </DropdownMenuItem>
+                                  {getSupersetsInUse().length > 0 && (
+                                    <>
+                                      {getSupersetsInUse().map(supersetId => (
+                                        <DropdownMenuItem 
+                                          key={supersetId}
+                                          onClick={() => addToSuperset(exerciseIndex, supersetId)}
+                                        >
+                                          Add to {supersetId}
+                                        </DropdownMenuItem>
+                                      ))}
+                                    </>
+                                  )}
+                                </>
+                              )}
+                              <DropdownMenuItem>Reorder Exercise</DropdownMenuItem>
+                              <DropdownMenuItem>Replace Exercise</DropdownMenuItem>
+                              <DropdownMenuItem>Update Bodyweight</DropdownMenuItem>
+                              <DropdownMenuItem>Add Warm up sets</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+
                           <Button
                             onClick={() => removeExerciseFromRoutine(exerciseIndex)}
                             variant="ghost"
