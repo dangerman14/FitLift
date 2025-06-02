@@ -881,24 +881,48 @@ export default function WorkoutSession() {
       console.log("Finishing workout with elapsed time:", elapsedTime, "seconds");
       console.log("Formatted duration:", formatTime(elapsedTime));
       
-      // First, save all completed sets to database
+      // First, save all completed sets to database and clean up empty exercises
+      const exercisesWithCompletedSets = [];
+      
       for (const exercise of workoutExercises) {
         const completedSets = exercise.sets.filter(set => set.completed);
-        for (const set of completedSets) {
+        
+        // Only process exercises that have at least one completed set
+        if (completedSets.length > 0) {
+          exercisesWithCompletedSets.push(exercise.id);
+          
+          // Save completed sets to database
+          for (const set of completedSets) {
+            try {
+              await fetch(`/api/workout-exercises/${exercise.id}/sets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                  setNumber: set.setNumber,
+                  weight: set.weight,
+                  reps: set.reps,
+                  rpe: set.rpe || undefined
+                })
+              });
+            } catch (err) {
+              console.error('Failed to save completed set:', err);
+            }
+          }
+        }
+      }
+      
+      // Remove workout exercises that have no completed sets
+      for (const exercise of workoutExercises) {
+        if (!exercisesWithCompletedSets.includes(exercise.id)) {
           try {
-            await fetch(`/api/workout-exercises/${exercise.id}/sets`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({
-                setNumber: set.setNumber,
-                weight: set.weight,
-                reps: set.reps,
-                rpe: set.rpe || undefined
-              })
+            await fetch(`/api/workout-exercises/${exercise.id}`, {
+              method: 'DELETE',
+              credentials: 'include'
             });
+            console.log(`Removed exercise ${exercise.exercise.name} - no completed sets`);
           } catch (err) {
-            console.error('Failed to save completed set:', err);
+            console.error('Failed to remove empty exercise:', err);
           }
         }
       }
