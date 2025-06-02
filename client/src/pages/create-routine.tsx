@@ -277,6 +277,8 @@ export default function CreateRoutine() {
   const [exerciseSearch, setExerciseSearch] = useState("");
   const [muscleGroupFilter, setMuscleGroupFilter] = useState("");
   const [equipmentFilter, setEquipmentFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedMuscleGroup, setSelectedMuscleGroup] = useState("all");
 
   // Superset management
   const [supersetCounter, setSupersetCounter] = useState(1);
@@ -514,19 +516,22 @@ export default function CreateRoutine() {
 
   // Filter exercises based on search and filters
   const filteredExercises = exercises.filter((exercise: any) => {
-    const matchesSearch = exerciseSearch === "" || 
-      exercise.name.toLowerCase().includes(exerciseSearch.toLowerCase()) ||
-      (exercise.description && exercise.description.toLowerCase().includes(exerciseSearch.toLowerCase()));
+    const matchesSearch = searchQuery === "" || 
+      exercise.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (exercise.description && exercise.description.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    const matchesMuscleGroup = muscleGroupFilter === "" || muscleGroupFilter === "all" ||
-      (exercise.primaryMuscleGroups && exercise.primaryMuscleGroups.includes(muscleGroupFilter)) ||
-      (exercise.secondaryMuscleGroups && exercise.secondaryMuscleGroups.includes(muscleGroupFilter));
+    const matchesMuscleGroup = selectedMuscleGroup === "all" ||
+      (exercise.muscleGroups && exercise.muscleGroups.includes(selectedMuscleGroup));
     
-    const matchesEquipment = equipmentFilter === "" || equipmentFilter === "all" ||
-      exercise.equipmentType === equipmentFilter;
-    
-    return matchesSearch && matchesMuscleGroup && matchesEquipment;
+    return matchesSearch && matchesMuscleGroup;
   });
+
+  // Calculate estimated duration
+  const estimatedDuration = selectedExercises.reduce((total, exercise) => {
+    const setsTime = exercise.sets.length * 45; // 45 seconds per set
+    const restTime = (exercise.sets.length - 1) * (exercise.restDuration || 120); // Rest between sets
+    return total + setsTime + restTime;
+  }, 0) / 60; // Convert to minutes
 
   // Create/Update routine mutation
   const saveRoutineMutation = useMutation({
@@ -608,8 +613,12 @@ export default function CreateRoutine() {
     setRestDuration("120"); // Reset to 2 minutes default
   };
 
-  const removeExerciseFromRoutine = (index: number) => {
+  const removeExercise = (index: number) => {
     setSelectedExercises(selectedExercises.filter((_, i) => i !== index));
+  };
+
+  const updateSet = (exerciseIndex: number, setIndex: number, field: keyof RoutineSet, value: string) => {
+    updateSetField(exerciseIndex, setIndex, field, value);
   };
 
   const updateSetField = (exerciseIndex: number, setIndex: number, field: keyof RoutineSet, value: string | number) => {
@@ -695,6 +704,16 @@ export default function CreateRoutine() {
 
     saveRoutineMutation.mutate(routineData);
   };
+
+  // Form data object
+  const formData = {
+    name: routineName,
+    description: routineDescription,
+  };
+
+  // Handle save routine
+  const handleSaveRoutine = handleCreateRoutine;
+  const isCreating = saveRoutineMutation.isPending;
 
   const goBack = () => {
     window.location.href = "/routines";
