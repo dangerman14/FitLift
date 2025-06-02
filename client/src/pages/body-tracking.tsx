@@ -196,9 +196,7 @@ export default function BodyTracking() {
     weight: parseFloat(entry.weight),
   })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
 
-  // Debug logging
-  console.log('Raw bodyweight history:', bodyWeightHistory);
-  console.log('Transformed chart data:', chartData);
+
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">

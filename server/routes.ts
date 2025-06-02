@@ -63,6 +63,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get bodyweight history
+  app.get('/api/user/bodyweight', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const bodyweightHistory = await storage.getUserBodyweight(userId);
+      res.json(bodyweightHistory);
+    } catch (error) {
+      console.error("Error fetching bodyweight history:", error);
+      res.status(500).json({ message: "Failed to fetch bodyweight history" });
+    }
+  });
+
   // Add/update body weight
   app.post('/api/user/bodyweight', isAuthenticated, async (req: any, res) => {
     try {
