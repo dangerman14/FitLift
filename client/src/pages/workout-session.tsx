@@ -77,7 +77,7 @@ export default function WorkoutSession() {
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
-  const [weightUnitOverride, setWeightUnitOverride] = useState<'default' | 'kg' | 'lbs'>('default');
+  const [exerciseWeightUnits, setExerciseWeightUnits] = useState<{[exerciseId: number]: 'kg' | 'lbs'}>({});
   const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
@@ -106,22 +106,19 @@ export default function WorkoutSession() {
   }, [workoutExercises.length]);
 
   // Weight unit conversion helpers
-  const getWeightUnit = () => {
-    if (weightUnitOverride === 'default') {
-      return user?.weightUnit || 'kg';
-    }
-    return weightUnitOverride;
+  const getWeightUnit = (exerciseId: number) => {
+    return exerciseWeightUnits[exerciseId] || user?.weightUnit || 'kg';
   };
   
-  const getDisplayWeight = (weight: number) => {
-    if (getWeightUnit() === 'lbs' && weight > 0) {
+  const getDisplayWeight = (weight: number, exerciseId: number) => {
+    if (getWeightUnit(exerciseId) === 'lbs' && weight > 0) {
       return Math.round(weight * 2.20462 * 10) / 10; // Convert kg to lbs
     }
     return weight;
   };
   
-  const getStorageWeight = (displayWeight: number) => {
-    if (getWeightUnit() === 'lbs' && displayWeight > 0) {
+  const getStorageWeight = (displayWeight: number, exerciseId: number) => {
+    if (getWeightUnit(exerciseId) === 'lbs' && displayWeight > 0) {
       return Math.round(displayWeight / 2.20462 * 10) / 10; // Convert lbs to kg for storage
     }
     return displayWeight;
@@ -831,7 +828,8 @@ export default function WorkoutSession() {
 
   const updateSetWeight = (exerciseIndex: number, setIndex: number, displayWeight: string) => {
     const numericWeight = parseFloat(displayWeight) || 0;
-    const storageWeight = getStorageWeight(numericWeight);
+    const exerciseId = workoutExercises[exerciseIndex]?.exercise.id || 0;
+    const storageWeight = getStorageWeight(numericWeight, exerciseId);
     updateSetValue(exerciseIndex, setIndex, 'weight', storageWeight);
   };
 
