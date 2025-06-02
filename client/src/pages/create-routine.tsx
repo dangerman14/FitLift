@@ -838,14 +838,18 @@ export default function CreateRoutine() {
 
   // Filter exercises based on search and filters
   const filteredExercises = exercises.filter((exercise: any) => {
-    const matchesSearch = searchQuery === "" || 
-      exercise.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (exercise.description && exercise.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = exerciseSearch === "" || 
+      exercise.name.toLowerCase().includes(exerciseSearch.toLowerCase()) ||
+      (exercise.description && exercise.description.toLowerCase().includes(exerciseSearch.toLowerCase()));
     
-    const matchesMuscleGroup = selectedMuscleGroup === "all" ||
-      (exercise.muscleGroups && exercise.muscleGroups.includes(selectedMuscleGroup));
+    const matchesMuscleGroup = muscleGroupFilter === "" || muscleGroupFilter === "all" ||
+      (exercise.muscleGroups && exercise.muscleGroups.includes(muscleGroupFilter));
     
-    return matchesSearch && matchesMuscleGroup;
+    const matchesEquipment = equipmentFilter === "" || equipmentFilter === "all" ||
+      (exercise.equipmentType && exercise.equipmentType === equipmentFilter) ||
+      (exercise.equipmentRequired && exercise.equipmentRequired.some((eq: string) => eq.includes(equipmentFilter)));
+    
+    return matchesSearch && matchesMuscleGroup && matchesEquipment;
   });
 
   // Calculate estimated duration
