@@ -1614,6 +1614,7 @@ export default function CreateRoutine() {
                               </div>
                             </div>
                           </div>
+                        </div>
                           
                           {/* Mobile Layout - Shown only on mobile */}
                           <div className="block lg:hidden">
