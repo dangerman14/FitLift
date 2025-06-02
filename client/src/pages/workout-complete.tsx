@@ -243,6 +243,45 @@ export default function WorkoutComplete() {
       
       const endTime = new Date(startTime.getTime() + totalSeconds * 1000);
       
+      // First, clean up exercises and sets before saving
+      // Get current workout data to identify cleanup targets
+      const workoutResponse = await fetch(`/api/workouts/${workoutId}`);
+      const currentWorkout = await workoutResponse.json();
+      
+      if (currentWorkout.exercises) {
+        for (const exercise of currentWorkout.exercises) {
+          const completedSets = exercise.sets?.filter((set: any) => set.weight > 0 || set.reps > 0) || [];
+          
+          if (completedSets.length === 0) {
+            // Remove entire exercise if no completed sets
+            try {
+              await fetch(`/api/workout-exercises/${exercise.id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+              });
+              console.log(`Removed exercise ${exercise.exercise.name} - no completed sets`);
+            } catch (err) {
+              console.error('Failed to remove empty exercise:', err);
+            }
+          } else {
+            // Remove incomplete sets from exercises that have some completed sets
+            for (const set of exercise.sets || []) {
+              if (set.weight === 0 && set.reps === 0) {
+                try {
+                  await fetch(`/api/exercise-sets/${set.id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                  });
+                  console.log(`Removed incomplete set from ${exercise.exercise.name}`);
+                } catch (err) {
+                  console.error('Failed to remove incomplete set:', err);
+                }
+              }
+            }
+          }
+        }
+      }
+
       const response = await fetch(`/api/workouts/${workoutId}/details`, {
         method: "PATCH",
         body: JSON.stringify({
