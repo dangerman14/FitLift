@@ -600,13 +600,16 @@ export default function CreateRoutine() {
     const newSupersetId = generateSupersetId();
     const exercisesToUpdate = [currentExerciseIndex, ...selectedExercisesForSuperset];
     
-    setSelectedExercises(prev => 
-      prev.map((exercise, index) => 
+    setSelectedExercises(prev => {
+      const updatedExercises = prev.map((exercise, index) => 
         exercisesToUpdate.includes(index)
           ? { ...exercise, supersetId: newSupersetId }
           : exercise
-      )
-    );
+      );
+      
+      // Group exercises by superset to maintain adjacency
+      return groupExercisesBySuperset(updatedExercises);
+    });
 
     setSupersetCounter(prev => prev + 1);
     setShowSupersetModal(false);
@@ -616,22 +619,17 @@ export default function CreateRoutine() {
 
   const addToSuperset = (exerciseIndex: number, supersetId?: string) => {
     const newSupersetId = supersetId || generateSupersetId();
-    console.log('Adding to superset:', { exerciseIndex, newSupersetId });
     
     setSelectedExercises(prev => {
-      console.log('Previous exercises:', prev.length);
       // Update the exercise with the superset ID
       const updatedExercises = prev.map((exercise, index) => 
         index === exerciseIndex 
           ? { ...exercise, supersetId: newSupersetId }
           : exercise
       );
-      console.log('Updated exercises before grouping:', updatedExercises.map(e => ({ name: e.exerciseName, supersetId: e.supersetId })));
 
       // Group exercises by superset to maintain adjacency
-      const grouped = groupExercisesBySuperset(updatedExercises);
-      console.log('Grouped exercises:', grouped.map(e => ({ name: e.exerciseName, supersetId: e.supersetId })));
-      return grouped;
+      return groupExercisesBySuperset(updatedExercises);
     });
 
     if (!supersetId) {
