@@ -805,37 +805,60 @@ export default function WorkoutSession() {
       )
     );
 
-    // Auto-save the set to database when weight or reps are updated
+    // Auto-save incomplete sets to prevent data loss
     const exercise = workoutExercises[exerciseIndex];
     const set = exercise?.sets[setIndex];
+    
     if (exercise && set && (field === 'weight' || field === 'reps') && value > 0) {
-      // Debounce the save to avoid too many database calls
-      const saveKey = `${exerciseIndex}-${setIndex}`;
-      clearTimeout(autoSaveTimeouts.current[saveKey]);
-      
-      autoSaveTimeouts.current[saveKey] = setTimeout(() => {
+      // Save incomplete sets immediately to prevent data loss
+      setTimeout(() => {
         const updatedSet = { ...set, [field]: value };
         
-        // Check if this set already exists in database
+        // Check if this set already exists in database (has an ID)
         if (updatedSet.id) {
           // Update existing set
-          updateSetMutation.mutate({
-            id: updatedSet.id,
-            [field]: value,
-            completed: false // Keep as incomplete until user marks it complete
-          });
+          fetch(`/api/exercise-sets/${updatedSet.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              [field]: value,
+              completed: false // Keep as incomplete
+            })
+          }).catch(err => console.log('Auto-save failed:', err));
         } else {
-          // Create new set
-          createSetMutation.mutate({
-            workoutExerciseId: exercise.id,
-            setNumber: updatedSet.setNumber,
-            weight: field === 'weight' ? value : (updatedSet.weight || 0),
-            reps: field === 'reps' ? value : (updatedSet.reps || 0),
-            rpe: updatedSet.rpe,
-            completed: false // Mark as incomplete
-          });
+          // Create new incomplete set
+          fetch(`/api/workout-exercises/${exercise.id}/sets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              setNumber: updatedSet.setNumber,
+              weight: field === 'weight' ? value : (updatedSet.weight || 0),
+              reps: field === 'reps' ? value : (updatedSet.reps || 0),
+              rpe: updatedSet.rpe,
+              completed: false // Mark as incomplete
+            })
+          })
+          .then(response => response.json())
+          .then(savedSet => {
+            // Update the local set with the database ID
+            setWorkoutExercises(prev => 
+              prev.map((ex, exIndex) => 
+                exIndex === exerciseIndex 
+                  ? {
+                      ...ex,
+                      sets: ex.sets.map((s, sIndex) => 
+                        sIndex === setIndex ? { ...s, id: savedSet.id } : s
+                      )
+                    }
+                  : ex
+              )
+            );
+          })
+          .catch(err => console.log('Auto-save failed:', err));
         }
-      }, 1000); // Wait 1 second after user stops typing
+      }, 500); // Quick save after typing
     }
   };
 
