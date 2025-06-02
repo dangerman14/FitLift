@@ -12,6 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   Plus, 
   X,
@@ -19,7 +25,13 @@ import {
   Save,
   Search,
   Filter,
-  ChevronDown
+  ChevronDown,
+  MoreVertical,
+  Move,
+  Replace,
+  Scale,
+  Link,
+  Dumbbell
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -40,6 +52,7 @@ interface RoutineExercise {
   sets: RoutineSet[];
   restDuration: number; // Rest time in seconds for all sets
   notes?: string;
+  supersetId?: string; // Groups exercises into supersets
 }
 
 export default function CreateRoutine() {
@@ -64,6 +77,10 @@ export default function CreateRoutine() {
   const [exerciseSearch, setExerciseSearch] = useState("");
   const [muscleGroupFilter, setMuscleGroupFilter] = useState("");
   const [equipmentFilter, setEquipmentFilter] = useState("");
+
+  // Superset management
+  const [supersetCounter, setSupersetCounter] = useState(1);
+  const [availableSupersets, setAvailableSupersets] = useState<string[]>([]);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();

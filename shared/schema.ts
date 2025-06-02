@@ -185,6 +185,7 @@ export const templateExercises = pgTable("template_exercises", {
   repsTarget: integer("reps_target"),
   weightTarget: decimal("weight_target", { precision: 6, scale: 2 }),
   restDuration: integer("rest_duration").default(90), // in seconds
+  supersetId: varchar("superset_id"), // Groups exercises into supersets
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
