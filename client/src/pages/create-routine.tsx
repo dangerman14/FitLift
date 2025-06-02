@@ -1686,54 +1686,96 @@ export default function CreateRoutine() {
                         {/* Sets Configuration */}
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">Sets ({exercise.sets.length})</span>
+                            <span className="text-sm font-medium">Sets</span>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => addSet(exerciseIndex)}
+                              className="h-8"
                             >
                               <Plus className="h-3 w-3 mr-1" />
                               Add Set
                             </Button>
                           </div>
                           
+                          {/* Table Header */}
+                          <div className="grid grid-cols-5 gap-2 py-2 px-3 bg-gray-100 rounded text-xs font-medium text-gray-600">
+                            <div className="text-center">Set</div>
+                            <div className="text-center">Weight</div>
+                            <div className="text-center">Reps</div>
+                            <div className="text-center">RPE</div>
+                            <div className="text-center">×</div>
+                          </div>
+                          
+                          {/* Set Rows */}
                           {exercise.sets.map((set, setIndex) => (
-                            <div key={setIndex} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                              <span className="text-sm font-medium min-w-[1.5rem]">#{setIndex + 1}</span>
-                              
-                              {/* Reps input */}
-                              <div className="flex-1">
-                                <Input
-                                  type="text"
-                                  placeholder="Reps"
-                                  value={set.reps || ""}
-                                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value)}
-                                  className="h-8 text-center"
-                                />
+                            <div key={setIndex} className="grid grid-cols-5 gap-2 py-2 px-3 bg-white border rounded">
+                              {/* Set Number */}
+                              <div className="flex items-center justify-center">
+                                <span className="text-sm font-medium">#{setIndex + 1}</span>
                               </div>
                               
-                              {/* Weight input */}
-                              <div className="flex-1">
+                              {/* Weight Input */}
+                              <div className="flex items-center">
                                 <Input
                                   type="text"
                                   placeholder="Weight"
                                   value={set.weight || ""}
                                   onChange={(e) => updateSet(exerciseIndex, setIndex, 'weight', e.target.value)}
-                                  className="h-8 text-center"
+                                  className="h-8 text-center text-sm"
                                 />
                               </div>
                               
-                              {/* Remove set button */}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeSet(exerciseIndex, setIndex)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
+                              {/* Reps Input */}
+                              <div className="flex items-center">
+                                <Input
+                                  type="text"
+                                  placeholder="Reps"
+                                  value={set.reps || ""}
+                                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value)}
+                                  className="h-8 text-center text-sm"
+                                />
+                              </div>
+                              
+                              {/* RPE Input */}
+                              <div className="flex items-center">
+                                <Input
+                                  type="text"
+                                  placeholder="RPE"
+                                  value={set.rpe || ""}
+                                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'rpe', e.target.value)}
+                                  className="h-8 text-center text-sm"
+                                />
+                              </div>
+                              
+                              {/* Remove Set Button */}
+                              <div className="flex items-center justify-center">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeSet(exerciseIndex, setIndex)}
+                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                           ))}
+                          
+                          {/* Add Set Button Row */}
+                          <div className="grid grid-cols-5 gap-2 py-2 px-3">
+                            <div className="col-span-5">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => addSet(exerciseIndex)}
+                                className="w-full h-8 text-sm"
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Add Set
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                         
                         {/* Rest Duration */}
