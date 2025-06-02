@@ -51,9 +51,17 @@ export default function BodyTracking() {
   });
 
   // Get body weight history for chart
-  const { data: bodyWeightHistory } = useQuery({
+  const { data: bodyWeightHistory, isLoading: isLoadingWeightHistory, error: weightHistoryError } = useQuery({
     queryKey: ["/api/user/bodyweight"],
-    queryFn: () => fetch("/api/user/bodyweight", { credentials: "include" }).then(res => res.json()),
+    queryFn: async () => {
+      const res = await fetch("/api/user/bodyweight", { credentials: "include" });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch weight history: ${res.status}`);
+      }
+      const data = await res.json();
+      console.log('Weight history API response:', data);
+      return data;
+    },
   });
 
   // Get progress photos
