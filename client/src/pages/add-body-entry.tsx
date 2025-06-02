@@ -62,24 +62,25 @@ export default function AddBodyEntry() {
   // Body entry submission mutation
   const addEntryMutation = useMutation({
     mutationFn: async (data: BodyEntryForm) => {
-      const formData = new FormData();
+      // Prepare JSON data instead of FormData for now
+      const jsonData: any = {};
       
       // Add form data
       Object.entries(data).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
-          formData.append(key, value.toString());
+          jsonData[key] = value;
         }
       });
       
-      // Add photo if selected
-      if (selectedPhoto) {
-        formData.append("photo", selectedPhoto);
-      }
+      console.log('Sending data to API:', jsonData);
 
       const response = await fetch("/api/body-entry", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         credentials: "include",
-        body: formData,
+        body: JSON.stringify(jsonData),
       });
       
       if (!response.ok) {
