@@ -1150,301 +1150,167 @@ export default function CreateRoutine() {
                           removeSet={removeSet}
                           updateSet={updateSet}
                         />
-                      {/* Exercise Header */}
-                      <div className="flex items-center justify-between p-4 border-b bg-gray-50">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            {groupingMode && !exercise.supersetId && (
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={selectedForGrouping.includes(exerciseIndex)}
-                                  readOnly
-                                  className="mr-2"
-                                />
-                              </div>
-                            )}
-                            <div className="font-medium text-lg">{exercise.exerciseName}</div>
-                            {exercise.supersetId && (
-                              <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                                {exercise.supersetId}
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {exercise.sets.length} sets • Rest: {(() => {
-                              const seconds = exercise.restDuration;
-                              const mins = Math.floor(seconds / 60);
-                              const secs = seconds % 60;
-                              return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-                            })()}
-                          </div>
-                          
-                          {/* Exercise Notes under title */}
-                          <div className="mt-2">
-                            <Input
-                              value={exercise.notes || ""}
-                              onChange={(e) => {
-                                const updatedExercises = [...selectedExercises];
-                                updatedExercises[exerciseIndex].notes = e.target.value;
-                                setSelectedExercises(updatedExercises);
-                              }}
-                              placeholder="Add exercise notes (e.g., slow tempo, pause at bottom)"
-                              className="text-sm"
-                            />
-                          </div>
-                        </div>
-                        
-                        {/* Rest Time Selector */}
-                        <div className="flex items-center gap-2">
-                          <Select 
-                            value={exercise.restDuration.toString()} 
-                            onValueChange={(value) => updateExerciseRestTime(exerciseIndex, parseInt(value))}
-                          >
-                            <SelectTrigger className="w-24 h-8 text-xs">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-40">
-                              {/* 5 second intervals up to 2 minutes */}
-                              {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
-                                <SelectItem key={seconds} value={seconds.toString()}>
-                                  {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
-                                </SelectItem>
-                              ))}
-                              
-                              {/* 15 second intervals from 2m 15s to 5 minutes */}
-                              {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
-                                <SelectItem key={seconds} value={seconds.toString()}>
-                                  {Math.floor(seconds / 60)}m {seconds % 60}s
-                                </SelectItem>
-                              ))}
-                              
-                              {/* 30 second intervals from 5m 30s to 15 minutes */}
-                              {Array.from({ length: 19 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
-                                <SelectItem key={seconds} value={seconds.toString()}>
-                                  {Math.floor(seconds / 60)}m {seconds % 60}s
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          
-                          {/* Exercise Options Dropdown */}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              {exercise.supersetId ? (
-                                <DropdownMenuItem onClick={() => removeFromSuperset(exerciseIndex)}>
-                                  Remove from Superset
-                                </DropdownMenuItem>
-                              ) : (
-                                <>
-                                  <DropdownMenuItem onClick={() => openSupersetModal(exerciseIndex)}>
-                                    Create New Superset
-                                  </DropdownMenuItem>
-                                  {getSupersetsInUse().length > 0 && (
-                                    <>
-                                      {getSupersetsInUse().map(supersetId => (
-                                        <DropdownMenuItem 
-                                          key={supersetId}
-                                          onClick={() => addToSuperset(exerciseIndex, supersetId)}
-                                        >
-                                          Add to {supersetId}
-                                        </DropdownMenuItem>
-                                      ))}
-                                    </>
-                                  )}
-                                </>
-                              )}
-                              <DropdownMenuItem>Reorder Exercise</DropdownMenuItem>
-                              <DropdownMenuItem>Replace Exercise</DropdownMenuItem>
-                              <DropdownMenuItem>Update Bodyweight</DropdownMenuItem>
-                              <DropdownMenuItem>Add Warm up sets</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-
-                          <Button
-                            onClick={() => removeExerciseFromRoutine(exerciseIndex)}
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      {/* Sets List */}
-                      <div className="p-4 space-y-2">
-                        {exercise.sets.map((set, setIndex) => (
-                          <div 
-                            key={setIndex}
-                            className="flex items-center gap-4 p-3 border rounded-md bg-gray-50"
-                          >
-                            <span className="text-sm font-medium text-gray-600 min-w-[60px]">
-                              Set {setIndex + 1}
-                            </span>
-                            
-                            {/* Dynamic Exercise Input based on exercise type */}
-                            <div className="flex-1">
-                              <ExerciseSetInput
-                                exerciseType={(() => {
-                                  const selectedExercise = exercises?.find((ex: any) => ex.id === exercise.exerciseId);
-                                  return selectedExercise?.exerciseType || selectedExercise?.type || 'weight_reps';
-                                })()}
-                                set={{
-                                  weight: set.weight ? parseFloat(set.weight) : undefined,
-                                  reps: set.reps ? parseInt(set.reps) : undefined,
-                                  duration: set.duration ? parseFloat(set.duration) : undefined,
-                                  distance: set.distance ? parseFloat(set.distance) : undefined,
-                                  assistanceWeight: set.assistanceWeight ? parseFloat(set.assistanceWeight) : undefined,
-                                  completed: false
-                                }}
-                                onChange={(updates) => {
-                                  Object.entries(updates).forEach(([key, value]) => {
-                                    updateSetField(exerciseIndex, setIndex, key, value?.toString() || '');
-                                  });
-                                }}
-                                isCompleted={false}
-                              />
-                            </div>
-                            
-                            {/* RPE Input - only show for exercises where RPE makes sense */}
-                            {(() => {
-                              const selectedExercise = exercises?.find((ex: any) => ex.id === exercise.exerciseId);
-                              const exerciseType = selectedExercise?.exerciseType || selectedExercise?.type || 'weight_reps';
-                              return !['weight_distance', 'distance_duration'].includes(exerciseType);
-                            })() && (
-                              <div className="w-20">
-                                <Input
-                                  value={set.rpe || ""}
-                                  onChange={(e) => updateSetField(exerciseIndex, setIndex, 'rpe', e.target.value)}
-                                  placeholder="8"
-                                  type="number"
-                                  min="1"
-                                  max="10"
-                                  className="h-8 text-sm"
-                                />
-                                <span className="text-xs text-gray-500">RPE</span>
-                              </div>
-                            )}
-                            
-                            {/* Remove Set Button */}
-                            {exercise.sets.length > 1 && (
-                              <Button
-                                onClick={() => removeSet(exerciseIndex, setIndex)}
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                        
-                        {/* Add Set Button */}
-                        <Button
-                          onClick={() => addSet(exerciseIndex)}
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-2"
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Add Set
-                        </Button>
-                        
-
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </SortableContext>
+                </DndContext>
               ) : (
-                <div className="text-center py-12">
-                  <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                    <Plus className="h-8 w-8 text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No exercises added yet</h3>
-                  <p className="text-gray-600">
-                    Start building your routine by adding exercises from the left panel.
-                  </p>
+                <div className="text-center py-8 text-gray-500">
+                  <Dumbbell className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                  <p>No exercises added yet</p>
+                  <p className="text-sm">Select exercises from the list below to build your routine</p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Superset Creation Modal */}
+          <Dialog open={showSupersetModal} onOpenChange={setShowSupersetModal}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Create Superset</DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Creating superset for: {currentExerciseIndex !== null && selectedExercises[currentExerciseIndex]?.exerciseName}
+                  </p>
+                  
+                  <p className="text-sm text-gray-600 mb-3">
+                    Select other exercises to group with this one:
+                  </p>
+                  
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {selectedExercises.map((exercise, index) => {
+                      if (index === currentExerciseIndex || exercise.supersetId) return null;
+                      
+                      return (
+                        <label key={index} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                          <Checkbox
+                            checked={selectedExercisesForSuperset.includes(index)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedExercisesForSuperset(prev => [...prev, index]);
+                              } else {
+                                setSelectedExercisesForSuperset(prev => prev.filter(i => i !== index));
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{exercise.exerciseName}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  
+                  {selectedExercises.filter((_, index) => index !== currentExerciseIndex && !selectedExercises[index].supersetId).length === 0 && (
+                    <p className="text-sm text-gray-500 italic">No other exercises available for superset</p>
+                  )}
+                </div>
+                
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowSupersetModal(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      createSuperset(selectedExercisesForSuperset);
+                      setShowSupersetModal(false);
+                    }}
+                    disabled={selectedExercisesForSuperset.length === 0}
+                  >
+                    Create Superset
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Exercise Library */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Exercise Library</CardTitle>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search exercises..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-8 w-64"
+                    />
+                  </div>
+                  <Select value={selectedMuscleGroup} onValueChange={setSelectedMuscleGroup}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Muscle Group" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Groups</SelectItem>
+                      <SelectItem value="chest">Chest</SelectItem>
+                      <SelectItem value="back">Back</SelectItem>
+                      <SelectItem value="shoulders">Shoulders</SelectItem>
+                      <SelectItem value="arms">Arms</SelectItem>
+                      <SelectItem value="legs">Legs</SelectItem>
+                      <SelectItem value="core">Core</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2 max-h-96 overflow-y-auto">
+                {filteredExercises.map((exercise) => (
+                  <div
+                    key={exercise.id}
+                    onClick={() => addExerciseToRoutine(exercise)}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <div>
+                      <div className="font-medium">{exercise.name}</div>
+                      <div className="text-sm text-gray-600">
+                        {exercise.muscleGroups?.join(', ')} • {exercise.type}
+                      </div>
+                    </div>
+                    <Plus className="h-5 w-5 text-gray-400" />
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Superset Creation Modal */}
-      <Dialog open={showSupersetModal} onOpenChange={setShowSupersetModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create Superset</DialogTitle>
-            <DialogDescription>
-              Select other exercises to group with "{currentExerciseIndex !== null ? selectedExercises[currentExerciseIndex]?.exerciseName : ''}" in a superset.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-3 max-h-60 overflow-y-auto">
-            {selectedExercises.map((exercise, index) => {
-              if (index === currentExerciseIndex || exercise.supersetId) return null;
-              
-              return (
-                <div key={index} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`exercise-${index}`}
-                    checked={selectedExercisesForSuperset.includes(index)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedExercisesForSuperset(prev => [...prev, index]);
-                      } else {
-                        setSelectedExercisesForSuperset(prev => 
-                          prev.filter(i => i !== index)
-                        );
-                      }
-                    }}
-                  />
-                  <label 
-                    htmlFor={`exercise-${index}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                  >
-                    {exercise.exerciseName}
-                  </label>
-                </div>
-              );
-            })}
-            
-            {selectedExercises.filter((_, index) => 
-              index !== currentExerciseIndex && !selectedExercises[index].supersetId
-            ).length === 0 && (
-              <p className="text-sm text-gray-500 text-center py-4">
-                No other exercises available to group in a superset.
+      {/* Save Routine Card */}
+      <Card className="mt-6">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium">Ready to save your routine?</h3>
+              <p className="text-sm text-gray-600">
+                {selectedExercises.length} exercises • Estimated {estimatedDuration} minutes
               </p>
-            )}
+            </div>
+            <Button 
+              onClick={handleSaveRoutine}
+              disabled={!formData.name.trim() || selectedExercises.length === 0 || isCreating}
+              className="min-w-[120px]"
+            >
+              {isCreating ? (
+                <>Creating...</>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Routine
+                </>
+              )}
+            </Button>
           </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowSupersetModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={createSuperset}
-              disabled={selectedExercisesForSuperset.length === 0}
-            >
-              Create Superset
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
     </div>
   );
 }
