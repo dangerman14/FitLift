@@ -1393,21 +1393,22 @@ export default function CreateRoutine() {
             </CardHeader>
             <CardContent>
               {selectedExercises.length > 0 ? (
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext 
-                    items={selectedExercises.map((_, index) => index.toString())}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="space-y-4">
-                      {selectedExercises.map((exercise, exerciseIndex) => (
-                        <div key={`${exercise.exerciseId}-${exerciseIndex}`} className="w-full">
-                          {/* Desktop Layout - Hidden on mobile */}
-                          <div className="hidden lg:block">
+                <>
+                  {/* Desktop Layout with Drag & Drop */}
+                  <div className="hidden lg:block">
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <SortableContext 
+                        items={selectedExercises.map((_, index) => index.toString())}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <div className="space-y-4">
+                          {selectedExercises.map((exercise, exerciseIndex) => (
                             <SortableExerciseItem
+                              key={`${exercise.exerciseId}-${exerciseIndex}`}
                               exercise={exercise}
                               exerciseIndex={exerciseIndex}
                               groupingMode={groupingMode}
@@ -1623,108 +1624,110 @@ export default function CreateRoutine() {
                             </div>
                           </div>
                             </SortableExerciseItem>
-                          </div>
-                          
-                          {/* Mobile Layout - Shown only on mobile */}
-                          <div className="block lg:hidden">
-                            <div className="border rounded-lg bg-white p-4 space-y-4">
-                              {/* Exercise Header */}
-                              <div className="flex items-center justify-between">
-                                <h3 className="font-medium text-lg">{exercise.exerciseName}</h3>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeExercise(exerciseIndex)}
-                                  className="h-8 w-8 p-0 text-red-500"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              
-                              {/* Sets Configuration */}
-                              <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm font-medium">Sets ({exercise.sets.length})</span>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => addSet(exerciseIndex)}
-                                  >
-                                    <Plus className="h-3 w-3 mr-1" />
-                                    Add Set
-                                  </Button>
-                                </div>
-                                
-                                {exercise.sets.map((set, setIndex) => (
-                                  <div key={setIndex} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                                    <span className="text-sm font-medium min-w-[1.5rem]">#{setIndex + 1}</span>
-                                    
-                                    {/* Reps input */}
-                                    <div className="flex-1">
-                                      <Input
-                                        type="text"
-                                        placeholder="Reps"
-                                        value={set.reps || ""}
-                                        onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value)}
-                                        className="h-8 text-center"
-                                      />
-                                    </div>
-                                    
-                                    {/* Weight input */}
-                                    <div className="flex-1">
-                                      <Input
-                                        type="text"
-                                        placeholder="Weight"
-                                        value={set.weight || ""}
-                                        onChange={(e) => updateSet(exerciseIndex, setIndex, 'weight', e.target.value)}
-                                        className="h-8 text-center"
-                                      />
-                                    </div>
-                                    
-                                    {/* Remove set button */}
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => removeSet(exerciseIndex, setIndex)}
-                                      className="h-8 w-8 p-0"
-                                    >
-                                      <X className="h-3 w-3" />
-                                    </Button>
-                                  </div>
-                                ))}
-                              </div>
-                              
-                              {/* Rest Duration */}
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm">Rest:</span>
-                                <Select
-                                  value={exercise.restDuration.toString()}
-                                  onValueChange={(value) => {
-                                    const newExercises = [...selectedExercises];
-                                    newExercises[exerciseIndex].restDuration = parseInt(value);
-                                    setSelectedExercises(newExercises);
-                                  }}
-                                >
-                                  <SelectTrigger className="w-20 h-8">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="60">1m</SelectItem>
-                                    <SelectItem value="90">1.5m</SelectItem>
-                                    <SelectItem value="120">2m</SelectItem>
-                                    <SelectItem value="180">3m</SelectItem>
-                                    <SelectItem value="240">4m</SelectItem>
-                                    <SelectItem value="300">5m</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
                       ))}
                     </div>
                   </SortableContext>
                 </DndContext>
+                  </div>
+                  
+                  {/* Mobile Layout - Simple list without drag and drop */}
+                  <div className="block lg:hidden space-y-4">
+                    {selectedExercises.map((exercise, exerciseIndex) => (
+                      <div key={`mobile-${exercise.exerciseId}-${exerciseIndex}`} className="border rounded-lg bg-white p-4 space-y-4">
+                        {/* Exercise Header */}
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-medium text-lg">{exercise.exerciseName}</h3>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeExercise(exerciseIndex)}
+                            className="h-8 w-8 p-0 text-red-500"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        {/* Sets Configuration */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">Sets ({exercise.sets.length})</span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addSet(exerciseIndex)}
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add Set
+                            </Button>
+                          </div>
+                          
+                          {exercise.sets.map((set, setIndex) => (
+                            <div key={setIndex} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                              <span className="text-sm font-medium min-w-[1.5rem]">#{setIndex + 1}</span>
+                              
+                              {/* Reps input */}
+                              <div className="flex-1">
+                                <Input
+                                  type="text"
+                                  placeholder="Reps"
+                                  value={set.reps || ""}
+                                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value)}
+                                  className="h-8 text-center"
+                                />
+                              </div>
+                              
+                              {/* Weight input */}
+                              <div className="flex-1">
+                                <Input
+                                  type="text"
+                                  placeholder="Weight"
+                                  value={set.weight || ""}
+                                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'weight', e.target.value)}
+                                  className="h-8 text-center"
+                                />
+                              </div>
+                              
+                              {/* Remove set button */}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeSet(exerciseIndex, setIndex)}
+                                className="h-8 w-8 p-0"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Rest Duration */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">Rest:</span>
+                          <Select
+                            value={exercise.restDuration.toString()}
+                            onValueChange={(value) => {
+                              const newExercises = [...selectedExercises];
+                              newExercises[exerciseIndex].restDuration = parseInt(value);
+                              setSelectedExercises(newExercises);
+                            }}
+                          >
+                            <SelectTrigger className="w-20 h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="60">1m</SelectItem>
+                              <SelectItem value="90">1.5m</SelectItem>
+                              <SelectItem value="120">2m</SelectItem>
+                              <SelectItem value="180">3m</SelectItem>
+                              <SelectItem value="240">4m</SelectItem>
+                              <SelectItem value="300">5m</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   <Dumbbell className="mx-auto h-12 w-12 text-gray-300 mb-3" />
