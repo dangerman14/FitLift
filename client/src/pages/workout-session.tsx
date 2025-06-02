@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useWorkout } from "@/contexts/WorkoutContext";
 import ExerciseSetInput from "@/components/exercise-set-input";
+import { MiniProgressChart } from "@/components/MiniProgressChart";
+import { ExerciseMiniChart } from "@/components/ExerciseMiniChart";
 
 interface WorkoutExercise {
   id: number;
@@ -963,9 +965,12 @@ export default function WorkoutSession() {
                     <span className="text-xl">💪</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium text-blue-600 text-lg">
-                      {workoutExercise.exercise?.name}
-                    </h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-blue-600 text-lg">
+                        {workoutExercise.exercise?.name}
+                      </h3>
+                      <ExerciseMiniChart exerciseId={workoutExercise.exercise?.id} />
+                    </div>
                     <Textarea
                       placeholder="Add comment for this exercise..."
                       value={workoutExercise.comment || ""}

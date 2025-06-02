@@ -186,6 +186,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get mini chart data for exercise progress
+  app.get('/api/exercises/:exerciseId/mini-chart', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const exerciseId = parseInt(req.params.exerciseId);
+      
+      // Get strength progress data
+      const progressData = await storage.getStrengthProgress(userId, exerciseId);
+      
+      // Transform to chart format - last 4 sessions only
+      const chartData = progressData.slice(-4).map(session => {
+        // Find the best set (highest weight × reps) for this session
+        let bestSet = session.sets?.[0] || { weight: session.maxWeight, reps: 1 };
+        let maxStrengthScore = bestSet.weight * bestSet.reps;
+        
+        session.sets?.forEach(set => {
+          const strengthScore = set.weight * set.reps;
+          if (strengthScore > maxStrengthScore) {
+            maxStrengthScore = strengthScore;
+            bestSet = set;
+          }
+        });
+        
+        return {
+          date: session.date.toISOString().split('T')[0],
+          maxWeight: bestSet.weight,
+          repsAtMaxWeight: bestSet.reps,
+          strengthScore: maxStrengthScore
+        };
+      });
+      
+      res.json(chartData);
+    } catch (error) {
+      console.error("Error fetching mini chart data:", error);
+      res.status(500).json({ message: "Failed to fetch mini chart data" });
+    }
+  });
+
   // Get personal records for an exercise
   app.get('/api/exercises/:exerciseId/records', isAuthenticated, async (req: any, res) => {
     try {
