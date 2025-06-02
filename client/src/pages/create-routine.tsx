@@ -1170,61 +1170,203 @@ export default function CreateRoutine() {
                           removeSet={removeSet}
                           updateSet={updateSet}
                         >
-                          <div className="p-4 bg-white border rounded-lg">
-                            <div className="flex justify-between items-start mb-3">
-                              <div className="flex-1">
-                                <h3 className="font-medium text-gray-900">{exercise.exerciseName}</h3>
-                                {exercise.supersetId && (
-                                  <div className="text-sm text-gray-500 mt-1">
-                                    Superset: {exercise.supersetId}
-                                  </div>
-                                )}
+                          <div 
+                            className={`relative border rounded-lg bg-white ${
+                              exercise.supersetId 
+                                ? `border-l-4 ${getSupersetColor(exercise.supersetId)} bg-gradient-to-r from-gray-50 to-white`
+                                : 'border-gray-200'
+                            } ${
+                              groupingMode && selectedForGrouping.includes(exerciseIndex)
+                                ? 'ring-2 ring-blue-500 bg-blue-50'
+                                : ''
+                            }`}
+                          >
+                            {groupingMode && (
+                              <div className="absolute top-2 left-2">
+                                <Checkbox
+                                  checked={selectedForGrouping.includes(exerciseIndex)}
+                                  onCheckedChange={() => toggleExerciseSelection(exerciseIndex)}
+                                  className="h-5 w-5"
+                                />
                               </div>
-                              <div className="flex gap-2">
+                            )}
+                            
+                            <div className="p-4">
+                              <div className="flex justify-between items-start mb-3">
+                                <div className={`flex-1 ${groupingMode ? 'ml-8' : ''}`}>
+                                  <h3 className="font-medium text-gray-900">{exercise.exerciseName}</h3>
+                                  {exercise.supersetId && (
+                                    <div className="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                                      <span>Superset: {exercise.supersetId}</span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => removeFromSuperset(exerciseIndex)}
+                                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex gap-2">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="sm">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                      {!exercise.supersetId ? (
+                                        <DropdownMenuItem onClick={() => openSupersetModal(exerciseIndex)}>
+                                          <Link className="h-4 w-4 mr-2" />
+                                          Add to Superset
+                                        </DropdownMenuItem>
+                                      ) : (
+                                        <DropdownMenuItem onClick={() => removeFromSuperset(exerciseIndex)}>
+                                          <X className="h-4 w-4 mr-2" />
+                                          Remove from Superset
+                                        </DropdownMenuItem>
+                                      )}
+                                      <DropdownMenuItem onClick={() => removeExercise(exerciseIndex)}>
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Remove Exercise
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </div>
+                              </div>
+
+                              {/* Sets */}
+                              <div className="space-y-2 mb-4">
+                                <div className="text-sm font-medium text-gray-700 mb-2">Sets</div>
+                                {exercise.sets.map((set, setIndex) => (
+                                  <div key={setIndex} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                                    <span className="text-sm font-medium w-12">#{setIndex + 1}</span>
+                                    
+                                    {/* Reps input */}
+                                    <div className="flex-1">
+                                      <Label className="text-xs">Reps</Label>
+                                      <Input
+                                        value={set.reps || ""}
+                                        onChange={(e) => updateSet(exerciseIndex, setIndex, "reps", e.target.value)}
+                                        placeholder="8-12"
+                                        className="h-8"
+                                      />
+                                    </div>
+                                    
+                                    {/* Weight input */}
+                                    <div className="flex-1">
+                                      <Label className="text-xs">Weight</Label>
+                                      <Input
+                                        value={set.weight || ""}
+                                        onChange={(e) => updateSet(exerciseIndex, setIndex, "weight", e.target.value)}
+                                        placeholder="135"
+                                        className="h-8"
+                                      />
+                                    </div>
+                                    
+                                    {/* Duration input (for duration-based exercises) */}
+                                    {set.duration !== undefined && (
+                                      <div className="flex-1">
+                                        <Label className="text-xs">Duration</Label>
+                                        <Input
+                                          value={set.duration || ""}
+                                          onChange={(e) => updateSet(exerciseIndex, setIndex, "duration", e.target.value)}
+                                          placeholder="30s"
+                                          className="h-8"
+                                        />
+                                      </div>
+                                    )}
+                                    
+                                    {/* Distance input (for distance-based exercises) */}
+                                    {set.distance !== undefined && (
+                                      <div className="flex-1">
+                                        <Label className="text-xs">Distance</Label>
+                                        <Input
+                                          value={set.distance || ""}
+                                          onChange={(e) => updateSet(exerciseIndex, setIndex, "distance", e.target.value)}
+                                          placeholder="1 mile"
+                                          className="h-8"
+                                        />
+                                      </div>
+                                    )}
+                                    
+                                    {/* Assistance Weight (for assisted bodyweight) */}
+                                    {set.assistanceWeight !== undefined && (
+                                      <div className="flex-1">
+                                        <Label className="text-xs">Assistance</Label>
+                                        <Input
+                                          value={set.assistanceWeight || ""}
+                                          onChange={(e) => updateSet(exerciseIndex, setIndex, "assistanceWeight", e.target.value)}
+                                          placeholder="-50"
+                                          className="h-8"
+                                        />
+                                      </div>
+                                    )}
+                                    
+                                    {/* RPE input */}
+                                    <div className="w-16">
+                                      <Label className="text-xs">RPE</Label>
+                                      <Input
+                                        value={set.rpe || ""}
+                                        onChange={(e) => updateSet(exerciseIndex, setIndex, "rpe", e.target.value)}
+                                        placeholder="8"
+                                        className="h-8"
+                                      />
+                                    </div>
+                                    
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => removeSet(exerciseIndex, setIndex)}
+                                      className="h-8 w-8 p-0"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                ))}
                                 <Button
-                                  variant="ghost"
+                                  variant="outline"
                                   size="sm"
-                                  onClick={() => removeExercise(exerciseIndex)}
+                                  onClick={() => addSet(exerciseIndex)}
+                                  className="w-full"
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Plus className="h-4 w-4 mr-1" />
+                                  Add Set
                                 </Button>
                               </div>
-                            </div>
-                            
-                            {/* Sets display */}
-                            <div className="space-y-2">
-                              {exercise.sets.map((set, setIndex) => (
-                                <div key={setIndex} className="flex items-center gap-2 text-sm">
-                                  <span className="w-8">Set {setIndex + 1}</span>
-                                  <Input
-                                    value={set.reps || ""}
-                                    onChange={(e) => updateSet(exerciseIndex, setIndex, "reps", e.target.value)}
-                                    placeholder="Reps"
-                                    className="w-20"
-                                  />
-                                  <Input
-                                    value={set.weight || ""}
-                                    onChange={(e) => updateSet(exerciseIndex, setIndex, "weight", e.target.value)}
-                                    placeholder="Weight"
-                                    className="w-20"
-                                  />
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removeSet(exerciseIndex, setIndex)}
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              ))}
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => addSet(exerciseIndex)}
-                                className="mt-2"
-                              >
-                                Add Set
-                              </Button>
+
+                              {/* Rest Duration */}
+                              <div className="mb-4">
+                                <Label className="text-sm font-medium">Rest Duration (seconds)</Label>
+                                <Input
+                                  type="number"
+                                  value={exercise.restDuration}
+                                  onChange={(e) => {
+                                    const updatedExercises = [...selectedExercises];
+                                    updatedExercises[exerciseIndex].restDuration = parseInt(e.target.value) || 120;
+                                    setSelectedExercises(updatedExercises);
+                                  }}
+                                  className="w-full mt-1"
+                                />
+                              </div>
+
+                              {/* Notes */}
+                              <div>
+                                <Label className="text-sm font-medium">Notes</Label>
+                                <Textarea
+                                  value={exercise.notes || ""}
+                                  onChange={(e) => {
+                                    const updatedExercises = [...selectedExercises];
+                                    updatedExercises[exerciseIndex].notes = e.target.value;
+                                    setSelectedExercises(updatedExercises);
+                                  }}
+                                  placeholder="Add notes for this exercise..."
+                                  className="w-full mt-1"
+                                  rows={2}
+                                />
+                              </div>
                             </div>
                           </div>
                         </SortableExerciseItem>
