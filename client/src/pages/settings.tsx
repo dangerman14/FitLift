@@ -141,7 +141,7 @@ export default function Settings() {
           <Card className="shadow-material-1 border border-neutral-200">
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Scale className="h-5 w-5 mr-2 text-purple-600" />
+                <Ruler className="h-5 w-5 mr-2 text-purple-600" />
                 Unit Preferences
               </CardTitle>
               <CardDescription>
@@ -158,7 +158,7 @@ export default function Settings() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center">
-                        <Scale className="h-4 w-4 mr-2" />
+                        <Ruler className="h-4 w-4 mr-2" />
                         Weight Unit
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
