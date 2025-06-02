@@ -916,8 +916,57 @@ export default function CreateRoutine() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* Mobile Header (md and below) */}
+      <div className="block lg:hidden">
+        <div className="flex items-center space-x-4 mb-4">
+          <Button
+            variant="ghost"
+            onClick={goBack}
+            className="p-2"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        </div>
+        
+        {/* Mobile Form Fields */}
+        <div className="space-y-3 mb-4">
+          <Input
+            value={routineName}
+            onChange={(e) => setRoutineName(e.target.value)}
+            placeholder="Routine Title"
+            className="text-lg font-medium"
+          />
+          
+          <Select value={selectedFolderId} onValueChange={setSelectedFolderId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select folder (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No folder</SelectItem>
+              {folders.map((folder: any) => (
+                <SelectItem key={folder.id} value={folder.id.toString()}>
+                  {folder.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Mobile Add Exercise Button */}
+        <div className="mb-4">
+          <Button 
+            onClick={() => setShowMobileExerciseModal(true)}
+            className="w-full"
+            size="lg"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Add Exercise
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop Header (lg and above) */}
+      <div className="hidden lg:flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
@@ -955,8 +1004,8 @@ export default function CreateRoutine() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Routine Details & Add Exercise */}
-        <div className="lg:col-span-1 space-y-6">
+        {/* Left Column - Routine Details & Add Exercise (Desktop Only) */}
+        <div className="hidden lg:block lg:col-span-1 space-y-6">
           {/* Routine Details */}
           <Card>
             <CardHeader>
@@ -1282,8 +1331,8 @@ export default function CreateRoutine() {
           </Card>
         </div>
 
-        {/* Right Column - Routine Preview */}
-        <div className="lg:col-span-2">
+        {/* Right Column - Routine Preview (Desktop) / Main Content (Mobile) */}
+        <div className="col-span-1 lg:col-span-2">
           <Card className="h-fit">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -1698,8 +1747,8 @@ export default function CreateRoutine() {
         </div>
       </div>
 
-      {/* Save Routine Card */}
-      <Card className="mt-6">
+      {/* Save Routine Card - Desktop */}
+      <Card className="mt-6 hidden lg:block">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
@@ -1725,6 +1774,120 @@ export default function CreateRoutine() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Mobile Save Button */}
+      <div className="block lg:hidden mt-6">
+        <Button 
+          onClick={handleSaveRoutine}
+          disabled={!routineName.trim() || selectedExercises.length === 0 || isCreating}
+          className="w-full"
+          size="lg"
+        >
+          {isCreating ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Creating...
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              Save Routine ({selectedExercises.length} exercises)
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Mobile Exercise Modal */}
+      <Dialog open={showMobileExerciseModal} onOpenChange={setShowMobileExerciseModal}>
+        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Find & Add Exercise
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search exercises..."
+                value={exerciseSearch}
+                onChange={(e) => setExerciseSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            {/* Filter Controls */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-sm">Muscle Group</Label>
+                <Select value={muscleGroupFilter} onValueChange={setMuscleGroupFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Any muscle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Muscle Groups</SelectItem>
+                    <SelectItem value="chest">Chest</SelectItem>
+                    <SelectItem value="back">Back</SelectItem>
+                    <SelectItem value="shoulders">Shoulders</SelectItem>
+                    <SelectItem value="biceps">Biceps</SelectItem>
+                    <SelectItem value="triceps">Triceps</SelectItem>
+                    <SelectItem value="legs">Legs</SelectItem>
+                    <SelectItem value="glutes">Glutes</SelectItem>
+                    <SelectItem value="calves">Calves</SelectItem>
+                    <SelectItem value="abs">Abs</SelectItem>
+                    <SelectItem value="cardio">Cardio</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-sm">Equipment</Label>
+                <Select value={equipmentFilter} onValueChange={setEquipmentFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Any equipment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Equipment</SelectItem>
+                    <SelectItem value="bodyweight">Bodyweight</SelectItem>
+                    <SelectItem value="barbell">Barbell</SelectItem>
+                    <SelectItem value="dumbbell">Dumbbell</SelectItem>
+                    <SelectItem value="machine">Machine</SelectItem>
+                    <SelectItem value="cable">Cable</SelectItem>
+                    <SelectItem value="kettlebell">Kettlebell</SelectItem>
+                    <SelectItem value="resistance_band">Resistance Band</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Exercise List */}
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {filteredExercises.map((exercise: any) => (
+                <button
+                  key={exercise.id}
+                  onClick={() => {
+                    setSelectedExerciseId(exercise.id.toString());
+                    addExerciseToRoutine();
+                    setShowMobileExerciseModal(false);
+                  }}
+                  className="w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between"
+                >
+                  <div>
+                    <div className="font-medium">{exercise.name}</div>
+                    <div className="text-sm text-gray-600">
+                      {exercise.primaryMuscleGroups?.join(', ')} • {exercise.equipmentType}
+                    </div>
+                  </div>
+                  <Plus className="h-5 w-5 text-gray-400" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
