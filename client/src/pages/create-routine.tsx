@@ -499,6 +499,9 @@ export default function CreateRoutine() {
   
   // Drag state for minimized view
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Exercise weight unit preferences
+  const [exerciseWeightUnits, setExerciseWeightUnits] = useState<{[key: number]: string}>({});
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -510,6 +513,11 @@ export default function CreateRoutine() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // Fetch current user
+  const { data: user } = useQuery({
+    queryKey: ["/api/auth/user"],
+  });
 
   // Fetch exercises for the dropdown
   const { data: exercises = [] } = useQuery({
@@ -525,6 +533,19 @@ export default function CreateRoutine() {
     queryKey: [`/api/workout-templates/${editId}`],
     enabled: isEditMode && !!editId,
   });
+
+  // Initialize exercise weight units from localStorage
+  useEffect(() => {
+    const savedPreferences = localStorage.getItem('exerciseWeightPreferences');
+    if (savedPreferences) {
+      try {
+        const parsed = JSON.parse(savedPreferences);
+        setExerciseWeightUnits(parsed);
+      } catch (e) {
+        console.error('Failed to parse exercise weight preferences:', e);
+      }
+    }
+  }, []);
 
   // Populate form fields when existing routine data is loaded
   useEffect(() => {
@@ -1815,7 +1836,51 @@ export default function CreateRoutine() {
                             {/* Table Header */}
                             <div className="grid grid-cols-5 gap-2 py-2 px-3 bg-gray-100 rounded text-xs font-medium text-gray-600">
                               <div className="text-center">Set</div>
-                              <div className="text-center">Weight</div>
+                              <div className="text-center flex items-center justify-center space-x-1">
+                                <span>Weight</span>
+                                <Select
+                                  value={(() => {
+                                    const userWeightUnit = 'kg'; // Default to kg for now
+                                    const unit = exerciseWeightUnits[exercise.exerciseId] || userWeightUnit;
+                                    if (unit === userWeightUnit) return 'default';
+                                    return unit;
+                                  })()}
+                                  onValueChange={(value) => {
+                                    const userWeightUnit = 'kg'; // Default to kg for now
+                                    let newUnit;
+                                    if (value === 'default') {
+                                      newUnit = userWeightUnit;
+                                    } else {
+                                      newUnit = value;
+                                    }
+                                    
+                                    setExerciseWeightUnits(prev => ({
+                                      ...prev,
+                                      [exercise.exerciseId]: newUnit
+                                    }));
+                                    
+                                    // Save to localStorage
+                                    const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
+                                    if (value === 'default') {
+                                      delete existingPrefs[exercise.exerciseId];
+                                    } else {
+                                      existingPrefs[exercise.exerciseId] = newUnit;
+                                    }
+                                    localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
+                                  }}
+                                >
+                                  <SelectTrigger className="h-4 w-auto text-xs p-0 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0">
+                                    <span className="text-gray-600">
+                                      ({(exerciseWeightUnits[exercise.exerciseId] || 'kg').toUpperCase()})
+                                    </span>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="default">Default (kg)</SelectItem>
+                                    <SelectItem value="kg">kg</SelectItem>
+                                    <SelectItem value="lbs">lbs</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
                               <div className="text-center">Reps</div>
                               <div className="text-center">RPE</div>
                               <div className="text-center">×</div>
