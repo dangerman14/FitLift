@@ -21,17 +21,17 @@ import {
 import { useLocation } from "wouter";
 
 const bodyEntrySchema = z.object({
-  weight: z.number().min(0.1, "Weight must be greater than 0").optional(),
-  chest: z.number().min(0, "Measurement must be positive").optional(),
-  shoulders: z.number().min(0, "Measurement must be positive").optional(),
-  waist: z.number().min(0, "Measurement must be positive").optional(),
-  abdomen: z.number().min(0, "Measurement must be positive").optional(),
-  hips: z.number().min(0, "Measurement must be positive").optional(),
-  bicepsLeft: z.number().min(0, "Measurement must be positive").optional(),
-  bicepsRight: z.number().min(0, "Measurement must be positive").optional(),
-  thighLeft: z.number().min(0, "Measurement must be positive").optional(),
-  thighRight: z.number().min(0, "Measurement must be positive").optional(),
-  bodyFatPercentage: z.number().min(0).max(100, "Body fat must be between 0-100%").optional(),
+  weight: z.coerce.number().min(0.1, "Weight must be greater than 0").optional(),
+  chest: z.coerce.number().min(0, "Measurement must be positive").optional(),
+  shoulders: z.coerce.number().min(0, "Measurement must be positive").optional(),
+  waist: z.coerce.number().min(0, "Measurement must be positive").optional(),
+  abdomen: z.coerce.number().min(0, "Measurement must be positive").optional(),
+  hips: z.coerce.number().min(0, "Measurement must be positive").optional(),
+  bicepsLeft: z.coerce.number().min(0, "Measurement must be positive").optional(),
+  bicepsRight: z.coerce.number().min(0, "Measurement must be positive").optional(),
+  thighLeft: z.coerce.number().min(0, "Measurement must be positive").optional(),
+  thighRight: z.coerce.number().min(0, "Measurement must be positive").optional(),
+  bodyFatPercentage: z.coerce.number().min(0).max(100, "Body fat must be between 0-100%").optional(),
   notes: z.string().optional(),
 });
 
