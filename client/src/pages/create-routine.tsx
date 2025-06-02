@@ -168,13 +168,78 @@ function SortableExerciseItem({
                 </span>
               )}
             </div>
-            <div className="text-sm text-gray-600">
-              {exercise.sets.length} sets • Rest: {(() => {
-                const seconds = exercise.restDuration;
-                const mins = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-              })()}
+            <div className="flex items-center gap-3 text-sm text-gray-600">
+              <span>{exercise.sets.length} sets</span>
+              <div className="flex items-center gap-1">
+                <span>Rest:</span>
+                <Select
+                  value={exercise.restDuration.toString()}
+                  onValueChange={(value) => {
+                    const newExercises = [...selectedExercises];
+                    newExercises[exerciseIndex].restDuration = parseInt(value);
+                    setSelectedExercises(newExercises);
+                  }}
+                >
+                  <SelectTrigger className="w-20 h-6 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {/* <1m in 5 second increments */}
+                    <SelectItem value="5">5s</SelectItem>
+                    <SelectItem value="10">10s</SelectItem>
+                    <SelectItem value="15">15s</SelectItem>
+                    <SelectItem value="20">20s</SelectItem>
+                    <SelectItem value="25">25s</SelectItem>
+                    <SelectItem value="30">30s</SelectItem>
+                    <SelectItem value="35">35s</SelectItem>
+                    <SelectItem value="40">40s</SelectItem>
+                    <SelectItem value="45">45s</SelectItem>
+                    <SelectItem value="50">50s</SelectItem>
+                    <SelectItem value="55">55s</SelectItem>
+                    
+                    {/* <5min in 15 second intervals */}
+                    <SelectItem value="60">1m</SelectItem>
+                    <SelectItem value="75">1m 15s</SelectItem>
+                    <SelectItem value="90">1m 30s</SelectItem>
+                    <SelectItem value="105">1m 45s</SelectItem>
+                    <SelectItem value="120">2m</SelectItem>
+                    <SelectItem value="135">2m 15s</SelectItem>
+                    <SelectItem value="150">2m 30s</SelectItem>
+                    <SelectItem value="165">2m 45s</SelectItem>
+                    <SelectItem value="180">3m</SelectItem>
+                    <SelectItem value="195">3m 15s</SelectItem>
+                    <SelectItem value="210">3m 30s</SelectItem>
+                    <SelectItem value="225">3m 45s</SelectItem>
+                    <SelectItem value="240">4m</SelectItem>
+                    <SelectItem value="255">4m 15s</SelectItem>
+                    <SelectItem value="270">4m 30s</SelectItem>
+                    <SelectItem value="285">4m 45s</SelectItem>
+                    
+                    {/* Up to 15min in 30 second intervals */}
+                    <SelectItem value="300">5m</SelectItem>
+                    <SelectItem value="330">5m 30s</SelectItem>
+                    <SelectItem value="360">6m</SelectItem>
+                    <SelectItem value="390">6m 30s</SelectItem>
+                    <SelectItem value="420">7m</SelectItem>
+                    <SelectItem value="450">7m 30s</SelectItem>
+                    <SelectItem value="480">8m</SelectItem>
+                    <SelectItem value="510">8m 30s</SelectItem>
+                    <SelectItem value="540">9m</SelectItem>
+                    <SelectItem value="570">9m 30s</SelectItem>
+                    <SelectItem value="600">10m</SelectItem>
+                    <SelectItem value="630">10m 30s</SelectItem>
+                    <SelectItem value="660">11m</SelectItem>
+                    <SelectItem value="690">11m 30s</SelectItem>
+                    <SelectItem value="720">12m</SelectItem>
+                    <SelectItem value="750">12m 30s</SelectItem>
+                    <SelectItem value="780">13m</SelectItem>
+                    <SelectItem value="810">13m 30s</SelectItem>
+                    <SelectItem value="840">14m</SelectItem>
+                    <SelectItem value="870">14m 30s</SelectItem>
+                    <SelectItem value="900">15m</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
@@ -339,23 +404,7 @@ function SortableExerciseItem({
             </Button>
           </div>
         ))}
-        
-        {/* Rest Duration */}
-        <div className="mt-4 flex items-center gap-4">
-          <div className="flex-1">
-            <Label className="text-sm font-medium">Rest Duration (seconds)</Label>
-            <Input
-              type="number"
-              value={exercise.restDuration}
-              onChange={(e) => {
-                const newExercises = [...selectedExercises];
-                newExercises[exerciseIndex].restDuration = parseInt(e.target.value) || 0;
-                setSelectedExercises(newExercises);
-              }}
-              className="mt-1"
-            />
-          </div>
-        </div>
+
         
         {/* Notes */}
         <div className="mt-4">
