@@ -717,15 +717,9 @@ export default function WorkoutSession() {
         timeLeft: restTime
       });
 
-      // Save completed set to database only
-      console.log("Saving completed set for exercise ID:", exercise.id);
-      createSetMutation.mutate({
-        workoutExerciseId: exercise.id,
-        setNumber: set.setNumber,
-        weight: set.weight,
-        reps: set.reps,
-        rpe: set.rpe
-      });
+      // Set is marked as completed in frontend state only
+      // Database save will happen when workout is finished
+      console.log("Set completed - stored in session only");
 
       // Show achievement notification
       if (recordData.isHeaviestWeight || recordData.isBest1RM || recordData.isVolumeRecord) {
