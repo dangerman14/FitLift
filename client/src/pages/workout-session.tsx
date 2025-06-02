@@ -251,7 +251,8 @@ export default function WorkoutSession() {
     const templateId = urlParams.get('template');
     
     // Don't load existing workout if we're loading from a template or currently creating a workout
-    if (isEditingExisting && workoutSlug && !activeWorkout && !templateId && !isCreatingWorkoutRef.current) {
+    // Priority: if we have a workout slug, always try to load the existing workout first
+    if (isEditingExisting && workoutSlug && !activeWorkout && !isCreatingWorkoutRef.current) {
       const loadExistingWorkout = async () => {
         try {
           const response = await fetch(`/api/workouts/${workoutSlug}`, {
@@ -276,10 +277,13 @@ export default function WorkoutSession() {
             
             // Load existing exercises and sets
             const exercisesWithSets = workoutData.exercises || [];
+            console.log("Raw workout data from server:", workoutData);
+            console.log("Exercises with sets:", exercisesWithSets);
             
             // If this workout was created from a template and has no sets yet, 
             // we need to create template sets instead of empty ones
             const formattedExercises = await Promise.all(exercisesWithSets.map(async (ex: any) => {
+              console.log("Processing exercise:", ex.exercise?.name, "Sets:", ex.sets);
               if (ex.sets && ex.sets.length > 0) {
                 // Workout has existing sets, use them and preserve their completion status
                 return {
@@ -374,12 +378,13 @@ export default function WorkoutSession() {
     }
   }, [isEditingExisting, workoutSlug, activeWorkout]);
 
-  // Load template from URL parameter
+  // Load template from URL parameter (only for new workouts, never when resuming existing ones)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
     
-    if (templateId && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current && !isEditingExisting) {
+    // IMPORTANT: Never load template if we have a workout slug (resuming existing workout)
+    if (templateId && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current && !isEditingExisting && !workoutSlug) {
       // Fetch template and load it
       const loadTemplate = async () => {
         isCreatingWorkoutRef.current = true;
