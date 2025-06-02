@@ -1601,7 +1601,51 @@ export default function CreateRoutine() {
                                     
                                     {/* Weight input */}
                                     <div className="flex-1">
-                                      <Label className="text-xs">Weight</Label>
+                                      <div className="flex items-center gap-1">
+                                        <Label className="text-xs">Weight</Label>
+                                        <Select
+                                          value={(() => {
+                                            const userWeightUnit = 'kg'; // Default to kg for now
+                                            const unit = exerciseWeightUnits[exercise.exerciseId] || userWeightUnit;
+                                            if (unit === userWeightUnit) return 'default';
+                                            return unit;
+                                          })()}
+                                          onValueChange={(value) => {
+                                            const userWeightUnit = 'kg'; // Default to kg for now
+                                            let newUnit;
+                                            if (value === 'default') {
+                                              newUnit = userWeightUnit;
+                                            } else {
+                                              newUnit = value;
+                                            }
+                                            
+                                            setExerciseWeightUnits(prev => ({
+                                              ...prev,
+                                              [exercise.exerciseId]: newUnit
+                                            }));
+                                            
+                                            // Save to localStorage
+                                            const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
+                                            if (value === 'default') {
+                                              delete existingPrefs[exercise.exerciseId];
+                                            } else {
+                                              existingPrefs[exercise.exerciseId] = newUnit;
+                                            }
+                                            localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
+                                          }}
+                                        >
+                                          <SelectTrigger className="h-4 w-auto text-xs p-0 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0">
+                                            <span className="text-gray-500">
+                                              ({(exerciseWeightUnits[exercise.exerciseId] || 'kg').toUpperCase()})
+                                            </span>
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="default">Default (kg)</SelectItem>
+                                            <SelectItem value="kg">kg</SelectItem>
+                                            <SelectItem value="lbs">lbs</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
                                       <Input
                                         value={set.weight || ""}
                                         onChange={(e) => updateSet(exerciseIndex, setIndex, "weight", e.target.value)}
