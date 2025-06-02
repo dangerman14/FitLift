@@ -911,123 +911,261 @@ export default function CreateRoutine() {
     window.location.href = "/routines";
   };
 
+  const [showExerciseModal, setShowExerciseModal] = useState(false);
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-4 p-4">
+      {/* Mobile Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            onClick={goBack}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              {isEditMode ? 'Edit Routine' : 'Create New Routine'}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {isEditMode ? 'Update your workout routine by modifying exercises, sets and reps' : 'Build your custom workout routine by adding exercises with specific sets and reps'}
-            </p>
-          </div>
-        </div>
+        <Button
+          variant="ghost"
+          onClick={goBack}
+          className="p-2"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
         <Button 
           onClick={handleCreateRoutine}
           disabled={saveRoutineMutation.isPending || selectedExercises.length === 0}
-          className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
+          size="sm"
         >
           {saveRoutineMutation.isPending ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              {isEditMode ? 'Updating...' : 'Creating...'}
+              {isEditMode ? 'Updating...' : 'Saving...'}
             </>
           ) : (
             <>
               <Save className="h-4 w-4 mr-2" />
-              {isEditMode ? 'Update Routine' : 'Save Routine'}
+              Save
             </>
           )}
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Routine Details & Add Exercise */}
-        <div className="lg:col-span-1 space-y-6">
-          {/* Routine Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Routine Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="routineName">Routine Name *</Label>
-                <Input
-                  id="routineName"
-                  placeholder="e.g., Push Day, Upper Body, Morning Workout"
-                  value={routineName}
-                  onChange={(e) => setRoutineName(e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="routineDescription">Description (Optional)</Label>
-                <Textarea
-                  id="routineDescription"
-                  placeholder="Describe your routine..."
-                  value={routineDescription}
-                  onChange={(e) => setRoutineDescription(e.target.value)}
-                  rows={3}
-                />
-              </div>
+      {/* Routine Title and Folder */}
+      <div className="space-y-3">
+        <Input
+          placeholder="Routine Title"
+          value={routineName}
+          onChange={(e) => setRoutineName(e.target.value)}
+          className="text-lg font-medium"
+        />
+        
+        <Select value={selectedFolderId} onValueChange={setSelectedFolderId}>
+          <SelectTrigger>
+            <SelectValue placeholder="Choose a folder or leave unorganized" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No Folder (Unorganized)</SelectItem>
+            {Array.isArray(folders) && folders.map((folder: any) => (
+              <SelectItem key={folder.id} value={folder.id.toString()}>
+                {folder.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
+      {/* Add Exercise Button */}
+      <Button 
+        onClick={() => setShowExerciseModal(true)}
+        className="w-full"
+        variant="outline"
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Add Exercise
+      </Button>
+
+      {/* Exercise Selection Modal */}
+      <Dialog open={showExerciseModal} onOpenChange={setShowExerciseModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Find & Add Exercise</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search by name or description..."
+                value={exerciseSearch}
+                onChange={(e) => setExerciseSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            {/* Filter Controls */}
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>Folder (Optional)</Label>
-                <Select value={selectedFolderId} onValueChange={setSelectedFolderId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a folder or leave unorganized" />
+                <Label className="text-sm">Muscle Group</Label>
+                <Select value={muscleGroupFilter} onValueChange={setMuscleGroupFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Any muscle" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No Folder (Unorganized)</SelectItem>
-                    {Array.isArray(folders) && folders.map((folder: any) => (
-                      <SelectItem key={folder.id} value={folder.id.toString()}>
-                        {folder.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="all">All Muscle Groups</SelectItem>
+                    <SelectItem value="chest">Chest</SelectItem>
+                    <SelectItem value="back">Back</SelectItem>
+                    <SelectItem value="shoulders">Shoulders</SelectItem>
+                    <SelectItem value="biceps">Biceps</SelectItem>
+                    <SelectItem value="triceps">Triceps</SelectItem>
+                    <SelectItem value="legs">Legs</SelectItem>
+                    <SelectItem value="glutes">Glutes</SelectItem>
+                    <SelectItem value="calves">Calves</SelectItem>
+                    <SelectItem value="abs">Abs</SelectItem>
+                    <SelectItem value="cardio">Cardio</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Add Exercise */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5" />
-                Find & Add Exercise
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              
               <div className="space-y-2">
-                <Label>Select Exercise</Label>
-                
-                {/* Search Bar */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search by name or description..."
-                    value={exerciseSearch}
-                    onChange={(e) => setExerciseSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                
-                {/* Filter Controls */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label className="text-sm">Muscle Group</Label>
-                    <Select value={muscleGroupFilter} onValueChange={setMuscleGroupFilter}>
+                <Label className="text-sm">Equipment</Label>
+                <Select value={equipmentFilter} onValueChange={setEquipmentFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Any equipment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Equipment</SelectItem>
+                    <SelectItem value="barbell">Barbell</SelectItem>
+                    <SelectItem value="dumbbell">Dumbbell</SelectItem>
+                    <SelectItem value="machine">Machine</SelectItem>
+                    <SelectItem value="bodyweight">Bodyweight</SelectItem>
+                    <SelectItem value="cable">Cable</SelectItem>
+                    <SelectItem value="kettlebell">Kettlebell</SelectItem>
+                    <SelectItem value="resistance_band">Resistance Band</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {/* Exercise List */}
+            <div className="max-h-64 overflow-y-auto">
+              {filteredExercises.map((exercise) => (
+                <button
+                  key={exercise.id}
+                  onClick={() => {
+                    addExerciseToRoutine(exercise);
+                    setShowExerciseModal(false);
+                  }}
+                  className="w-full text-left p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors mb-2"
+                >
+                  <div className="font-medium">{exercise.name}</div>
+                  <div className="text-sm text-gray-600">
+                    {exercise.muscleGroups?.join(', ')} • {exercise.type}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Selected Exercises List */}
+      {selectedExercises.length > 0 && (
+        <div className="space-y-4">
+          <div className="text-sm font-medium text-gray-600 border-b pb-2">
+            {selectedExercises.length} exercise{selectedExercises.length !== 1 ? 's' : ''} added
+          </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={selectedExercises.map((_, index) => `exercise-${index}`)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-3">
+                {selectedExercises.map((exercise, exerciseIndex) => (
+                  <SortableExerciseItem
+                    key={`exercise-${exerciseIndex}`}
+                    exercise={exercise}
+                    exerciseIndex={exerciseIndex}
+                    groupingMode={groupingMode}
+                    selectedForGrouping={selectedForGrouping}
+                    getSupersetColor={getSupersetColor}
+                    toggleExerciseSelection={toggleExerciseSelection}
+                    removeExercise={removeExercise}
+                    removeFromSuperset={removeFromSuperset}
+                    openSupersetModal={openSupersetModal}
+                    addToSuperset={addToSuperset}
+                    getSupersetsInUse={getSupersetsInUse}
+                    addSet={addSet}
+                    removeSet={removeSet}
+                    updateSet={updateSet}
+                  >
+                    <div />
+                  </SortableExerciseItem>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {selectedExercises.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          <div className="text-sm">No exercises added yet</div>
+          <div className="text-xs mt-1">Tap "Add Exercise" to get started</div>
+        </div>
+      )}
+      
+      {/* Superset Modal */}
+      <Dialog open={showSupersetModal} onOpenChange={setShowSupersetModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Superset</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Select exercises to group into a superset:
+            </p>
+            
+            <div className="space-y-2">
+              {selectedExercises.map((exercise, index) => {
+                if (index === currentExerciseIndex || exercise.supersetId) {
+                  return null;
+                }
+                return (
+                  <label key={index} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                    <Checkbox
+                      checked={selectedExercisesForSuperset.includes(index)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedExercisesForSuperset(prev => [...prev, index]);
+                        } else {
+                          setSelectedExercisesForSuperset(prev => prev.filter(i => i !== index));
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{exercise.exerciseName}</span>
+                  </label>
+                );
+              })}
+            </div>
+            
+            {selectedExercises.filter((_, index) => index !== currentExerciseIndex && !selectedExercises[index].supersetId).length === 0 && (
+              <p className="text-sm text-gray-500 italic">No other exercises available for superset</p>
+            )}
+          </div>
+          
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowSupersetModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                createSuperset(selectedExercisesForSuperset);
+                setShowSupersetModal(false);
+              }}
+              disabled={selectedExercisesForSuperset.length === 0}
+            >
+              Create Superset
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
                       <SelectTrigger className="h-9">
                         <SelectValue placeholder="Any muscle" />
                       </SelectTrigger>
