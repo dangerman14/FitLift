@@ -156,7 +156,7 @@ function SortableExerciseItem({
                 <div className="flex items-center">
                   <Checkbox
                     checked={selectedForGrouping.includes(exerciseIndex)}
-                    readOnly
+                    onCheckedChange={() => {}}
                     className="mr-2"
                   />
                 </div>
@@ -233,7 +233,146 @@ function SortableExerciseItem({
         </div>
       </div>
       
-      {/* Rest of exercise content will be added here */}
+      {/* Sets */}
+      <div className="mt-4">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="font-medium">Sets</h4>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => addSet(exerciseIndex)}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Set
+            </Button>
+          </div>
+        </div>
+        
+        {exercise.sets.map((set, setIndex) => (
+          <div key={setIndex} className="flex items-center gap-2 mb-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+            <span className="text-sm font-medium min-w-[2rem]">#{setIndex + 1}</span>
+            
+            {/* Weight input */}
+            <div className="flex-1">
+              <Label className="text-xs">Weight</Label>
+              <Input
+                type="text"
+                placeholder="Weight"
+                value={set.weight || ""}
+                onChange={(e) => updateSet(exerciseIndex, setIndex, 'weight', e.target.value)}
+                className="h-8"
+              />
+            </div>
+            
+            {/* Reps input */}
+            <div className="flex-1">
+              <Label className="text-xs">Reps</Label>
+              <Input
+                type="text"
+                placeholder="Reps"
+                value={set.reps || ""}
+                onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value)}
+                className="h-8"
+              />
+            </div>
+            
+            {/* Duration input for time-based exercises */}
+            {set.duration !== undefined && (
+              <div className="flex-1">
+                <Label className="text-xs">Duration</Label>
+                <Input
+                  type="text"
+                  placeholder="Duration"
+                  value={set.duration || ""}
+                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'duration', e.target.value)}
+                  className="h-8"
+                />
+              </div>
+            )}
+            
+            {/* Distance input for distance-based exercises */}
+            {set.distance !== undefined && (
+              <div className="flex-1">
+                <Label className="text-xs">Distance</Label>
+                <Input
+                  type="text"
+                  placeholder="Distance"
+                  value={set.distance || ""}
+                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'distance', e.target.value)}
+                  className="h-8"
+                />
+              </div>
+            )}
+            
+            {/* Assistance weight for bodyweight exercises */}
+            {set.assistanceWeight !== undefined && (
+              <div className="flex-1">
+                <Label className="text-xs">Assistance</Label>
+                <Input
+                  type="text"
+                  placeholder="Assistance"
+                  value={set.assistanceWeight || ""}
+                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'assistanceWeight', e.target.value)}
+                  className="h-8"
+                />
+              </div>
+            )}
+            
+            {/* RPE input */}
+            <div className="w-16">
+              <Label className="text-xs">RPE</Label>
+              <Input
+                type="text"
+                placeholder="RPE"
+                value={set.rpe || ""}
+                onChange={(e) => updateSet(exerciseIndex, setIndex, 'rpe', e.target.value)}
+                className="h-8"
+              />
+            </div>
+            
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => removeSet(exerciseIndex, setIndex)}
+              className="text-red-600 hover:text-red-700 h-8 w-8 p-0"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        ))}
+      </div>
+      
+      {/* Rest Duration */}
+      <div className="mt-4">
+        <Label className="text-sm font-medium">Rest Duration (seconds)</Label>
+        <Input
+          type="number"
+          value={exercise.restDuration}
+          onChange={(e) => {
+            const newExercises = [...selectedExercises];
+            newExercises[exerciseIndex].restDuration = parseInt(e.target.value) || 0;
+            setSelectedExercises(newExercises);
+          }}
+          className="mt-1"
+        />
+      </div>
+      
+      {/* Notes */}
+      <div className="mt-4">
+        <Label className="text-sm font-medium">Notes</Label>
+        <Textarea
+          value={exercise.notes || ""}
+          onChange={(e) => {
+            const newExercises = [...selectedExercises];
+            newExercises[exerciseIndex].notes = e.target.value;
+            setSelectedExercises(newExercises);
+          }}
+          placeholder="Add any notes for this exercise..."
+          className="mt-1"
+          rows={2}
+        />
+      </div>
     </div>
   );
 }
@@ -598,11 +737,14 @@ export default function CreateRoutine() {
       exerciseName: exercise.name,
       sets: Array.from({ length: parseInt(sets) }, () => ({
         reps: repsValue,
-        weight: undefined, // Will be set later in the routine
-        rpe: undefined, // Will be set later in the routine
+        weight: "",
+        duration: exercise.exerciseType === 'duration' ? "" : undefined,
+        distance: exercise.exerciseType === 'distance' ? "" : undefined,
+        assistanceWeight: exercise.exerciseType === 'bodyweight' ? "" : undefined,
+        rpe: "",
       })),
       restDuration: parseInt(restDuration),
-      notes: undefined, // Will be set later in the routine
+      notes: "",
     };
 
     setSelectedExercises([...selectedExercises, routineExercise]);
