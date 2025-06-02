@@ -1147,6 +1147,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const formData = req.body;
       
+      console.log('Received body entry data:', formData);
+      
       let results: any = {};
       const today = new Date().toISOString().split('T')[0];
       
@@ -1155,7 +1157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const weight = parseFloat(formData.weight);
         results.bodyweight = await storage.createBodyweightEntry({
           userId,
-          weight,
+          weight: weight.toString(),
           measurementDate: today,
         });
         await storage.updateUserCurrentBodyweight(userId, weight);
@@ -1167,10 +1169,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       ['chest', 'waist', 'hips', 'bicepsLeft', 'bicepsRight', 'thighLeft', 'thighRight', 'bodyFatPercentage'].forEach(field => {
         if (formData[field] && !isNaN(parseFloat(formData[field]))) {
-          measurements[field] = parseFloat(formData[field]);
+          measurements[field] = parseFloat(formData[field]).toString();
           hasMeasurements = true;
         }
       });
+      
+      console.log('Measurements to save:', measurements, 'Has measurements:', hasMeasurements);
       
       if (hasMeasurements) {
         results.measurement = await storage.createBodyMeasurement({
@@ -1179,6 +1183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...measurements,
           notes: formData.notes || null,
         });
+        console.log('Saved measurement:', results.measurement);
       }
       
       res.json(results);
