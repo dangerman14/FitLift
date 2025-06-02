@@ -83,6 +83,7 @@ interface SortableExerciseItemProps {
   addSet: (exerciseIndex: number) => void;
   removeSet: (exerciseIndex: number, setIndex: number) => void;
   updateSet: (exerciseIndex: number, setIndex: number, field: keyof RoutineSet, value: string) => void;
+  isDraggingGlobal: boolean;
   children: React.ReactNode;
 }
 
@@ -100,7 +101,8 @@ function SortableExerciseItem({
   getSupersetsInUse,
   addSet,
   removeSet,
-  updateSet
+  updateSet,
+  isDraggingGlobal
 }: SortableExerciseItemProps) {
   const {
     attributes,
@@ -461,6 +463,9 @@ export default function CreateRoutine() {
   
   // Mobile exercise modal
   const [showMobileExerciseModal, setShowMobileExerciseModal] = useState(false);
+  
+  // Drag state for minimized view
+  const [isDragging, setIsDragging] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -650,9 +655,14 @@ export default function CreateRoutine() {
     });
   };
 
-  // Drag and drop handler
+  // Drag and drop handlers
+  const handleDragStart = () => {
+    setIsDragging(true);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setIsDragging(false);
 
     if (over && active.id !== over.id) {
       const oldIndex = selectedExercises.findIndex((_, index) => index.toString() === active.id);
@@ -1422,6 +1432,7 @@ export default function CreateRoutine() {
                     <DndContext
                       sensors={sensors}
                       collisionDetection={closestCenter}
+                      onDragStart={handleDragStart}
                       onDragEnd={handleDragEnd}
                     >
                       <SortableContext 
@@ -1446,6 +1457,7 @@ export default function CreateRoutine() {
                               addSet={addSet}
                               removeSet={removeSet}
                               updateSet={updateSet}
+                              isDraggingGlobal={isDragging}
                             >
                               <div 
                                 className={`relative border rounded-lg bg-white ${
@@ -1658,6 +1670,7 @@ export default function CreateRoutine() {
                     <DndContext
                       sensors={sensors}
                       collisionDetection={closestCenter}
+                      onDragStart={handleDragStart}
                       onDragEnd={handleDragEnd}
                     >
                       <SortableContext 
