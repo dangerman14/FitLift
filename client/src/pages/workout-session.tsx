@@ -287,6 +287,7 @@ export default function WorkoutSession() {
                 return {
                   ...ex,
                   sets: ex.sets.map((set: any) => ({
+                    id: set.id, // IMPORTANT: Preserve the database ID to prevent duplicates
                     setNumber: set.setNumber,
                     weight: parseFloat(set.weight) || 0,
                     reps: set.reps || 0,
@@ -810,8 +811,11 @@ export default function WorkoutSession() {
     const set = exercise?.sets[setIndex];
     
     if (exercise && set && (field === 'weight' || field === 'reps') && value > 0) {
-      // Save incomplete sets immediately to prevent data loss
-      setTimeout(() => {
+      // Clear any existing timeout to prevent duplicate saves
+      clearTimeout(autoSaveTimeouts.current[`${exerciseIndex}-${setIndex}`]);
+      
+      // Debounce the save to prevent duplicate API calls
+      autoSaveTimeouts.current[`${exerciseIndex}-${setIndex}`] = setTimeout(() => {
         const updatedSet = { ...set, [field]: value };
         
         // Check if this set already exists in database (has an ID)
@@ -825,9 +829,9 @@ export default function WorkoutSession() {
               [field]: value,
               completed: false // Keep as incomplete
             })
-          }).catch(err => console.log('Auto-save failed:', err));
+          }).catch(err => console.log('Auto-save update failed:', err));
         } else {
-          // Create new incomplete set
+          // Create new incomplete set (only if it doesn't have an ID yet)
           fetch(`/api/workout-exercises/${exercise.id}/sets`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -842,7 +846,7 @@ export default function WorkoutSession() {
           })
           .then(response => response.json())
           .then(savedSet => {
-            // Update the local set with the database ID
+            // Update the local set with the database ID to prevent future duplicates
             setWorkoutExercises(prev => 
               prev.map((ex, exIndex) => 
                 exIndex === exerciseIndex 
@@ -856,9 +860,9 @@ export default function WorkoutSession() {
               )
             );
           })
-          .catch(err => console.log('Auto-save failed:', err));
+          .catch(err => console.log('Auto-save create failed:', err));
         }
-      }, 500); // Quick save after typing
+      }, 1000); // Wait 1 second after user stops typing
     }
   };
 
