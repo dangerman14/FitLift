@@ -214,7 +214,11 @@ export default function BodyTracking() {
   };
 
   const formatDateForComparison = (date: Date) => {
-    return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+    // Use local date instead of UTC to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`; // YYYY-MM-DD format in local timezone
   };
 
   // Get all entries dates for easy lookup
