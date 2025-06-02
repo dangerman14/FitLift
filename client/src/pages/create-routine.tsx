@@ -93,6 +93,8 @@ export default function CreateRoutine() {
   const [showSupersetModal, setShowSupersetModal] = useState(false);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState<number | null>(null);
   const [selectedExercisesForSuperset, setSelectedExercisesForSuperset] = useState<number[]>([]);
+  const [groupingMode, setGroupingMode] = useState(false);
+  const [selectedForGrouping, setSelectedForGrouping] = useState<number[]>([]);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -241,6 +243,58 @@ export default function CreateRoutine() {
           : exercise
       )
     );
+  };
+
+  // One-click grouping functions
+  const enterGroupingMode = () => {
+    setGroupingMode(true);
+    setSelectedForGrouping([]);
+  };
+
+  const exitGroupingMode = () => {
+    setGroupingMode(false);
+    setSelectedForGrouping([]);
+  };
+
+  const toggleExerciseSelection = (exerciseIndex: number) => {
+    if (!groupingMode) return;
+    
+    setSelectedForGrouping(prev => {
+      if (prev.includes(exerciseIndex)) {
+        return prev.filter(i => i !== exerciseIndex);
+      } else {
+        return [...prev, exerciseIndex];
+      }
+    });
+  };
+
+  const createGroupFromSelection = () => {
+    if (selectedForGrouping.length < 2) {
+      toast({
+        title: "Invalid Selection",
+        description: "Please select at least 2 exercises to create a superset.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const newSupersetId = generateSupersetId();
+    
+    setSelectedExercises(prev => 
+      prev.map((exercise, index) => 
+        selectedForGrouping.includes(index)
+          ? { ...exercise, supersetId: newSupersetId }
+          : exercise
+      )
+    );
+
+    setSupersetCounter(prev => prev + 1);
+    exitGroupingMode();
+    
+    toast({
+      title: "Superset Created!",
+      description: `${selectedForGrouping.length} exercises grouped into ${newSupersetId}`,
+    });
   };
 
   // Filter exercises based on search and filters
@@ -803,14 +857,53 @@ export default function CreateRoutine() {
         <div className="lg:col-span-2">
           <Card className="h-fit">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Routine Exercises ({selectedExercises.length})</span>
-                {selectedExercises.length > 0 && (
-                  <span className="text-sm font-normal text-gray-600">
-                    Total: {selectedExercises.reduce((sum, ex) => sum + ex.sets.length, 0)} sets
-                  </span>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center justify-between flex-1">
+                  <span>Routine Exercises ({selectedExercises.length})</span>
+                  {selectedExercises.length > 0 && (
+                    <span className="text-sm font-normal text-gray-600">
+                      Total: {selectedExercises.reduce((sum, ex) => sum + ex.sets.length, 0)} sets
+                    </span>
+                  )}
+                </CardTitle>
+                {selectedExercises.length >= 2 && (
+                  <div className="flex gap-2 ml-4">
+                    {!groupingMode ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={enterGroupingMode}
+                        className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                      >
+                        Group Exercises
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={exitGroupingMode}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={createGroupFromSelection}
+                          disabled={selectedForGrouping.length < 2}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          Create Group ({selectedForGrouping.length})
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 )}
-              </CardTitle>
+              </div>
+              {groupingMode && (
+                <div className="mt-2 p-2 bg-blue-50 rounded text-sm text-blue-700">
+                  Click on exercises below to select them for grouping into a superset
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               {selectedExercises.length > 0 ? (
@@ -818,16 +911,38 @@ export default function CreateRoutine() {
                   {selectedExercises.map((exercise, exerciseIndex) => (
                     <div 
                       key={`${exercise.exerciseId}-${exerciseIndex}`}
-                      className={`border rounded-lg bg-white border-l-4 ${
+                      className={`border rounded-lg bg-white border-l-4 transition-all duration-200 ${
                         exercise.supersetId 
                           ? getSupersetColor(exercise.supersetId)
                           : 'border-l-gray-200'
+                      } ${
+                        groupingMode && !exercise.supersetId
+                          ? 'cursor-pointer hover:shadow-md hover:border-blue-300'
+                          : ''
+                      } ${
+                        selectedForGrouping.includes(exerciseIndex)
+                          ? 'ring-2 ring-blue-500 bg-blue-50'
+                          : ''
                       }`}
+                      onClick={() => {
+                        if (groupingMode && !exercise.supersetId) {
+                          toggleExerciseSelection(exerciseIndex);
+                        }
+                      }}
                     >
                       {/* Exercise Header */}
                       <div className="flex items-center justify-between p-4 border-b bg-gray-50">
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
+                            {groupingMode && !exercise.supersetId && (
+                              <div className="flex items-center">
+                                <Checkbox
+                                  checked={selectedForGrouping.includes(exerciseIndex)}
+                                  readOnly
+                                  className="mr-2"
+                                />
+                              </div>
+                            )}
                             <div className="font-medium text-lg">{exercise.exerciseName}</div>
                             {exercise.supersetId && (
                               <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
