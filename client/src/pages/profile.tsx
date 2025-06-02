@@ -3,6 +3,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ export default function Profile() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   const [weightInput, setWeightInput] = useState("");
   const [isEditingGoals, setIsEditingGoals] = useState(false);
 
@@ -177,7 +179,7 @@ export default function Profile() {
               </div>
               <Button 
                 className="bg-primary-500 hover:bg-primary-600"
-                onClick={() => window.location.href = '/settings'}
+                onClick={() => setLocation('/settings')}
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Settings

@@ -32,7 +32,6 @@ export default function Navigation() {
     { path: "/exercises", icon: List, label: "Exercises" },
     { path: "/routines", icon: Calendar, label: "Routines" },
     { path: "/profile", icon: User, label: "Profile" },
-    { path: "/settings", icon: Settings, label: "Settings" },
   ];
 
   return (
