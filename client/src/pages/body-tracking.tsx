@@ -184,9 +184,13 @@ export default function BodyTracking() {
 
   // Transform bodyweight history for chart
   const chartData = bodyWeightHistory?.map((entry: any) => ({
-    date: new Date(entry.measurementDate).toLocaleDateString(),
+    date: entry.measurementDate, // Keep as YYYY-MM-DD format for proper chart sorting
     weight: parseFloat(entry.weight),
-  })) || [];
+  })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+
+  // Debug logging
+  console.log('Raw bodyweight history:', bodyWeightHistory);
+  console.log('Transformed chart data:', chartData);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
