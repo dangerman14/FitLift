@@ -262,119 +262,24 @@ export default function Profile() {
             </p>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="weight" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="weight">Weight Progress</TabsTrigger>
-                <TabsTrigger value="photos">Progress Photos</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="weight" className="space-y-4">
-                <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        value={weightInput}
-                        onChange={(e) => setWeightInput(e.target.value)}
-                        placeholder="Enter your current weight"
-                        step="0.1"
-                        min="0"
-                        className="rounded-xl border-2"
-                        disabled={isLoadingBodyweight}
-                      />
-                      <span className="text-sm text-muted-foreground min-w-[30px]">
-                        {(user as any)?.weightUnit || "kg"}
-                      </span>
-                    </div>
-                    {currentBodyweight && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Current: {currentBodyweight} {(user as any)?.weightUnit || "kg"}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    onClick={handleBodyWeightSubmit}
-                    disabled={updateBodyweightMutation.isPending || !weightInput}
-                    className="bg-blue-500 hover:bg-blue-600"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {updateBodyweightMutation.isPending ? "Saving..." : "Add Entry"}
-                  </Button>
+            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+              <div>
+                <div className="font-medium text-neutral-900 mb-1">Current Weight</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {currentBodyweight ? `${currentBodyweight} ${(user as any)?.weightUnit || "kg"}` : "Not set"}
                 </div>
-                
-                {/* Weight Progress Chart */}
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={bodyWeightHistory || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
-                      <Tooltip formatter={(value) => [`${value} ${(user as any)?.weightUnit || "kg"}`, "Weight"]} />
-                      <Line 
-                        type="monotone" 
-                        dataKey="weight" 
-                        stroke="#3b82f6" 
-                        strokeWidth={2}
-                        dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                <div className="text-sm text-neutral-600 mt-1">
+                  Track your progress with detailed charts and photos
                 </div>
-              </TabsContent>
-
-              <TabsContent value="photos" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Upload New Photo */}
-                  <div className="border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      id="photo-upload"
-                      onChange={handlePhotoUpload}
-                    />
-                    <label htmlFor="photo-upload" className="cursor-pointer">
-                      <div className="flex flex-col items-center space-y-2">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                          <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-neutral-900">Upload Progress Photo</p>
-                          <p className="text-xs text-neutral-500">PNG, JPG up to 10MB</p>
-                        </div>
-                      </div>
-                    </label>
-                  </div>
-
-                  {/* Progress Photos Grid */}
-                  {progressPhotos && progressPhotos.length > 0 ? (
-                    progressPhotos.map((photo: any, index: number) => (
-                      <div key={index} className="relative group">
-                        <img 
-                          src={photo.imageUrl} 
-                          alt={`Progress ${new Date(photo.dateTaken).toLocaleDateString()}`}
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                          <div className="text-white text-center">
-                            <p className="text-sm font-medium">{new Date(photo.dateTaken).toLocaleDateString()}</p>
-                            {photo.weight && (
-                              <p className="text-xs">{photo.weight} {(user as any)?.weightUnit || "kg"}</p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="col-span-full text-center py-8">
-                      <p className="text-neutral-500">No progress photos yet. Upload your first photo to start tracking your transformation!</p>
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
+              </div>
+              <Button
+                onClick={() => setLocation('/body-tracking')}
+                className="bg-blue-500 hover:bg-blue-600"
+              >
+                <Scale className="h-4 w-4 mr-2" />
+                Open Body Tracking
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

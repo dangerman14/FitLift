@@ -89,6 +89,16 @@ export const userBodyweight = pgTable("user_bodyweight", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const progressPhotos = pgTable("progress_photos", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  imageUrl: text("image_url").notNull(),
+  weight: decimal("weight", { precision: 6, scale: 2 }),
+  dateTaken: timestamp("date_taken").notNull().defaultNow(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const fitnessGoals = pgTable("fitness_goals", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -294,6 +304,13 @@ export const userBodyweightRelations = relations(userBodyweight, ({ one }) => ({
   }),
 }));
 
+export const progressPhotosRelations = relations(progressPhotos, ({ one }) => ({
+  user: one(users, {
+    fields: [progressPhotos.userId],
+    references: [users.id],
+  }),
+}));
+
 export const fitnessGoalsRelations = relations(fitnessGoals, ({ one }) => ({
   user: one(users, {
     fields: [fitnessGoals.userId],
@@ -408,6 +425,9 @@ export type BodyMeasurement = typeof bodyMeasurements.$inferSelect;
 
 export type InsertUserBodyweight = typeof userBodyweight.$inferInsert;
 export type UserBodyweight = typeof userBodyweight.$inferSelect;
+
+export type InsertProgressPhoto = typeof progressPhotos.$inferInsert;
+export type ProgressPhoto = typeof progressPhotos.$inferSelect;
 
 export type InsertFitnessGoal = typeof fitnessGoals.$inferInsert;
 export type FitnessGoal = typeof fitnessGoals.$inferSelect;
