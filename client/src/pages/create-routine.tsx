@@ -773,6 +773,7 @@ export default function CreateRoutine() {
     if (exerciseParam) {
       // Called from mobile exercise list with exercise parameter
       exercise = exerciseParam;
+      console.log('Mobile exercise selected:', exercise);
     } else {
       // Called from desktop form using selectedExerciseId
       if (!selectedExerciseId) {
@@ -786,7 +787,10 @@ export default function CreateRoutine() {
       exercise = exercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
     }
     
-    if (!exercise) return;
+    if (!exercise) {
+      console.log('No exercise found:', { exerciseParam, selectedExerciseId });
+      return;
+    }
 
     const repsValue = useRepRange 
       ? (minReps === maxReps ? minReps : `${minReps}-${maxReps}`)
