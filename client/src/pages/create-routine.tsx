@@ -1407,7 +1407,8 @@ export default function CreateRoutine() {
 
         {/* Right Column - Routine Preview (Desktop) / Main Content (Mobile) */}
         <div className="col-span-1 lg:col-span-2">
-          <Card className="h-fit">
+          {/* Desktop Card Layout */}
+          <Card className="h-fit hidden lg:block">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center justify-between flex-1">
@@ -1461,7 +1462,7 @@ export default function CreateRoutine() {
               {selectedExercises.length > 0 ? (
                 <>
                   {/* Desktop Layout with Drag & Drop */}
-                  <div className="hidden lg:block">
+                  <div className="space-y-0">
                     <DndContext
                       sensors={sensors}
                       collisionDetection={closestCenter}
@@ -1697,170 +1698,6 @@ export default function CreateRoutine() {
                   </SortableContext>
                 </DndContext>
                   </div>
-                  
-                  {/* Mobile Layout - With drag and drop support */}
-                  <div className="lg:hidden">
-                    <DndContext
-                      sensors={sensors}
-                      collisionDetection={closestCenter}
-                      onDragStart={handleDragStart}
-                      onDragEnd={handleDragEnd}
-                    >
-                      <SortableContext 
-                        items={selectedExercises.map((_, index) => index.toString())}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        <div className="space-y-4">
-                          {selectedExercises.map((exercise, exerciseIndex) => (
-                            <SortableExerciseItem
-                              key={`mobile-${exercise.exerciseId}-${exerciseIndex}`}
-                              exercise={exercise}
-                              exerciseIndex={exerciseIndex}
-                              groupingMode={groupingMode}
-                              selectedForGrouping={selectedForGrouping}
-                              getSupersetColor={getSupersetColor}
-                              toggleExerciseSelection={toggleExerciseSelection}
-                              removeExercise={removeExercise}
-                              removeFromSuperset={removeFromSuperset}
-                              openSupersetModal={openSupersetModal}
-                              addToSuperset={addToSuperset}
-                              getSupersetsInUse={getSupersetsInUse}
-                              addSet={addSet}
-                              removeSet={removeSet}
-                              updateSet={updateSet}
-                              isDraggingGlobal={isDragging}
-                            >
-                              <div className="border rounded-lg bg-white p-4 space-y-4">
-                                {/* Exercise Header */}
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-medium text-lg">{exercise.exerciseName}</h3>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeExercise(exerciseIndex)}
-                            className="h-8 w-8 p-0 text-red-500"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        
-                        {/* Sets Configuration */}
-                        <div className="space-y-3">
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium">Sets</span>
-                          </div>
-                          
-                          {/* Table Header */}
-                          <div className="grid grid-cols-5 gap-2 py-2 px-3 bg-gray-100 rounded text-xs font-medium text-gray-600">
-                            <div className="text-center">Set</div>
-                            <div className="text-center">Weight</div>
-                            <div className="text-center">Reps</div>
-                            <div className="text-center">RPE</div>
-                            <div className="text-center">×</div>
-                          </div>
-                          
-                          {/* Set Rows */}
-                          {exercise.sets.map((set, setIndex) => (
-                            <div key={setIndex} className="grid grid-cols-5 gap-2 py-2 px-3 bg-white border rounded">
-                              {/* Set Number */}
-                              <div className="flex items-center justify-center">
-                                <span className="text-sm font-medium">#{setIndex + 1}</span>
-                              </div>
-                              
-                              {/* Weight Input */}
-                              <div className="flex items-center">
-                                <Input
-                                  type="text"
-                                  placeholder="Weight"
-                                  value={set.weight || ""}
-                                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'weight', e.target.value)}
-                                  className="h-8 text-center text-sm"
-                                />
-                              </div>
-                              
-                              {/* Reps Input */}
-                              <div className="flex items-center">
-                                <Input
-                                  type="text"
-                                  placeholder="Reps"
-                                  value={set.reps || ""}
-                                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value)}
-                                  className="h-8 text-center text-sm"
-                                />
-                              </div>
-                              
-                              {/* RPE Input */}
-                              <div className="flex items-center">
-                                <Input
-                                  type="text"
-                                  placeholder="RPE"
-                                  value={set.rpe || ""}
-                                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'rpe', e.target.value)}
-                                  className="h-8 text-center text-sm"
-                                />
-                              </div>
-                              
-                              {/* Remove Set Button */}
-                              <div className="flex items-center justify-center">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeSet(exerciseIndex, setIndex)}
-                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                                >
-                                  <X className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                          
-                          {/* Add Set Button Row */}
-                          <div className="grid grid-cols-5 gap-2 py-2 px-3">
-                            <div className="col-span-5">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => addSet(exerciseIndex)}
-                                className="w-full h-8 text-sm"
-                              >
-                                <Plus className="h-3 w-3 mr-1" />
-                                Add Set
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Rest Duration */}
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">Rest:</span>
-                          <Select
-                            value={exercise.restDuration.toString()}
-                            onValueChange={(value) => {
-                              const newExercises = [...selectedExercises];
-                              newExercises[exerciseIndex].restDuration = parseInt(value);
-                              setSelectedExercises(newExercises);
-                            }}
-                          >
-                            <SelectTrigger className="w-20 h-8">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="60">1m</SelectItem>
-                              <SelectItem value="90">1.5m</SelectItem>
-                              <SelectItem value="120">2m</SelectItem>
-                              <SelectItem value="180">3m</SelectItem>
-                              <SelectItem value="240">4m</SelectItem>
-                              <SelectItem value="300">5m</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                            </SortableExerciseItem>
-                          ))}
-                        </div>
-                      </SortableContext>
-                    </DndContext>
-                  </div>
                 </>
               ) : (
                 <div className="text-center py-8 text-gray-500">
@@ -1871,6 +1708,228 @@ export default function CreateRoutine() {
               )}
             </CardContent>
           </Card>
+
+          {/* Mobile Layout - No Card, Direct Content */}
+          <div className="lg:hidden">
+            {/* Mobile Header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between flex-1">
+                <span className="text-lg font-semibold">Routine Exercises ({selectedExercises.length})</span>
+                {selectedExercises.length > 0 && (
+                  <span className="text-sm text-gray-600">
+                    {selectedExercises.reduce((sum, ex) => sum + ex.sets.length, 0)} sets
+                  </span>
+                )}
+              </div>
+              {selectedExercises.length >= 2 && (
+                <div className="flex gap-2 ml-4">
+                  {!groupingMode ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={enterGroupingMode}
+                      className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                    >
+                      Group Exercises
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={exitGroupingMode}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={createGroupFromSelection}
+                        disabled={selectedForGrouping.length < 2}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        Create Group ({selectedForGrouping.length})
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            {groupingMode && (
+              <div className="mb-4 p-3 bg-blue-50 rounded text-sm text-blue-700">
+                Click on exercises below to select them for grouping into a superset
+              </div>
+            )}
+
+            {/* Mobile Exercise List */}
+            {selectedExercises.length > 0 ? (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext 
+                  items={selectedExercises.map((_, index) => index.toString())}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-6">
+                    {selectedExercises.map((exercise, exerciseIndex) => (
+                      <SortableExerciseItem
+                        key={`mobile-${exercise.exerciseId}-${exerciseIndex}`}
+                        exercise={exercise}
+                        exerciseIndex={exerciseIndex}
+                        groupingMode={groupingMode}
+                        selectedForGrouping={selectedForGrouping}
+                        getSupersetColor={getSupersetColor}
+                        toggleExerciseSelection={toggleExerciseSelection}
+                        removeExercise={removeExercise}
+                        removeFromSuperset={removeFromSuperset}
+                        openSupersetModal={openSupersetModal}
+                        addToSuperset={addToSuperset}
+                        getSupersetsInUse={getSupersetsInUse}
+                        addSet={addSet}
+                        removeSet={removeSet}
+                        updateSet={updateSet}
+                        isDraggingGlobal={isDragging}
+                      >
+                        <div className="bg-white space-y-4 py-4">
+                          {/* Exercise Header */}
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium text-lg">{exercise.exerciseName}</h3>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeExercise(exerciseIndex)}
+                              className="h-8 w-8 p-0 text-red-500"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          {/* Sets Configuration */}
+                          <div className="space-y-3">
+                            <div className="flex items-center">
+                              <span className="text-sm font-medium">Sets</span>
+                            </div>
+                            
+                            {/* Table Header */}
+                            <div className="grid grid-cols-5 gap-2 py-2 px-3 bg-gray-100 rounded text-xs font-medium text-gray-600">
+                              <div className="text-center">Set</div>
+                              <div className="text-center">Weight</div>
+                              <div className="text-center">Reps</div>
+                              <div className="text-center">RPE</div>
+                              <div className="text-center">×</div>
+                            </div>
+                            
+                            {/* Set Rows */}
+                            {exercise.sets.map((set, setIndex) => (
+                              <div key={setIndex} className="grid grid-cols-5 gap-2 py-2 px-3 bg-white border rounded">
+                                {/* Set Number */}
+                                <div className="flex items-center justify-center">
+                                  <span className="text-sm font-medium">#{setIndex + 1}</span>
+                                </div>
+                                
+                                {/* Weight Input */}
+                                <div className="flex items-center">
+                                  <Input
+                                    type="text"
+                                    placeholder="Weight"
+                                    value={set.weight || ""}
+                                    onChange={(e) => updateSet(exerciseIndex, setIndex, 'weight', e.target.value)}
+                                    className="h-8 text-center text-sm"
+                                  />
+                                </div>
+                                
+                                {/* Reps Input */}
+                                <div className="flex items-center">
+                                  <Input
+                                    type="text"
+                                    placeholder="Reps"
+                                    value={set.reps || ""}
+                                    onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value)}
+                                    className="h-8 text-center text-sm"
+                                  />
+                                </div>
+                                
+                                {/* RPE Input */}
+                                <div className="flex items-center">
+                                  <Input
+                                    type="text"
+                                    placeholder="RPE"
+                                    value={set.rpe || ""}
+                                    onChange={(e) => updateSet(exerciseIndex, setIndex, 'rpe', e.target.value)}
+                                    className="h-8 text-center text-sm"
+                                  />
+                                </div>
+                                
+                                {/* Remove Set Button */}
+                                <div className="flex items-center justify-center">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeSet(exerciseIndex, setIndex)}
+                                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                            
+                            {/* Add Set Button Row */}
+                            <div className="grid grid-cols-5 gap-2 py-2 px-3">
+                              <div className="col-span-5">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => addSet(exerciseIndex)}
+                                  className="w-full h-8 text-sm"
+                                >
+                                  <Plus className="h-3 w-3 mr-1" />
+                                  Add Set
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Rest Duration */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">Rest:</span>
+                            <Select
+                              value={exercise.restDuration.toString()}
+                              onValueChange={(value) => {
+                                const newExercises = [...selectedExercises];
+                                newExercises[exerciseIndex].restDuration = parseInt(value);
+                                setSelectedExercises(newExercises);
+                              }}
+                            >
+                              <SelectTrigger className="w-20 h-8">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="60">1m</SelectItem>
+                                <SelectItem value="90">1.5m</SelectItem>
+                                <SelectItem value="120">2m</SelectItem>
+                                <SelectItem value="180">3m</SelectItem>
+                                <SelectItem value="240">4m</SelectItem>
+                                <SelectItem value="300">5m</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </SortableExerciseItem>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Dumbbell className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                <p>No exercises added yet</p>
+                <p className="text-sm">Select exercises from the list below to build your routine</p>
+              </div>
+            )}
+          </div>
 
           {/* Superset Creation Modal */}
           <Dialog open={showSupersetModal} onOpenChange={setShowSupersetModal}>
