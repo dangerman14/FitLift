@@ -38,7 +38,7 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: sessionTtl,
     },
   });
@@ -128,6 +128,18 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  // Allow bypass in development mode for testing
+  if (process.env.NODE_ENV === 'development') {
+    // Create a mock user for development
+    req.user = {
+      id: 'dev-user-1',
+      email: 'developer@example.com',
+      firstName: 'Developer',
+      lastName: 'User'
+    };
+    return next();
+  }
+
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {

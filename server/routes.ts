@@ -16,6 +16,11 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 
+// Helper function to extract user ID in both development and production
+function getUserId(req: any): string {
+  return process.env.NODE_ENV === 'development' ? req.user.id : req.user.claims.sub;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
@@ -23,6 +28,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
+      // Handle development mode
+      if (process.env.NODE_ENV === 'development') {
+        const userId = req.user.id;
+        let user = await storage.getUser(userId);
+        
+        // Create user if doesn't exist in development
+        if (!user) {
+          user = await storage.upsertUser({
+            id: userId,
+            email: req.user.email,
+            firstName: req.user.firstName,
+            lastName: req.user.lastName,
+          });
+        }
+        
+        return res.json(user);
+      }
+
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       res.json(user);
@@ -35,7 +58,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User settings route
   app.patch('/api/user/settings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = process.env.NODE_ENV === 'development' ? req.user.id : req.user.claims.sub;
       const { weightUnit, distanceUnit, bodyMeasurementUnit } = req.body;
       
       const updatedUser = await storage.updateUserSettings(userId, {
