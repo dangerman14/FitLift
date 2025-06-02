@@ -477,6 +477,9 @@ export default function CreateRoutine() {
   const [selectedExercisesForSuperset, setSelectedExercisesForSuperset] = useState<number[]>([]);
   const [groupingMode, setGroupingMode] = useState(false);
   const [selectedForGrouping, setSelectedForGrouping] = useState<number[]>([]);
+  
+  // Mobile exercise modal
+  const [showMobileExerciseModal, setShowMobileExerciseModal] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
