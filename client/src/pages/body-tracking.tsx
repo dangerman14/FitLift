@@ -18,7 +18,8 @@ import {
   ArrowLeft,
   Ruler,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Edit
 } from "lucide-react";
 import { 
   ChestIcon, 
@@ -764,11 +765,22 @@ export default function BodyTracking() {
                                 <div className="text-sm font-medium text-neutral-900">
                                   {new Date(measurement.date).toLocaleDateString()}
                                 </div>
-                                {measurement.notes && (
-                                  <div className="text-xs text-neutral-500 max-w-xs italic">
-                                    "{measurement.notes}"
-                                  </div>
-                                )}
+                                <div className="flex items-center gap-2">
+                                  {measurement.notes && (
+                                    <div className="text-xs text-neutral-500 max-w-xs italic">
+                                      "{measurement.notes}"
+                                    </div>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setLocation(`/body-tracking/edit/${new Date(measurement.date).toISOString().split('T')[0]}`)}
+                                    className="h-6 px-2 text-xs"
+                                  >
+                                    <Edit className="h-3 w-3 mr-1" />
+                                    Edit
+                                  </Button>
+                                </div>
                               </div>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                                 {measurement.chest && (
