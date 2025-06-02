@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Settings as SettingsIcon, Save, Scale, MapPin, Ruler, History, User } from "lucide-react";
+import { Settings as SettingsIcon, Save, MapPin, Ruler, History } from "lucide-react";
 
 const settingsSchema = z.object({
   weightUnit: z.enum(["kg", "lbs"]),
@@ -39,18 +39,13 @@ const settingsSchema = z.object({
   previousWorkoutMode: z.enum(["any_workout", "same_routine"]),
 });
 
-const bodyWeightSchema = z.object({
-  weight: z.number().min(0.1, "Weight must be greater than 0"),
-});
-
 type SettingsForm = z.infer<typeof settingsSchema>;
-type BodyWeightForm = z.infer<typeof bodyWeightSchema>;
 
 export default function Settings() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [weightInput, setWeightInput] = useState("");
+
 
   const form = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
@@ -62,10 +57,7 @@ export default function Settings() {
     },
   });
 
-  // Get current body weight
-  const { data: currentBodyweight, isLoading: isLoadingBodyweight } = useQuery({
-    queryKey: ["/api/user/bodyweight/current"],
-  });
+
 
   // Update form values when user data is loaded
   useEffect(() => {
@@ -79,49 +71,7 @@ export default function Settings() {
     }
   }, [user, form]);
 
-  // Update weight input when current bodyweight is loaded
-  useEffect(() => {
-    if (currentBodyweight && typeof currentBodyweight === 'number') {
-      setWeightInput(currentBodyweight.toString());
-    }
-  }, [currentBodyweight]);
 
-  // Body weight update mutation
-  const updateBodyweightMutation = useMutation({
-    mutationFn: async (weight: number) => {
-      const response = await fetch("/api/user/bodyweight", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ weight }),
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to update body weight: ${response.status} - ${errorText}`);
-      }
-      
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Body Weight Updated!",
-        description: "Your current body weight has been saved successfully.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/bodyweight/current"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-    },
-    onError: (error: any) => {
-      console.error("Body weight update error:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update body weight. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: SettingsForm) => {
@@ -169,18 +119,7 @@ export default function Settings() {
     updateSettingsMutation.mutate(data);
   };
 
-  const handleBodyWeightSubmit = () => {
-    const weight = parseFloat(weightInput);
-    if (isNaN(weight) || weight <= 0) {
-      toast({
-        title: "Invalid Weight",
-        description: "Please enter a valid weight greater than 0.",
-        variant: "destructive",
-      });
-      return;
-    }
-    updateBodyweightMutation.mutate(weight);
-  };
+
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
