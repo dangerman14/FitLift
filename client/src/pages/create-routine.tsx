@@ -2280,15 +2280,15 @@ export default function CreateRoutine() {
 
       {/* Mobile Exercise Modal */}
       <Dialog open={showMobileExerciseModal} onOpenChange={setShowMobileExerciseModal}>
-        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-md md:max-w-md w-[95vw] h-[90vh] max-h-[90vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="p-6 pb-0">
             <DialogTitle className="flex items-center gap-2">
               <Search className="h-5 w-5" />
               Find & Add Exercise
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -2345,7 +2345,7 @@ export default function CreateRoutine() {
             </div>
 
             {/* Exercise List */}
-            <div className="space-y-2 max-h-60 overflow-y-auto">
+            <div className="space-y-2 flex-1 overflow-y-auto">
               {filteredExercises.map((exercise: any) => (
                 <button
                   key={exercise.id}
@@ -2376,7 +2376,7 @@ export default function CreateRoutine() {
 
             {/* Configuration Section - Only show when exercise is selected */}
             {selectedExerciseId && (
-              <div className="space-y-4 pt-4 border-t">
+              <div className="space-y-4 pt-4 border-t pb-20">
                 {/* Sets Configuration */}
                 <div className="space-y-2">
                   <Label>Sets</Label>
@@ -2489,26 +2489,30 @@ export default function CreateRoutine() {
                     </SelectContent>
                   </Select>
                 </div>
-
-                {/* Add to Routine Button */}
-                <Button 
-                  onClick={() => {
-                    const selectedExercise = filteredExercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
-                    if (selectedExercise) {
-                      addExerciseToRoutine(selectedExercise);
-                      setShowMobileExerciseModal(false);
-                      setSelectedExerciseId("");
-                    }
-                  }}
-                  className="w-full"
-                  disabled={!selectedExerciseId}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add to Routine
-                </Button>
               </div>
             )}
           </div>
+
+          {/* Floating Add to Routine Button */}
+          {selectedExerciseId && (
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-white border-t">
+              <Button 
+                onClick={() => {
+                  const selectedExercise = filteredExercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
+                  if (selectedExercise) {
+                    addExerciseToRoutine(selectedExercise);
+                    setShowMobileExerciseModal(false);
+                    setSelectedExerciseId("");
+                  }
+                }}
+                className="w-full"
+                size="lg"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add to Routine
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
