@@ -881,6 +881,28 @@ export default function WorkoutSession() {
       console.log("Finishing workout with elapsed time:", elapsedTime, "seconds");
       console.log("Formatted duration:", formatTime(elapsedTime));
       
+      // First, save all completed sets to database
+      for (const exercise of workoutExercises) {
+        const completedSets = exercise.sets.filter(set => set.completed);
+        for (const set of completedSets) {
+          try {
+            await fetch(`/api/workout-exercises/${exercise.id}/sets`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                setNumber: set.setNumber,
+                weight: set.weight,
+                reps: set.reps,
+                rpe: set.rpe || undefined
+              })
+            });
+          } catch (err) {
+            console.error('Failed to save completed set:', err);
+          }
+        }
+      }
+      
       // Save the duration to database (respects any manual adjustments the user made)
       const response = await fetch(`/api/workouts/${activeWorkout.id}`, {
         method: "PATCH",
