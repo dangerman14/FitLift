@@ -1168,7 +1168,65 @@ export default function CreateRoutine() {
                           addSet={addSet}
                           removeSet={removeSet}
                           updateSet={updateSet}
-                        />
+                        >
+                          <div className="p-4 bg-white border rounded-lg">
+                            <div className="flex justify-between items-start mb-3">
+                              <div className="flex-1">
+                                <h3 className="font-medium text-gray-900">{exercise.exerciseName}</h3>
+                                {exercise.supersetId && (
+                                  <div className="text-sm text-gray-500 mt-1">
+                                    Superset: {exercise.supersetId}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeExercise(exerciseIndex)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                            
+                            {/* Sets display */}
+                            <div className="space-y-2">
+                              {exercise.sets.map((set, setIndex) => (
+                                <div key={setIndex} className="flex items-center gap-2 text-sm">
+                                  <span className="w-8">Set {setIndex + 1}</span>
+                                  <Input
+                                    value={set.reps || ""}
+                                    onChange={(e) => updateSet(exerciseIndex, setIndex, "reps", e.target.value)}
+                                    placeholder="Reps"
+                                    className="w-20"
+                                  />
+                                  <Input
+                                    value={set.weight || ""}
+                                    onChange={(e) => updateSet(exerciseIndex, setIndex, "weight", e.target.value)}
+                                    placeholder="Weight"
+                                    className="w-20"
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeSet(exerciseIndex, setIndex)}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => addSet(exerciseIndex)}
+                                className="mt-2"
+                              >
+                                Add Set
+                              </Button>
+                            </div>
+                          </div>
+                        </SortableExerciseItem>
                       ))}
                     </div>
                   </SortableContext>
