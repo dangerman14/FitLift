@@ -704,15 +704,38 @@ export default function WorkoutSession() {
         timeLeft: restTime
       });
 
-      // Save to database
+      // Clear any pending auto-save to prevent duplicate creation
+      clearTimeout(autoSaveTimeouts.current[`${exerciseIndex}-${setIndex}`]);
+      
+      // Save to database - update existing set if it has an ID, otherwise create new
       console.log("Saving set for exercise ID:", exercise.id);
-      createSetMutation.mutate({
-        workoutExerciseId: exercise.id,
-        setNumber: set.setNumber,
-        weight: set.weight,
-        reps: set.reps,
-        rpe: set.rpe
-      });
+      if (set.id) {
+        // Update existing set
+        try {
+          await fetch(`/api/exercise-sets/${set.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              weight: set.weight,
+              reps: set.reps,
+              rpe: set.rpe,
+              completed: true
+            })
+          });
+        } catch (err) {
+          console.error('Failed to update existing set:', err);
+        }
+      } else {
+        // Create new set
+        createSetMutation.mutate({
+          workoutExerciseId: exercise.id,
+          setNumber: set.setNumber,
+          weight: set.weight,
+          reps: set.reps,
+          rpe: set.rpe
+        });
+      }
 
       // Show achievement notification
       if (recordData.isHeaviestWeight || recordData.isBest1RM || recordData.isVolumeRecord) {
