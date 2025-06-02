@@ -715,7 +715,10 @@ export default function BodyTracking() {
                                 tick={{ fontSize: 12 }}
                                 tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               />
-                              <YAxis tick={{ fontSize: 12 }} />
+                              <YAxis 
+                                tick={{ fontSize: 12 }} 
+                                domain={['dataMin - 1', 'dataMax + 1']}
+                              />
                               <Tooltip 
                                 contentStyle={{
                                   backgroundColor: 'white',
