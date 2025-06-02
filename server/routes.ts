@@ -46,7 +46,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(user);
       }
 
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -58,7 +58,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User settings route
   app.patch('/api/user/settings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = process.env.NODE_ENV === 'development' ? req.user.id : req.user.claims.sub;
+      const userId = getUserId(req);
       const { weightUnit, distanceUnit, bodyMeasurementUnit } = req.body;
       
       const updatedUser = await storage.updateUserSettings(userId, {
@@ -77,7 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get current body weight
   app.get('/api/user/bodyweight/current', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const currentWeight = await storage.getCurrentBodyweight(userId);
       res.json(currentWeight);
     } catch (error) {
@@ -89,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get bodyweight history
   app.get('/api/user/bodyweight', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const bodyweightHistory = await storage.getUserBodyweight(userId);
       res.json(bodyweightHistory);
     } catch (error) {
@@ -101,7 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add/update body weight
   app.post('/api/user/bodyweight', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { weight } = req.body;
       
       if (!weight || typeof weight !== 'number' || weight <= 0) {
@@ -167,7 +167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/exercises/:exerciseId', isAuthenticated, async (req: any, res) => {
     try {
       const exerciseId = parseInt(req.params.exerciseId);
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       
       // Get all exercises (system + custom) and find the specific one
       const exercises = await storage.getExercises(userId);
@@ -190,7 +190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get exercise history for progress tracking
   app.get('/api/exercises/:exerciseId/history', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const exerciseId = parseInt(req.params.exerciseId);
       
       console.log(`Fetching exercise history for exercise ${exerciseId}, user ${userId}`);
@@ -212,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get mini chart data for exercise progress
   app.get('/api/exercises/:exerciseId/mini-chart', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const exerciseId = parseInt(req.params.exerciseId);
       
       // Get strength progress data
@@ -250,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get personal records for an exercise
   app.get('/api/exercises/:exerciseId/records', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const exerciseId = parseInt(req.params.exerciseId);
       
       // Get strength progress data to calculate records
@@ -320,7 +320,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Custom exercise update
   app.patch("/api/exercises/custom/:id", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const exerciseId = parseInt(req.params.id);
       
       const updateData = insertCustomExerciseSchema.partial().parse(req.body);
@@ -338,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const exerciseData = insertExerciseSchema.parse({
         ...req.body,
-        createdBy: req.user.claims.sub,
+        createdBy: getUserId(req),
         isCustom: true,
       });
       
@@ -357,7 +357,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Workout template routes
   app.get('/api/workout-templates', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const templates = await storage.getWorkoutTemplates(userId);
       console.log("Templates with exercise counts:", templates.map(t => ({ id: t.id, name: t.name, exerciseCount: t.exerciseCount })));
       res.set('Cache-Control', 'no-cache');
@@ -432,7 +432,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add slug to the request body before validation
       const dataWithSlug = {
         ...req.body,
-        userId: req.user.claims.sub,
+        userId: getUserId(req),
         slug: slug,
       };
 
@@ -469,7 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/workout-templates/:id', isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       
       console.log("Updating routine with data:", req.body);
       
@@ -521,7 +521,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/workout-templates/:id', isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       
       await storage.deleteWorkoutTemplate(id, userId);
       res.status(204).send();
@@ -534,7 +534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Workout routes
   app.get('/api/workouts', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const workouts = await storage.getWorkouts(userId);
       res.json(workouts);
     } catch (error) {
@@ -546,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Recent workouts with exercise details for dashboard
   app.get('/api/workouts/recent', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const workouts = await storage.getWorkouts(userId);
       
       // Filter only completed workouts (those with endTime)
@@ -661,7 +661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create workout data directly without schema validation to avoid date issues
       const workoutData: any = {
         name: req.body.name || "Quick Workout",
-        userId: req.user.claims.sub,
+        userId: getUserId(req),
         templateId: req.body.templateId || null,
         slug: slug,
         startTime: req.body.startTime ? new Date(req.body.startTime) : new Date(),
@@ -716,7 +716,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/workouts/:id/details', isAuthenticated, async (req: any, res) => {
     try {
       const param = req.params.id;
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       
       // Check if parameter is numeric (ID) or string (slug)
       const isNumeric = !isNaN(Number(param)) && Number(param).toString() === param;
@@ -768,7 +768,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/workouts/:param', isAuthenticated, async (req: any, res) => {
     try {
       const param = req.params.param;
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       
       // Check if param is numeric (ID) or slug
       const isNumeric = /^\d+$/.test(param);
@@ -860,7 +860,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get previous exercise data
   app.get('/api/exercises/:exerciseId/previous-data', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const exerciseId = parseInt(req.params.exerciseId);
       const templateId = req.query.templateId ? parseInt(req.query.templateId) : undefined;
 
@@ -875,7 +875,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Check personal records for a set
   app.post('/api/exercises/:exerciseId/check-records', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const exerciseId = parseInt(req.params.exerciseId);
       const { weight, reps } = req.body;
 
@@ -900,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Fitness goal routes
   app.get('/api/fitness-goals', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const goals = await storage.getFitnessGoals(userId);
       res.json(goals);
     } catch (error) {
@@ -913,7 +913,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const goalData = insertFitnessGoalSchema.parse({
         ...req.body,
-        userId: req.user.claims.sub,
+        userId: getUserId(req),
       });
       
       const goal = await storage.createFitnessGoal(goalData);
@@ -931,7 +931,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Body measurement routes
   app.get('/api/body-measurements', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const measurements = await storage.getBodyMeasurements(userId);
       res.json(measurements);
     } catch (error) {
@@ -944,7 +944,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const measurementData = insertBodyMeasurementSchema.parse({
         ...req.body,
-        userId: req.user.claims.sub,
+        userId: getUserId(req),
       });
       
       const measurement = await storage.createBodyMeasurement(measurementData);
@@ -962,7 +962,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Analytics routes
   app.get('/api/analytics/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { startDate, endDate } = req.query;
       
       const stats = await storage.getWorkoutStats(
@@ -980,7 +980,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/analytics/strength/:exerciseId', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const exerciseId = parseInt(req.params.exerciseId);
       
       const progress = await storage.getStrengthProgress(userId, exerciseId);
@@ -994,7 +994,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chart data endpoints
   app.get('/api/analytics/volume-chart', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { period } = req.query;
       let startDate: Date | undefined;
       
@@ -1016,7 +1016,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/analytics/reps-chart', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { period } = req.query;
       let startDate: Date | undefined;
       
@@ -1038,7 +1038,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/analytics/duration-chart', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { period } = req.query;
       let startDate: Date | undefined;
       
@@ -1060,7 +1060,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/analytics/frequency-chart', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { period } = req.query;
       let startDate: Date | undefined;
       
@@ -1082,7 +1082,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/analytics/muscle-groups-chart', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { period } = req.query;
       let startDate: Date | undefined;
       
@@ -1105,7 +1105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routines routes
   app.get('/api/routines', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const routines = await storage.getRoutines(userId);
       res.json(routines);
     } catch (error) {
@@ -1116,7 +1116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/routines/generate', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { goal, experience, duration, daysPerWeek, equipment } = req.body;
       
       // Create a simple routine without AI for now
@@ -1141,7 +1141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/routines/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const routineId = parseInt(req.params.id);
       await storage.deleteRoutine(routineId, userId);
       res.json({ success: true });
@@ -1154,7 +1154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Routine folder routes
   app.get('/api/routine-folders', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const folders = await storage.getRoutineFolders(userId);
       res.json(folders);
     } catch (error) {
@@ -1168,7 +1168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const folderData = insertRoutineFolderSchema.parse({
         ...req.body,
-        userId: req.user.claims.sub,
+        userId: getUserId(req),
       });
       
       console.log("Parsed folder data:", folderData);
@@ -1190,7 +1190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/routine-folders/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const folderId = parseInt(req.params.id);
       const updates = req.body;
       
@@ -1204,7 +1204,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/routine-folders/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const folderId = parseInt(req.params.id);
       await storage.deleteRoutineFolder(folderId, userId);
       res.json({ success: true });
@@ -1217,7 +1217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Comprehensive body entry endpoint
   app.post('/api/body-entry', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const formData = req.body;
       
       console.log('Received body entry data:', formData);
@@ -1269,7 +1269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update existing body entry endpoint
   app.put('/api/body-entry', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const formData = req.body;
       const entryDate = formData.date || new Date().toISOString().split('T')[0];
       
@@ -1347,7 +1347,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Progress photos routes
   app.get('/api/progress-photos', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       // For now return empty array since we haven't implemented photo storage yet
       res.json([]);
     } catch (error) {
