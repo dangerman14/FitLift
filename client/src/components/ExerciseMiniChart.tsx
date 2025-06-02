@@ -16,5 +16,5 @@ export function ExerciseMiniChart({ exerciseId }: ExerciseMiniChartProps) {
     return null;
   }
 
-  return <MiniProgressChart exerciseHistory={chartData || []} />;
+  return <MiniProgressChart exerciseHistory={chartData as any[] || []} />;
 }
