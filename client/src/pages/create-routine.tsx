@@ -119,6 +119,37 @@ function SortableExerciseItem({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // Show minimized view during drag operations
+  if (isDraggingGlobal && isDragging) {
+    return (
+      <div 
+        ref={setNodeRef}
+        style={style}
+        className={`border rounded-lg bg-white border-l-4 transition-all duration-200 p-4 ${
+          exercise.supersetId 
+            ? getSupersetColor(exercise.supersetId)
+            : 'border-l-gray-200'
+        } cursor-grabbing shadow-lg scale-105`}
+      >
+        <div className="flex items-center gap-2">
+          <div 
+            className="flex items-center justify-center cursor-grab"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="font-medium text-gray-700">:: {exercise.exerciseName}</div>
+          {exercise.supersetId && (
+            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+              {exercise.supersetId}
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
       ref={setNodeRef}
@@ -1695,6 +1726,7 @@ export default function CreateRoutine() {
                               addSet={addSet}
                               removeSet={removeSet}
                               updateSet={updateSet}
+                              isDraggingGlobal={isDragging}
                             >
                               <div className="border rounded-lg bg-white p-4 space-y-4">
                                 {/* Exercise Header */}
