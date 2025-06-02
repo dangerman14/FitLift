@@ -6,17 +6,19 @@ import {
   ArrowLeft, 
   Scale, 
   Ruler, 
-  Camera,
-  User,
-  Zap,
-  Circle,
-  Square,
-  Target,
-  Maximize2,
-  Minimize2,
-  Activity
+  Camera
 } from "lucide-react";
 import { useLocation } from "wouter";
+import { 
+  ChestIcon, 
+  ShoulderIcon, 
+  WaistIcon, 
+  AbdomenIcon, 
+  HipIcon, 
+  BicepIcon, 
+  ThighIcon, 
+  BodyFatIcon 
+} from "@/components/measurement-icons";
 
 export default function ProgressEntry() {
   const [, setLocation] = useLocation();
@@ -123,70 +125,70 @@ export default function ProgressEntry() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                       {measurement.chest && (
                         <div className="flex items-center gap-2">
-                          <Square className="h-4 w-4 text-green-600" />
+                          <ChestIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Chest:</span>
                           <span className="text-green-900">{measurement.chest} cm</span>
                         </div>
                       )}
                       {measurement.shoulders && (
                         <div className="flex items-center gap-2">
-                          <Maximize2 className="h-4 w-4 text-green-600" />
+                          <ShoulderIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Shoulders:</span>
                           <span className="text-green-900">{measurement.shoulders} cm</span>
                         </div>
                       )}
                       {measurement.waist && (
                         <div className="flex items-center gap-2">
-                          <Minimize2 className="h-4 w-4 text-green-600" />
+                          <WaistIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Waist:</span>
                           <span className="text-green-900">{measurement.waist} cm</span>
                         </div>
                       )}
                       {measurement.abdomen && (
                         <div className="flex items-center gap-2">
-                          <Circle className="h-4 w-4 text-green-600" />
+                          <AbdomenIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Abdomen:</span>
                           <span className="text-green-900">{measurement.abdomen} cm</span>
                         </div>
                       )}
                       {measurement.hips && (
                         <div className="flex items-center gap-2">
-                          <Target className="h-4 w-4 text-green-600" />
+                          <HipIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Hips:</span>
                           <span className="text-green-900">{measurement.hips} cm</span>
                         </div>
                       )}
                       {measurement.bicepsLeft && (
                         <div className="flex items-center gap-2">
-                          <Zap className="h-4 w-4 text-green-600" />
+                          <BicepIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Left Bicep:</span>
                           <span className="text-green-900">{measurement.bicepsLeft} cm</span>
                         </div>
                       )}
                       {measurement.bicepsRight && (
                         <div className="flex items-center gap-2">
-                          <Zap className="h-4 w-4 text-green-600" />
+                          <BicepIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Right Bicep:</span>
                           <span className="text-green-900">{measurement.bicepsRight} cm</span>
                         </div>
                       )}
                       {measurement.thighLeft && (
                         <div className="flex items-center gap-2">
-                          <Activity className="h-4 w-4 text-green-600" />
+                          <ThighIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Left Thigh:</span>
                           <span className="text-green-900">{measurement.thighLeft} cm</span>
                         </div>
                       )}
                       {measurement.thighRight && (
                         <div className="flex items-center gap-2">
-                          <Activity className="h-4 w-4 text-green-600" />
+                          <ThighIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Right Thigh:</span>
                           <span className="text-green-900">{measurement.thighRight} cm</span>
                         </div>
                       )}
                       {measurement.bodyFatPercentage && (
                         <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-green-600" />
+                          <BodyFatIcon className="h-4 w-4 text-green-600" />
                           <span className="text-green-600 font-medium">Body Fat:</span>
                           <span className="text-green-900">{measurement.bodyFatPercentage}%</span>
                         </div>
