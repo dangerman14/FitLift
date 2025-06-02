@@ -1847,7 +1847,7 @@ export default function CreateRoutine() {
                     onClick={() => {
                       console.log('Exercise clicked:', exercise);
                       addExerciseToRoutine(exercise);
-                      setShowExerciseModal(false);
+                      setShowMobileExerciseModal(false);
                     }}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
                   >
