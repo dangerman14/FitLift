@@ -18,6 +18,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Plus, 
   X,
@@ -81,6 +90,9 @@ export default function CreateRoutine() {
   // Superset management
   const [supersetCounter, setSupersetCounter] = useState(1);
   const [availableSupersets, setAvailableSupersets] = useState<string[]>([]);
+  const [showSupersetModal, setShowSupersetModal] = useState(false);
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState<number | null>(null);
+  const [selectedExercisesForSuperset, setSelectedExercisesForSuperset] = useState<number[]>([]);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -177,6 +189,32 @@ export default function CreateRoutine() {
     const supersets = getSupersetsInUse().sort();
     const index = supersets.indexOf(supersetId);
     return colors[index % colors.length] || 'border-l-gray-500 bg-gray-50';
+  };
+
+  const openSupersetModal = (exerciseIndex: number) => {
+    setCurrentExerciseIndex(exerciseIndex);
+    setSelectedExercisesForSuperset([]);
+    setShowSupersetModal(true);
+  };
+
+  const createSuperset = () => {
+    if (currentExerciseIndex === null) return;
+    
+    const newSupersetId = generateSupersetId();
+    const exercisesToUpdate = [currentExerciseIndex, ...selectedExercisesForSuperset];
+    
+    setSelectedExercises(prev => 
+      prev.map((exercise, index) => 
+        exercisesToUpdate.includes(index)
+          ? { ...exercise, supersetId: newSupersetId }
+          : exercise
+      )
+    );
+
+    setSupersetCounter(prev => prev + 1);
+    setShowSupersetModal(false);
+    setCurrentExerciseIndex(null);
+    setSelectedExercisesForSuperset([]);
   };
 
   const addToSuperset = (exerciseIndex: number, supersetId?: string) => {
@@ -872,7 +910,7 @@ export default function CreateRoutine() {
                                 </DropdownMenuItem>
                               ) : (
                                 <>
-                                  <DropdownMenuItem onClick={() => addToSuperset(exerciseIndex)}>
+                                  <DropdownMenuItem onClick={() => openSupersetModal(exerciseIndex)}>
                                     Create New Superset
                                   </DropdownMenuItem>
                                   {getSupersetsInUse().length > 0 && (
@@ -1007,6 +1045,71 @@ export default function CreateRoutine() {
           </Card>
         </div>
       </div>
+
+      {/* Superset Creation Modal */}
+      <Dialog open={showSupersetModal} onOpenChange={setShowSupersetModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Superset</DialogTitle>
+            <DialogDescription>
+              Select other exercises to group with "{currentExerciseIndex !== null ? selectedExercises[currentExerciseIndex]?.exerciseName : ''}" in a superset.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-3 max-h-60 overflow-y-auto">
+            {selectedExercises.map((exercise, index) => {
+              if (index === currentExerciseIndex || exercise.supersetId) return null;
+              
+              return (
+                <div key={index} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`exercise-${index}`}
+                    checked={selectedExercisesForSuperset.includes(index)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedExercisesForSuperset(prev => [...prev, index]);
+                      } else {
+                        setSelectedExercisesForSuperset(prev => 
+                          prev.filter(i => i !== index)
+                        );
+                      }
+                    }}
+                  />
+                  <label 
+                    htmlFor={`exercise-${index}`}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    {exercise.exerciseName}
+                  </label>
+                </div>
+              );
+            })}
+            
+            {selectedExercises.filter((_, index) => 
+              index !== currentExerciseIndex && !selectedExercises[index].supersetId
+            ).length === 0 && (
+              <p className="text-sm text-gray-500 text-center py-4">
+                No other exercises available to group in a superset.
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowSupersetModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={createSuperset}
+              disabled={selectedExercisesForSuperset.length === 0}
+            >
+              Create Superset
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
