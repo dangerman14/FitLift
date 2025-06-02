@@ -1,15 +1,57 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Trophy, Target, Calendar } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function WorkoutSummary() {
   const [, setLocation] = useLocation();
   const params = useParams();
   const workoutId = params.workoutId;
+  const { user } = useAuth();
+  
+  // Weight unit preferences state
+  const [exerciseWeightUnits, setExerciseWeightUnits] = useState<Record<number, string>>({});
+
+  // Load weight unit preferences from localStorage
+  useEffect(() => {
+    const savedPrefs = localStorage.getItem('exerciseWeightPreferences');
+    if (savedPrefs) {
+      try {
+        setExerciseWeightUnits(JSON.parse(savedPrefs));
+      } catch (error) {
+        console.error('Error loading weight preferences:', error);
+      }
+    }
+  }, []);
+
+  // Weight unit helper functions
+  const getWeightUnit = (exerciseId: number) => {
+    return exerciseWeightUnits[exerciseId] || user?.weightUnit || 'kg';
+  };
+
+  const getDisplayWeight = (weight: number, exerciseId: number) => {
+    const unit = getWeightUnit(exerciseId);
+    if (unit === 'lbs' && weight > 0) {
+      return Math.round(weight * 2.20462 * 10) / 10; // Convert kg to lbs
+    }
+    return weight;
+  };
+
+  const getWeightUnitLabel = (exerciseId: number, exerciseType?: string) => {
+    const unit = getWeightUnit(exerciseId);
+    
+    if (exerciseType === 'assisted') {
+      return `-${unit}`;
+    } else if (exerciseType === 'bodyweight_plus_weight') {
+      return `+${unit}`;
+    } else {
+      return unit;
+    }
+  };
 
   // Get workout details
   const { data: workoutData, isLoading } = useQuery({
@@ -171,7 +213,7 @@ export default function WorkoutSummary() {
                         <div key={setIndex} className="grid grid-cols-4 gap-4 text-sm">
                           <span className="font-medium text-neutral-600">{set.setNumber}</span>
                           <span className="text-neutral-900">
-                            {set.weight > 0 ? `${set.weight} lbs` : '—'}
+                            {set.weight > 0 ? `${getDisplayWeight(set.weight, workoutExercise.exercise.id)} ${getWeightUnitLabel(workoutExercise.exercise.id, workoutExercise.exercise.exerciseType)}` : '—'}
                           </span>
                           <span className="text-neutral-900">
                             {set.reps > 0 ? set.reps : '—'}
