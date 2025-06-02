@@ -1685,17 +1685,8 @@ export default function CreateRoutine() {
                         
                         {/* Sets Configuration */}
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center">
                             <span className="text-sm font-medium">Sets</span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => addSet(exerciseIndex)}
-                              className="h-8"
-                            >
-                              <Plus className="h-3 w-3 mr-1" />
-                              Add Set
-                            </Button>
                           </div>
                           
                           {/* Table Header */}
