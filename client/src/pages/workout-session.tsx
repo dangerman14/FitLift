@@ -1029,89 +1029,87 @@ export default function WorkoutSession() {
                 </div>
               )}
 
-              {/* Sets Table Header */}
-              <div className="grid grid-cols-4 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
-                <div>SET</div>
-                <div>PREVIOUS</div>
-                <div>EXERCISE DATA</div>
-                <div className="text-center">✓</div>
-              </div>
-
               {/* Sets List */}
-              {workoutExercise.sets.map((set, setIndex) => (
-                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className="grid grid-cols-4 gap-2 items-start py-3 px-1 border-b border-gray-100">
-                  <div className="font-medium text-lg flex items-center space-x-1">
-                    <span>{set.setNumber}</span>
-                    {set.isPersonalRecord && (
-                      <span className="text-yellow-500" title="Personal Record">🏆</span>
-                    )}
-                  </div>
-                  
-                  <div className="text-sm text-neutral-500">
-                    {(() => {
-                      const exerciseId = workoutExercise.exercise.id;
-                      const previousData = previousExerciseData[exerciseId];
-                      if (previousData && previousData[setIndex]) {
-                        const prevSet = previousData[setIndex];
-                        return `${getDisplayWeight(prevSet.weight)}${getWeightUnit()} x ${prevSet.reps}`;
-                      }
-                      return `${getDisplayWeight(set.previousWeight || 0)}${getWeightUnit()} x ${set.previousReps || 0}`;
-                    })()}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <ExerciseSetInput
-                      exerciseType={workoutExercise.exercise.exerciseType || workoutExercise.exercise.type || 'weight_reps'}
-                      set={{
-                        weight: set.weight,
-                        reps: set.reps,
-                        duration: set.duration,
-                        distance: set.distance,
-                        assistanceWeight: set.assistanceWeight,
-                        completed: set.completed
-                      }}
-                      onChange={(updates) => {
-                        Object.entries(updates).forEach(([key, value]) => {
-                          updateSetValue(exerciseIndex, setIndex, key, value);
-                        });
-                      }}
-                      previousData={{
-                        weight: set.previousWeight,
-                        reps: set.previousReps,
-                        duration: set.previousDuration,
-                        distance: set.previousDistance
-                      }}
-                      userBodyweight={user?.currentBodyweight ? parseFloat(user.currentBodyweight) : undefined}
-                      isCompleted={set.completed}
-                    />
-                    
-                    {/* RPE Input - only show for exercises where RPE makes sense */}
-                    {!['weight_distance', 'distance_duration'].includes(workoutExercise.exercise.exerciseType || workoutExercise.exercise.type || 'weight_reps') && (
-                      <div>
-                        <label className="text-xs text-muted-foreground">RPE (1-10)</label>
-                        <Input
-                          type="number"
-                          value={set.completed ? (set.rpe || "").toString() : ""}
-                          onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
-                          className="h-8 text-center"
-                          placeholder=""
-                          min="1"
-                          max="10"
-                          disabled={!set.completed}
+              <div className="space-y-3">
+                {workoutExercise.sets.map((set, setIndex) => (
+                  <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className="bg-neutral-50 rounded-lg p-4">
+                    {/* Set Header */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-semibold text-lg text-neutral-800">Set {set.setNumber}</span>
+                        {set.isPersonalRecord && (
+                          <span className="text-yellow-500" title="Personal Record">🏆</span>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <div className="text-sm text-neutral-500">
+                          Previous: {(() => {
+                            const exerciseId = workoutExercise.exercise.id;
+                            const previousData = previousExerciseData[exerciseId];
+                            if (previousData && previousData[setIndex]) {
+                              const prevSet = previousData[setIndex];
+                              return `${getDisplayWeight(prevSet.weight)}${getWeightUnit()} × ${prevSet.reps}`;
+                            }
+                            return `${getDisplayWeight(set.previousWeight || 0)}${getWeightUnit()} × ${set.previousReps || 0}`;
+                          })()}
+                        </div>
+                        
+                        <Checkbox
+                          checked={set.completed}
+                          onCheckedChange={() => completeSet(exerciseIndex, setIndex)}
+                          className="w-6 h-6 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                         />
                       </div>
-                    )}
+                    </div>
+
+                    {/* Set Inputs */}
+                    <div className="grid grid-cols-1 gap-3">
+                      <ExerciseSetInput
+                        exerciseType={workoutExercise.exercise.exerciseType || workoutExercise.exercise.type || 'weight_reps'}
+                        set={{
+                          weight: set.weight,
+                          reps: set.reps,
+                          duration: set.duration,
+                          distance: set.distance,
+                          assistanceWeight: set.assistanceWeight,
+                          completed: set.completed
+                        }}
+                        onChange={(updates) => {
+                          Object.entries(updates).forEach(([key, value]) => {
+                            updateSetValue(exerciseIndex, setIndex, key, value);
+                          });
+                        }}
+                        previousData={{
+                          weight: set.previousWeight,
+                          reps: set.previousReps,
+                          duration: set.previousDuration,
+                          distance: set.previousDistance
+                        }}
+                        userBodyweight={user?.currentBodyweight ? parseFloat(user.currentBodyweight) : undefined}
+                        isCompleted={set.completed}
+                      />
+                      
+                      {/* RPE Input - only show for exercises where RPE makes sense */}
+                      {!['weight_distance', 'distance_duration'].includes(workoutExercise.exercise.exerciseType || workoutExercise.exercise.type || 'weight_reps') && (
+                        <div className="w-24">
+                          <label className="text-xs text-muted-foreground block mb-1">RPE (1-10)</label>
+                          <Input
+                            type="number"
+                            value={set.completed ? (set.rpe || "").toString() : ""}
+                            onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
+                            className="h-8 text-center"
+                            placeholder="RPE"
+                            min="1"
+                            max="10"
+                            disabled={!set.completed}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  
-                  <div className="flex justify-center items-start pt-2">
-                    <Checkbox
-                      checked={set.completed}
-                      onCheckedChange={() => completeSet(exerciseIndex, setIndex)}
-                      className="w-6 h-6 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
               {/* Add Set Button */}
               <Button
