@@ -498,7 +498,11 @@ export default function Profile() {
           <CardContent>
             <div className="space-y-3">
               {workouts && workouts.slice(0, 5).map((workout: any, index: number) => (
-                <div key={index} className="flex items-center justify-between p-3 hover:bg-neutral-50 rounded-lg transition-colors">
+                <div 
+                  key={index} 
+                  className="flex items-center justify-between p-3 hover:bg-neutral-50 rounded-lg transition-colors cursor-pointer"
+                  onClick={() => setLocation(`/workout-summary/${workout.slug || workout.id}`)}
+                >
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Trophy className="h-5 w-5 text-blue-600" />

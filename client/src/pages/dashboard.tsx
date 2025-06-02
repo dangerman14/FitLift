@@ -332,7 +332,7 @@ export default function Dashboard() {
                     </div>
                     <h3 
                       className="text-lg font-semibold text-neutral-900 cursor-pointer hover:text-primary-600 transition-colors"
-                      onClick={() => setLocation(`/workout-complete/${workout.slug || workout.id}`)}
+                      onClick={() => setLocation(`/workout-summary/${workout.slug || workout.id}`)}
                     >
                       {workout.name || "Workout Session"}
                     </h3>

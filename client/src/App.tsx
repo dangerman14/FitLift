@@ -22,6 +22,7 @@ import ProgressEntry from "@/pages/progress-entry";
 import Settings from "@/pages/settings";
 import WorkoutSession from "@/pages/workout-session";
 import WorkoutComplete from "@/pages/workout-complete";
+import WorkoutSummary from "@/pages/workout-summary";
 import RoutineDetails from "@/pages/routine-details";
 import NotFound from "@/pages/not-found";
 import Navigation from "@/components/navigation";
@@ -54,6 +55,7 @@ function Router() {
                 <Route path="/workout-session" component={WorkoutSession} />
                 <Route path="/workout-session/:slug" component={WorkoutSession} />
                 <Route path="/workout-complete/:workoutId" component={WorkoutComplete} />
+                <Route path="/workout-summary/:workoutId" component={WorkoutSummary} />
                 <Route path="/workouts" component={Workouts} />
                 <Route path="/exercises" component={Exercises} />
                 <Route path="/exercise/:exerciseId" component={ExerciseDetails} />
