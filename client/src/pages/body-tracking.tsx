@@ -13,7 +13,8 @@ import {
   Camera,
   TrendingUp,
   Calendar,
-  ArrowLeft
+  ArrowLeft,
+  Ruler
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useLocation } from "wouter";
