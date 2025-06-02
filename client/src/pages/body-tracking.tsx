@@ -330,11 +330,10 @@ export default function BodyTracking() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="weight" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="weight">Weight Progress</TabsTrigger>
                 <TabsTrigger value="measurements">Body Measurements</TabsTrigger>
                 <TabsTrigger value="photos">Progress Photos</TabsTrigger>
-                <TabsTrigger value="calendar">Calendar</TabsTrigger>
               </TabsList>
               
               <TabsContent value="weight" className="space-y-6">
@@ -756,105 +755,105 @@ export default function BodyTracking() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="calendar" className="space-y-6">
-                {/* Calendar View */}
-                <Card className="border border-neutral-200">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg flex items-center">
-                        <Calendar className="h-5 w-5 mr-2 text-purple-600" />
-                        Progress Calendar
-                      </CardTitle>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigateMonth('prev')}
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <span className="text-sm font-medium min-w-32 text-center">
-                          {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigateMonth('next')}
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Calendar Grid */}
-                      <div className="grid grid-cols-7 gap-2">
-                        {/* Day Headers */}
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                          <div key={day} className="p-2 text-center text-sm font-medium text-neutral-500">
-                            {day}
-                          </div>
-                        ))}
-                        
-                        {/* Calendar Days */}
-                        {(() => {
-                          const daysInMonth = getDaysInMonth(currentMonth);
-                          const firstDay = getFirstDayOfMonth(currentMonth);
-                          const days = [];
-                          
-                          // Empty cells for days before the first day of the month
-                          for (let i = 0; i < firstDay; i++) {
-                            days.push(
-                              <div key={`empty-${i}`} className="p-2 h-12"></div>
-                            );
-                          }
-                          
-                          // Days of the month
-                          for (let day = 1; day <= daysInMonth; day++) {
-                            const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-                            const dateStr = formatDateForComparison(date);
-                            const hasEntry = entryDates.has(dateStr);
-                            const isToday = dateStr === formatDateForComparison(new Date());
-                            
-                            days.push(
-                              <div
-                                key={day}
-                                className={`
-                                  p-2 h-12 flex items-center justify-center text-sm rounded-lg cursor-pointer transition-all
-                                  ${hasEntry 
-                                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium hover:from-blue-600 hover:to-purple-700 shadow-md' 
-                                    : 'hover:bg-neutral-100 text-neutral-700'
-                                  }
-                                  ${isToday ? 'ring-2 ring-blue-400 ring-offset-2' : ''}
-                                `}
-                                onClick={() => hasEntry ? handleDateClick(dateStr) : null}
-                              >
-                                {day}
-                              </div>
-                            );
-                          }
-                          
-                          return days;
-                        })()}
-                      </div>
-                      
-                      {/* Legend */}
-                      <div className="flex items-center justify-center gap-6 text-sm text-neutral-600 pt-4 border-t border-neutral-200">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded"></div>
-                          <span>Has progress entry</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-blue-400 rounded"></div>
-                          <span>Today</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+
             </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Progress Calendar Section */}
+        <Card className="shadow-material-1 border border-neutral-200">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center">
+                <Calendar className="h-5 w-5 mr-2 text-purple-600" />
+                Progress Calendar
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateMonth('prev')}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm font-medium min-w-32 text-center">
+                  {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateMonth('next')}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Calendar Grid */}
+              <div className="grid grid-cols-7 gap-2">
+                {/* Day Headers */}
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                  <div key={day} className="p-2 text-center text-sm font-medium text-neutral-500">
+                    {day}
+                  </div>
+                ))}
+                
+                {/* Calendar Days */}
+                {(() => {
+                  const daysInMonth = getDaysInMonth(currentMonth);
+                  const firstDay = getFirstDayOfMonth(currentMonth);
+                  const days = [];
+                  
+                  // Empty cells for days before the first day of the month
+                  for (let i = 0; i < firstDay; i++) {
+                    days.push(
+                      <div key={`empty-${i}`} className="p-2 h-12"></div>
+                    );
+                  }
+                  
+                  // Days of the month
+                  for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+                    const dateStr = formatDateForComparison(date);
+                    const hasEntry = entryDates.has(dateStr);
+                    const isToday = dateStr === formatDateForComparison(new Date());
+                    
+                    days.push(
+                      <div
+                        key={day}
+                        className={`
+                          p-2 h-12 flex items-center justify-center text-sm rounded-lg cursor-pointer transition-all
+                          ${hasEntry 
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium hover:from-blue-600 hover:to-purple-700 shadow-md' 
+                            : 'hover:bg-neutral-100 text-neutral-700'
+                          }
+                          ${isToday ? 'ring-2 ring-blue-400 ring-offset-2' : ''}
+                        `}
+                        onClick={() => hasEntry ? handleDateClick(dateStr) : null}
+                      >
+                        {day}
+                      </div>
+                    );
+                  }
+                  
+                  return days;
+                })()}
+              </div>
+              
+              {/* Legend */}
+              <div className="flex items-center justify-center gap-6 text-sm text-neutral-600 pt-4 border-t border-neutral-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded"></div>
+                  <span>Has progress entry</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-blue-400 rounded"></div>
+                  <span>Today</span>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
