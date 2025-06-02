@@ -1141,6 +1141,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Comprehensive body entry endpoint
+  app.post('/api/body-entry', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const formData = req.body;
+      
+      let results: any = {};
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Handle weight entry
+      if (formData.weight && !isNaN(parseFloat(formData.weight))) {
+        const weight = parseFloat(formData.weight);
+        results.bodyweight = await storage.createBodyweightEntry({
+          userId,
+          weight,
+          measurementDate: today,
+        });
+        await storage.updateUserCurrentBodyweight(userId, weight);
+      }
+      
+      // Handle body measurements
+      const measurements: any = {};
+      let hasMeasurements = false;
+      
+      ['chest', 'waist', 'hips', 'bicepsLeft', 'bicepsRight', 'thighLeft', 'thighRight', 'bodyFatPercentage'].forEach(field => {
+        if (formData[field] && !isNaN(parseFloat(formData[field]))) {
+          measurements[field] = parseFloat(formData[field]);
+          hasMeasurements = true;
+        }
+      });
+      
+      if (hasMeasurements) {
+        results.measurement = await storage.createBodyMeasurement({
+          userId,
+          date: today,
+          ...measurements,
+          notes: formData.notes || null,
+        });
+      }
+      
+      res.json(results);
+    } catch (error) {
+      console.error("Error creating body entry:", error);
+      res.status(500).json({ message: "Failed to create body entry" });
+    }
+  });
+
+  // Progress photos routes
+  app.get('/api/progress-photos', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      // For now return empty array since we haven't implemented photo storage yet
+      res.json([]);
+    } catch (error) {
+      console.error("Error fetching progress photos:", error);
+      res.status(500).json({ message: "Failed to fetch progress photos" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
