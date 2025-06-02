@@ -15,6 +15,7 @@ import Routines from "@/pages/routines";
 import CreateRoutine from "@/pages/create-routine";
 
 import Profile from "@/pages/profile";
+import BodyTracking from "@/pages/body-tracking";
 import Settings from "@/pages/settings";
 import WorkoutSession from "@/pages/workout-session";
 import WorkoutComplete from "@/pages/workout-complete";
@@ -58,6 +59,7 @@ function Router() {
                 <Route path="/create-routine" component={CreateRoutine} />
 
                 <Route path="/profile" component={Profile} />
+                <Route path="/body-tracking" component={BodyTracking} />
                 <Route path="/settings" component={Settings} />
                 <Route component={NotFound} />
               </Switch>
