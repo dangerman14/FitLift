@@ -38,6 +38,7 @@ import {
   MoreHorizontal,
   Move,
   Replace,
+  Check,
   Scale,
   Link,
   Dumbbell,
@@ -2343,130 +2344,20 @@ export default function CreateRoutine() {
               </div>
             </div>
 
-            {/* Sets Configuration */}
-            <div className="space-y-2">
-              <Label>Sets</Label>
-              <Input
-                type="number"
-                value={sets}
-                onChange={(e) => setSets(e.target.value)}
-                placeholder="3"
-                min="1"
-              />
-            </div>
-
-            {/* Reps Configuration - Only show for exercises that use reps */}
-            {(() => {
-              const selectedExercise = exercises?.find((ex: any) => ex.id === parseInt(selectedExerciseId || "0"));
-              const exerciseType = selectedExercise?.exerciseType || selectedExercise?.type || 'weight_reps';
-              const needsReps = ['weight_reps', 'bodyweight', 'assisted_bodyweight', 'weighted_bodyweight'].includes(exerciseType);
-              
-              return needsReps ? (
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => setUseRepRange(!useRepRange)}
-                    className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                  >
-                    <Label className="cursor-pointer">
-                      {useRepRange ? "Rep Range" : "Reps"}
-                    </Label>
-                    <ChevronDown 
-                      className={`h-4 w-4 transition-transform duration-200 ${
-                        useRepRange ? 'rotate-180' : 'rotate-0'
-                      }`}
-                    />
-                  </button>
-                  
-                  {useRepRange ? (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
-                          placeholder="8"
-                          value={minReps}
-                          onChange={(e) => setMinReps(e.target.value)}
-                          min="1"
-                          className="flex-1"
-                        />
-                        <span className="text-gray-500 font-medium">-</span>
-                        <Input
-                          type="number"
-                          placeholder="12"
-                          value={maxReps}
-                          onChange={(e) => setMaxReps(e.target.value)}
-                          min="1"
-                          className="flex-1"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500">Set minimum and maximum reps (e.g., 8-12)</p>
-                    </>
-                  ) : (
-                    <>
-                      <Input
-                        type="number"
-                        placeholder="10"
-                        value={singleReps}
-                        onChange={(e) => setSingleReps(e.target.value)}
-                        min="1"
-                      />
-                      <p className="text-xs text-gray-500">Set exact number of reps</p>
-                    </>
-                  )}
-                </div>
-              ) : null;
-            })()}
-
-            {/* Rest Time */}
-            <div className="space-y-2">
-              <Label>Rest Time Between Sets</Label>
-              <Select value={restDuration} onValueChange={setRestDuration}>
-                <SelectTrigger>
-                  <SelectValue>
-                    {(() => {
-                      const seconds = parseInt(restDuration || "120");
-                      const mins = Math.floor(seconds / 60);
-                      const secs = seconds % 60;
-                      return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-                    })()}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {/* 5 second intervals up to 2 minutes */}
-                  {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
-                    <SelectItem key={seconds} value={seconds.toString()}>
-                      {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
-                    </SelectItem>
-                  ))}
-                  
-                  {/* 15 second intervals from 2m 15s to 5 minutes */}
-                  {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
-                    <SelectItem key={seconds} value={seconds.toString()}>
-                      {Math.floor(seconds / 60)}m {seconds % 60}s
-                    </SelectItem>
-                  ))}
-                  
-                  {/* 30 second intervals from 5m 30s to 10 minutes */}
-                  {Array.from({ length: 10 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
-                    <SelectItem key={seconds} value={seconds.toString()}>
-                      {Math.floor(seconds / 60)}m {seconds % 60}s
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Exercise List */}
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {filteredExercises.map((exercise: any) => (
                 <button
                   key={exercise.id}
                   onClick={() => {
-                    console.log('Mobile exercise button clicked:', exercise);
-                    addExerciseToRoutine(exercise);
-                    setShowMobileExerciseModal(false);
+                    console.log('Mobile exercise selected:', exercise);
+                    setSelectedExerciseId(exercise.id.toString());
                   }}
-                  className="w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between"
+                  className={`w-full text-left p-3 border rounded-lg transition-colors flex items-center justify-between ${
+                    selectedExerciseId === exercise.id.toString() 
+                      ? 'bg-blue-100 border-blue-300' 
+                      : 'bg-white border-gray-200 hover:bg-gray-50'
+                  }`}
                 >
                   <div>
                     <div className="font-medium">{exercise.name}</div>
@@ -2474,10 +2365,149 @@ export default function CreateRoutine() {
                       {exercise.primaryMuscleGroups?.join(', ')} • {exercise.equipmentType}
                     </div>
                   </div>
-                  <Plus className="h-5 w-5 text-gray-400" />
+                  {selectedExerciseId === exercise.id.toString() ? (
+                    <Check className="h-5 w-5 text-blue-600" />
+                  ) : (
+                    <Plus className="h-5 w-5 text-gray-400" />
+                  )}
                 </button>
               ))}
             </div>
+
+            {/* Configuration Section - Only show when exercise is selected */}
+            {selectedExerciseId && (
+              <div className="space-y-4 pt-4 border-t">
+                {/* Sets Configuration */}
+                <div className="space-y-2">
+                  <Label>Sets</Label>
+                  <Input
+                    type="number"
+                    value={sets}
+                    onChange={(e) => setSets(e.target.value)}
+                    placeholder="3"
+                    min="1"
+                  />
+                </div>
+
+                {/* Reps Configuration - Only show for exercises that use reps */}
+                {(() => {
+                  const selectedExercise = exercises?.find((ex: any) => ex.id === parseInt(selectedExerciseId || "0"));
+                  const exerciseType = selectedExercise?.exerciseType || selectedExercise?.type || 'weight_reps';
+                  const needsReps = ['weight_reps', 'bodyweight', 'assisted_bodyweight', 'weighted_bodyweight'].includes(exerciseType);
+                  
+                  return needsReps ? (
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => setUseRepRange(!useRepRange)}
+                        className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                      >
+                        <Label className="cursor-pointer">
+                          {useRepRange ? "Rep Range" : "Reps"}
+                        </Label>
+                        <ChevronDown 
+                          className={`h-4 w-4 transition-transform duration-200 ${
+                            useRepRange ? 'rotate-180' : 'rotate-0'
+                          }`}
+                        />
+                      </button>
+                      
+                      {useRepRange ? (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              placeholder="8"
+                              value={minReps}
+                              onChange={(e) => setMinReps(e.target.value)}
+                              min="1"
+                              className="flex-1"
+                            />
+                            <span className="text-gray-500 font-medium">-</span>
+                            <Input
+                              type="number"
+                              placeholder="12"
+                              value={maxReps}
+                              onChange={(e) => setMaxReps(e.target.value)}
+                              min="1"
+                              className="flex-1"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500">Set minimum and maximum reps (e.g., 8-12)</p>
+                        </>
+                      ) : (
+                        <>
+                          <Input
+                            type="number"
+                            placeholder="10"
+                            value={singleReps}
+                            onChange={(e) => setSingleReps(e.target.value)}
+                            min="1"
+                          />
+                          <p className="text-xs text-gray-500">Set exact number of reps</p>
+                        </>
+                      )}
+                    </div>
+                  ) : null;
+                })()}
+
+                {/* Rest Time */}
+                <div className="space-y-2">
+                  <Label>Rest Time Between Sets</Label>
+                  <Select value={restDuration} onValueChange={setRestDuration}>
+                    <SelectTrigger>
+                      <SelectValue>
+                        {(() => {
+                          const seconds = parseInt(restDuration || "120");
+                          const mins = Math.floor(seconds / 60);
+                          const secs = seconds % 60;
+                          return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+                        })()}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {/* 5 second intervals up to 2 minutes */}
+                      {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
+                        <SelectItem key={seconds} value={seconds.toString()}>
+                          {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
+                        </SelectItem>
+                      ))}
+                      
+                      {/* 15 second intervals from 2m 15s to 5 minutes */}
+                      {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
+                        <SelectItem key={seconds} value={seconds.toString()}>
+                          {Math.floor(seconds / 60)}m {seconds % 60}s
+                        </SelectItem>
+                      ))}
+                      
+                      {/* 30 second intervals from 5m 30s to 10 minutes */}
+                      {Array.from({ length: 10 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
+                        <SelectItem key={seconds} value={seconds.toString()}>
+                          {Math.floor(seconds / 60)}m {seconds % 60}s
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Add to Routine Button */}
+                <Button 
+                  onClick={() => {
+                    const selectedExercise = filteredExercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
+                    if (selectedExercise) {
+                      addExerciseToRoutine(selectedExercise);
+                      setShowMobileExerciseModal(false);
+                      setSelectedExerciseId("");
+                    }
+                  }}
+                  className="w-full"
+                  disabled={!selectedExerciseId}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add to Routine
+                </Button>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
