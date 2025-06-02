@@ -40,11 +40,202 @@ import {
   Replace,
   Scale,
   Link,
-  Dumbbell
+  Dumbbell,
+  GripVertical
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import ExerciseSetInput from "@/components/exercise-set-input";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// Sortable Exercise Item Component
+interface SortableExerciseItemProps {
+  exercise: RoutineExercise;
+  exerciseIndex: number;
+  groupingMode: boolean;
+  selectedForGrouping: number[];
+  getSupersetColor: (supersetId: string) => string;
+  toggleExerciseSelection: (index: number) => void;
+  removeExercise: (index: number) => void;
+  removeFromSuperset: (index: number) => void;
+  openSupersetModal: (index: number) => void;
+  addToSuperset: (index: number, supersetId?: string) => void;
+  getSupersetsInUse: () => string[];
+  addSet: (exerciseIndex: number) => void;
+  removeSet: (exerciseIndex: number, setIndex: number) => void;
+  updateSet: (exerciseIndex: number, setIndex: number, field: keyof RoutineSet, value: string) => void;
+  children: React.ReactNode;
+}
+
+function SortableExerciseItem({ 
+  exercise, 
+  exerciseIndex, 
+  groupingMode, 
+  selectedForGrouping,
+  getSupersetColor,
+  toggleExerciseSelection,
+  removeExercise,
+  removeFromSuperset,
+  openSupersetModal,
+  addToSuperset,
+  getSupersetsInUse,
+  addSet,
+  removeSet,
+  updateSet
+}: SortableExerciseItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: exerciseIndex.toString() });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div 
+      ref={setNodeRef}
+      style={style}
+      className={`border rounded-lg bg-white border-l-4 transition-all duration-200 ${
+        exercise.supersetId 
+          ? getSupersetColor(exercise.supersetId)
+          : 'border-l-gray-200'
+      } ${
+        groupingMode && !exercise.supersetId
+          ? 'cursor-pointer hover:shadow-md hover:border-blue-300'
+          : ''
+      } ${
+        selectedForGrouping.includes(exerciseIndex)
+          ? 'ring-2 ring-blue-500 bg-blue-50'
+          : ''
+      }`}
+      onClick={() => {
+        if (groupingMode && !exercise.supersetId) {
+          toggleExerciseSelection(exerciseIndex);
+        }
+      }}
+    >
+      {/* Exercise Header */}
+      <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+        <div className="flex items-center gap-2">
+          <div 
+            {...attributes} 
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 rounded transition-colors"
+          >
+            <GripVertical className="h-4 w-4 text-gray-400" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              {groupingMode && !exercise.supersetId && (
+                <div className="flex items-center">
+                  <Checkbox
+                    checked={selectedForGrouping.includes(exerciseIndex)}
+                    readOnly
+                    className="mr-2"
+                  />
+                </div>
+              )}
+              <div className="font-medium text-lg">{exercise.exerciseName}</div>
+              {exercise.supersetId && (
+                <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                  {exercise.supersetId}
+                </span>
+              )}
+            </div>
+            <div className="text-sm text-gray-600">
+              {exercise.sets.length} sets • Rest: {(() => {
+                const seconds = exercise.restDuration;
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+              })()}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Superset controls */}
+          {exercise.supersetId ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeFromSuperset(exerciseIndex);
+              }}
+              className="text-red-600 hover:text-red-700"
+            >
+              <X className="h-4 w-4" />
+              Remove from {exercise.supersetId}
+            </Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
+                  <Link className="h-4 w-4 mr-1" />
+                  Superset
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => openSupersetModal(exerciseIndex)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create New Superset
+                </DropdownMenuItem>
+                {getSupersetsInUse().map((supersetId) => (
+                  <DropdownMenuItem
+                    key={supersetId}
+                    onClick={() => addToSuperset(exerciseIndex, supersetId)}
+                  >
+                    <Link className="h-4 w-4 mr-2" />
+                    Add to {supersetId}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              removeExercise(exerciseIndex);
+            }}
+            className="text-red-600 hover:text-red-700"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      
+      {/* Rest of exercise content will be added here */}
+    </div>
+  );
+}
 
 interface RoutineSet {
   reps?: string; // Will store as "10-12" format
@@ -98,6 +289,14 @@ export default function CreateRoutine() {
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Fetch exercises for the dropdown
   const { data: exercises = [] } = useQuery({
@@ -243,6 +442,22 @@ export default function CreateRoutine() {
           : exercise
       )
     );
+  };
+
+  // Drag and drop handler
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = selectedExercises.findIndex((_, index) => index.toString() === active.id);
+      const newIndex = selectedExercises.findIndex((_, index) => index.toString() === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        setSelectedExercises((exercises) => {
+          return arrayMove(exercises, oldIndex, newIndex);
+        });
+      }
+    }
   };
 
   // One-click grouping functions
@@ -907,29 +1122,34 @@ export default function CreateRoutine() {
             </CardHeader>
             <CardContent>
               {selectedExercises.length > 0 ? (
-                <div className="space-y-4">
-                  {selectedExercises.map((exercise, exerciseIndex) => (
-                    <div 
-                      key={`${exercise.exerciseId}-${exerciseIndex}`}
-                      className={`border rounded-lg bg-white border-l-4 transition-all duration-200 ${
-                        exercise.supersetId 
-                          ? getSupersetColor(exercise.supersetId)
-                          : 'border-l-gray-200'
-                      } ${
-                        groupingMode && !exercise.supersetId
-                          ? 'cursor-pointer hover:shadow-md hover:border-blue-300'
-                          : ''
-                      } ${
-                        selectedForGrouping.includes(exerciseIndex)
-                          ? 'ring-2 ring-blue-500 bg-blue-50'
-                          : ''
-                      }`}
-                      onClick={() => {
-                        if (groupingMode && !exercise.supersetId) {
-                          toggleExerciseSelection(exerciseIndex);
-                        }
-                      }}
-                    >
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext 
+                    items={selectedExercises.map((_, index) => index.toString())}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-4">
+                      {selectedExercises.map((exercise, exerciseIndex) => (
+                        <SortableExerciseItem
+                          key={`${exercise.exerciseId}-${exerciseIndex}`}
+                          exercise={exercise}
+                          exerciseIndex={exerciseIndex}
+                          groupingMode={groupingMode}
+                          selectedForGrouping={selectedForGrouping}
+                          getSupersetColor={getSupersetColor}
+                          toggleExerciseSelection={toggleExerciseSelection}
+                          removeExercise={removeExercise}
+                          removeFromSuperset={removeFromSuperset}
+                          openSupersetModal={openSupersetModal}
+                          addToSuperset={addToSuperset}
+                          getSupersetsInUse={getSupersetsInUse}
+                          addSet={addSet}
+                          removeSet={removeSet}
+                          updateSet={updateSet}
+                        />
                       {/* Exercise Header */}
                       <div className="flex items-center justify-between p-4 border-b bg-gray-50">
                         <div className="flex-1">
