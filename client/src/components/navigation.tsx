@@ -31,7 +31,7 @@ export default function Navigation() {
     { path: "/workouts", icon: Dumbbell, label: "Workouts" },
     { path: "/exercises", icon: List, label: "Exercises" },
     { path: "/routines", icon: Calendar, label: "Routines" },
-    { path: "/progress", icon: Trophy, label: "Progress" },
+    { path: "/profile", icon: User, label: "Profile" },
     { path: "/settings", icon: Settings, label: "Settings" },
   ];
 

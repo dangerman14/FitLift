@@ -13,7 +13,7 @@ import Exercises from "@/pages/exercises";
 import ExerciseDetails from "@/pages/exercise-details";
 import Routines from "@/pages/routines";
 import CreateRoutine from "@/pages/create-routine";
-import Progress from "@/pages/progress";
+
 import Profile from "@/pages/profile";
 import Settings from "@/pages/settings";
 import WorkoutSession from "@/pages/workout-session";
@@ -56,7 +56,7 @@ function Router() {
                 <Route path="/routines" component={Routines} />
                 <Route path="/routine/:slug" component={RoutineDetails} />
                 <Route path="/create-routine" component={CreateRoutine} />
-                <Route path="/progress" component={Progress} />
+
                 <Route path="/profile" component={Profile} />
                 <Route path="/settings" component={Settings} />
                 <Route component={NotFound} />
