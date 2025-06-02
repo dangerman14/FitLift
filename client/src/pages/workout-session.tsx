@@ -1216,8 +1216,11 @@ export default function WorkoutSession() {
                   <div>
                     <Input
                       type="number"
-                      value={set.weight ? getDisplayWeight(set.weight, workoutExercise.exercise.id).toString() : ""}
-                      onChange={(e) => updateSetWeight(exerciseIndex, setIndex, e.target.value)}
+                      value={set.weight || ""}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value) || 0;
+                        updateSetValue(exerciseIndex, setIndex, 'weight', value);
+                      }}
                       className="h-8 text-center"
                       placeholder="0"
                       step="0.25"
