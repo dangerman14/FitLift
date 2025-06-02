@@ -789,6 +789,11 @@ export default function CreateRoutine() {
     
     if (!exercise) {
       console.log('No exercise found:', { exerciseParam, selectedExerciseId });
+      toast({
+        title: "Error",
+        description: "Exercise data not found. Please try again.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -1844,10 +1849,21 @@ export default function CreateRoutine() {
                 {filteredExercises.map((exercise) => (
                   <div
                     key={exercise.id}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       console.log('Exercise clicked:', exercise);
-                      addExerciseToRoutine(exercise);
-                      setShowMobileExerciseModal(false);
+                      if (exercise && exercise.id) {
+                        addExerciseToRoutine(exercise);
+                        setShowMobileExerciseModal(false);
+                      } else {
+                        console.error('Invalid exercise data:', exercise);
+                        toast({
+                          title: "Error",
+                          description: "Exercise data is invalid. Please try again.",
+                          variant: "destructive",
+                        });
+                      }
                     }}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
                   >
