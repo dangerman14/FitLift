@@ -518,7 +518,7 @@ export default function BodyTracking() {
                               />
                               <YAxis 
                                 tick={{ fontSize: 12 }} 
-                                domain={['dataMin - 5', 'dataMax + 2']}
+                                domain={['dataMin - 8', 'dataMax + 2']}
                                 tickFormatter={(value) => Math.round(value).toString()}
                               />
                               <Tooltip 
@@ -611,7 +611,7 @@ export default function BodyTracking() {
                               />
                               <YAxis 
                                 tick={{ fontSize: 12 }} 
-                                domain={['dataMin - 5', 'dataMax + 2']}
+                                domain={['dataMin - 8', 'dataMax + 2']}
                                 tickFormatter={(value) => Math.round(value).toString()}
                               />
                               <Tooltip 
