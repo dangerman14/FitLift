@@ -918,6 +918,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chart data endpoints
+  app.get('/api/analytics/volume-chart', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { period } = req.query;
+      let startDate: Date | undefined;
+      
+      if (period === '30d') {
+        startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === '3m') {
+        startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      } else if (period === '1y') {
+        startDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+      }
+      
+      const data = await storage.getVolumeChart(userId, startDate);
+      res.json(data);
+    } catch (error) {
+      console.error("Error getting volume chart data:", error);
+      res.status(500).json({ error: "Failed to get volume chart data" });
+    }
+  });
+
+  app.get('/api/analytics/reps-chart', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { period } = req.query;
+      let startDate: Date | undefined;
+      
+      if (period === '30d') {
+        startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === '3m') {
+        startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      } else if (period === '1y') {
+        startDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+      }
+      
+      const data = await storage.getRepsChart(userId, startDate);
+      res.json(data);
+    } catch (error) {
+      console.error("Error getting reps chart data:", error);
+      res.status(500).json({ error: "Failed to get reps chart data" });
+    }
+  });
+
+  app.get('/api/analytics/duration-chart', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { period } = req.query;
+      let startDate: Date | undefined;
+      
+      if (period === '30d') {
+        startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === '3m') {
+        startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      } else if (period === '1y') {
+        startDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+      }
+      
+      const data = await storage.getDurationChart(userId, startDate);
+      res.json(data);
+    } catch (error) {
+      console.error("Error getting duration chart data:", error);
+      res.status(500).json({ error: "Failed to get duration chart data" });
+    }
+  });
+
+  app.get('/api/analytics/frequency-chart', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { period } = req.query;
+      let startDate: Date | undefined;
+      
+      if (period === '30d') {
+        startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === '3m') {
+        startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      } else if (period === '1y') {
+        startDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+      }
+      
+      const data = await storage.getWorkoutFrequencyChart(userId, startDate);
+      res.json(data);
+    } catch (error) {
+      console.error("Error getting frequency chart data:", error);
+      res.status(500).json({ error: "Failed to get frequency chart data" });
+    }
+  });
+
+  app.get('/api/analytics/muscle-groups-chart', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { period } = req.query;
+      let startDate: Date | undefined;
+      
+      if (period === '30d') {
+        startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      } else if (period === '3m') {
+        startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      } else if (period === '1y') {
+        startDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+      }
+      
+      const data = await storage.getMuscleGroupChart(userId, startDate);
+      res.json(data);
+    } catch (error) {
+      console.error("Error getting muscle groups chart data:", error);
+      res.status(500).json({ error: "Failed to get muscle groups chart data" });
+    }
+  });
+
   // Routines routes
   app.get('/api/routines', isAuthenticated, async (req: any, res) => {
     try {

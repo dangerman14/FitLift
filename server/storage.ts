@@ -160,6 +160,29 @@ export interface IStorage {
     date: Date;
     maxWeight: number;
   }[]>;
+  
+  // Chart data operations
+  getVolumeChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    volume: number;
+  }[]>;
+  getRepsChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    totalReps: number;
+  }[]>;
+  getDurationChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    duration: number;
+  }[]>;
+  getWorkoutFrequencyChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    workoutCount: number;
+  }[]>;
+  getMuscleGroupChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    muscleGroup: string;
+    volume: number;
+    workoutCount: number;
+  }[]>;
 
   // Folder operations
   getRoutineFolders(userId: string): Promise<RoutineFolder[]>;
@@ -871,6 +894,145 @@ export class DatabaseStorage implements IStorage {
       console.error('Error in getStrengthProgress:', error);
       return [];
     }
+  }
+
+  async getVolumeChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    volume: number;
+  }[]> {
+    let whereConditions = [eq(workouts.userId, userId)];
+    
+    if (startDate) {
+      whereConditions.push(gte(workouts.startTime, startDate));
+    }
+    if (endDate) {
+      whereConditions.push(lte(workouts.startTime, endDate));
+    }
+
+    const results = await db
+      .select({
+        date: sql<string>`DATE(${workouts.startTime})`.as('date'),
+        volume: sql<number>`COALESCE(SUM(${exerciseSets.weight} * ${exerciseSets.reps}), 0)`.as('volume')
+      })
+      .from(workouts)
+      .leftJoin(workoutExercises, eq(workouts.id, workoutExercises.workoutId))
+      .leftJoin(exerciseSets, eq(workoutExercises.id, exerciseSets.workoutExerciseId))
+      .where(and(...whereConditions))
+      .groupBy(sql`DATE(${workouts.startTime})`)
+      .orderBy(sql`DATE(${workouts.startTime})`);
+
+    return results;
+  }
+
+  async getRepsChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    totalReps: number;
+  }[]> {
+    let whereConditions = [eq(workouts.userId, userId)];
+    
+    if (startDate) {
+      whereConditions.push(gte(workouts.startTime, startDate));
+    }
+    if (endDate) {
+      whereConditions.push(lte(workouts.startTime, endDate));
+    }
+
+    const results = await db
+      .select({
+        date: sql<string>`DATE(${workouts.startTime})`.as('date'),
+        totalReps: sql<number>`COALESCE(SUM(${exerciseSets.reps}), 0)`.as('totalReps')
+      })
+      .from(workouts)
+      .leftJoin(workoutExercises, eq(workouts.id, workoutExercises.workoutId))
+      .leftJoin(exerciseSets, eq(workoutExercises.id, exerciseSets.workoutExerciseId))
+      .where(and(...whereConditions))
+      .groupBy(sql`DATE(${workouts.startTime})`)
+      .orderBy(sql`DATE(${workouts.startTime})`);
+
+    return results;
+  }
+
+  async getDurationChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    duration: number;
+  }[]> {
+    let whereConditions = [eq(workouts.userId, userId), isNotNull(workouts.duration)];
+    
+    if (startDate) {
+      whereConditions.push(gte(workouts.startTime, startDate));
+    }
+    if (endDate) {
+      whereConditions.push(lte(workouts.startTime, endDate));
+    }
+
+    const results = await db
+      .select({
+        date: sql<string>`DATE(${workouts.startTime})`.as('date'),
+        duration: sql<number>`COALESCE(AVG(${workouts.duration}), 0)`.as('duration')
+      })
+      .from(workouts)
+      .where(and(...whereConditions))
+      .groupBy(sql`DATE(${workouts.startTime})`)
+      .orderBy(sql`DATE(${workouts.startTime})`);
+
+    return results;
+  }
+
+  async getWorkoutFrequencyChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    workoutCount: number;
+  }[]> {
+    let whereConditions = [eq(workouts.userId, userId)];
+    
+    if (startDate) {
+      whereConditions.push(gte(workouts.startTime, startDate));
+    }
+    if (endDate) {
+      whereConditions.push(lte(workouts.startTime, endDate));
+    }
+
+    const results = await db
+      .select({
+        date: sql<string>`DATE(${workouts.startTime})`.as('date'),
+        workoutCount: sql<number>`COUNT(*)`.as('workoutCount')
+      })
+      .from(workouts)
+      .where(and(...whereConditions))
+      .groupBy(sql`DATE(${workouts.startTime})`)
+      .orderBy(sql`DATE(${workouts.startTime})`);
+
+    return results;
+  }
+
+  async getMuscleGroupChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    muscleGroup: string;
+    volume: number;
+    workoutCount: number;
+  }[]> {
+    let whereConditions = [eq(workouts.userId, userId)];
+    
+    if (startDate) {
+      whereConditions.push(gte(workouts.startTime, startDate));
+    }
+    if (endDate) {
+      whereConditions.push(lte(workouts.startTime, endDate));
+    }
+
+    const results = await db
+      .select({
+        muscleGroup: sql<string>`COALESCE(${exercises.primaryMuscleGroups}::text, 'Other')`.as('muscleGroup'),
+        volume: sql<number>`COALESCE(SUM(${exerciseSets.weight} * ${exerciseSets.reps}), 0)`.as('volume'),
+        workoutCount: sql<number>`COUNT(DISTINCT ${workouts.id})`.as('workoutCount')
+      })
+      .from(workouts)
+      .leftJoin(workoutExercises, eq(workouts.id, workoutExercises.workoutId))
+      .leftJoin(exerciseSets, eq(workoutExercises.id, exerciseSets.workoutExerciseId))
+      .leftJoin(exercises, eq(workoutExercises.exerciseId, exercises.id))
+      .where(and(...whereConditions))
+      .groupBy(sql`COALESCE(${exercises.primaryMuscleGroups}::text, 'Other')`)
+      .orderBy(sql`volume DESC`);
+
+    return results;
   }
 
   async getRoutines(userId: string): Promise<Routine[]> {
