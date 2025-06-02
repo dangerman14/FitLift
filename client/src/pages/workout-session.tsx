@@ -1018,6 +1018,23 @@ export default function WorkoutSession() {
             <div className="font-medium text-neutral-900">{Math.round(getDisplayWeight(getTotalVolume()))} {getWeightUnit()}</div>
           </div>
           <div>
+            <div className="text-neutral-500">Weight Unit</div>
+            <Select value={weightUnitOverride} onValueChange={handleWeightUnitChange}>
+              <SelectTrigger className="bg-transparent border-0 font-medium text-blue-600 h-auto p-0 focus:ring-0 [&>svg]:text-blue-600">
+                <SelectValue>
+                  {getWeightUnitDisplay()}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">
+                  {((user as any)?.weightUnit || 'kg').toUpperCase()} (Default)
+                </SelectItem>
+                <SelectItem value="kg">KG</SelectItem>
+                <SelectItem value="lbs">LBS</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
             <div className="text-neutral-500">Sets</div>
             <div className="font-medium text-neutral-900">{getTotalSets()}</div>
           </div>
