@@ -613,17 +613,22 @@ export default function CreateRoutine() {
 
   const addToSuperset = (exerciseIndex: number, supersetId?: string) => {
     const newSupersetId = supersetId || generateSupersetId();
+    console.log('Adding to superset:', { exerciseIndex, newSupersetId });
     
     setSelectedExercises(prev => {
+      console.log('Previous exercises:', prev.length);
       // Update the exercise with the superset ID
       const updatedExercises = prev.map((exercise, index) => 
         index === exerciseIndex 
           ? { ...exercise, supersetId: newSupersetId }
           : exercise
       );
+      console.log('Updated exercises before grouping:', updatedExercises.map(e => ({ name: e.exerciseName, supersetId: e.supersetId })));
 
       // Group exercises by superset to maintain adjacency
-      return groupExercisesBySuperset(updatedExercises);
+      const grouped = groupExercisesBySuperset(updatedExercises);
+      console.log('Grouped exercises:', grouped.map(e => ({ name: e.exerciseName, supersetId: e.supersetId })));
+      return grouped;
     });
 
     if (!supersetId) {
