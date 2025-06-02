@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,6 +44,27 @@ export default function AddBodyEntry() {
   const [, setLocation] = useLocation();
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
+
+  // Check if there's already an entry for today
+  const { data: existingEntries } = useQuery({
+    queryKey: ["/api/body-measurements", today],
+    enabled: !!user
+  });
+
+  const { data: existingWeight } = useQuery({
+    queryKey: ["/api/user/bodyweight", today],
+    enabled: !!user
+  });
+
+  // Check if user already has an entry today
+  const hasEntryToday = (Array.isArray(existingEntries) && existingEntries.some((entry: any) => 
+    new Date(entry.date).toISOString().split('T')[0] === today
+  )) || (Array.isArray(existingWeight) && existingWeight.some((entry: any) => 
+    new Date(entry.measurementDate).toISOString().split('T')[0] === today
+  ));
 
   const form = useForm<BodyEntryForm>({
     resolver: zodResolver(bodyEntrySchema),
@@ -185,8 +206,32 @@ export default function AddBodyEntry() {
         </p>
       </div>
 
+      {/* Warning for existing entry today */}
+      {hasEntryToday && (
+        <Card className="border-amber-200 bg-amber-50 mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+                <Scale className="h-4 w-4 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="font-medium text-amber-800">Entry Already Exists</h3>
+                <p className="text-sm text-amber-700">
+                  You've already logged a body entry for today. Only one entry per day is allowed to maintain data consistency.
+                </p>
+                <p className="text-sm text-amber-600 mt-1">
+                  View your progress in the Body Tracking page or come back tomorrow for a new entry.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* Disable entire form when entry exists */}
+          <fieldset disabled={hasEntryToday}>
           {/* Weight Section */}
           <Card className="shadow-material-1 border border-neutral-200">
             <CardHeader>
@@ -210,6 +255,7 @@ export default function AddBodyEntry() {
                         {...field}
                         onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                         value={field.value || ""}
+                        disabled={hasEntryToday}
                       />
                     </FormControl>
                     <FormMessage />
@@ -526,13 +572,19 @@ export default function AddBodyEntry() {
           {/* Submit Button */}
           <Button
             type="submit"
-            disabled={addEntryMutation.isPending}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3"
+            disabled={addEntryMutation.isPending || hasEntryToday}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 disabled:bg-gray-400"
             size="lg"
           >
             <Save className="h-5 w-5 mr-2" />
-            {addEntryMutation.isPending ? "Saving Entry..." : "Save Body Entry"}
+            {hasEntryToday 
+              ? "Entry Already Exists Today" 
+              : addEntryMutation.isPending 
+                ? "Saving Entry..." 
+                : "Save Body Entry"
+            }
           </Button>
+          </fieldset>
         </form>
       </Form>
     </div>
