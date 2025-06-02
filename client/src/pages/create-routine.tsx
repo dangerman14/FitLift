@@ -2345,7 +2345,7 @@ export default function CreateRoutine() {
             </div>
 
             {/* Exercise List */}
-            <div className="space-y-2 flex-1 overflow-y-auto">
+            <div className="space-y-2 max-h-80 overflow-y-auto border rounded-lg p-2 bg-gray-50">
               {filteredExercises.map((exercise: any) => (
                 <button
                   key={exercise.id}
