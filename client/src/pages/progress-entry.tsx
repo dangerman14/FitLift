@@ -6,7 +6,8 @@ import {
   ArrowLeft, 
   Scale, 
   Ruler, 
-  Camera
+  Camera,
+  Edit
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { 
@@ -62,19 +63,32 @@ export default function ProgressEntry() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="outline"
-          onClick={() => setLocation("/body-tracking")}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Progress
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold text-neutral-900">Progress Entry</h1>
-          <p className="text-neutral-600">{formattedDate}</p>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => setLocation("/body-tracking")}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Progress
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900">Progress Entry</h1>
+            <p className="text-neutral-600">{formattedDate}</p>
+          </div>
         </div>
+        
+        {/* Edit Button */}
+        {(dateWeightEntries.length > 0 || dateMeasurements.length > 0) && (
+          <Button
+            onClick={() => setLocation(`/body-tracking/edit/${date}`)}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+          >
+            <Edit className="h-4 w-4" />
+            Edit Entry
+          </Button>
+        )}
       </div>
 
       <div className="space-y-6">
