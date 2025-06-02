@@ -86,6 +86,7 @@ export default function WorkoutSession() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
+  const autoSaveTimeouts = useRef<{[key: string]: NodeJS.Timeout}>({});
 
   // Timer effect to update elapsed time every second
   useEffect(() => {
@@ -277,13 +278,10 @@ export default function WorkoutSession() {
             
             // Load existing exercises and sets
             const exercisesWithSets = workoutData.exercises || [];
-            console.log("Raw workout data from server:", workoutData);
-            console.log("Exercises with sets:", exercisesWithSets);
             
             // If this workout was created from a template and has no sets yet, 
             // we need to create template sets instead of empty ones
             const formattedExercises = await Promise.all(exercisesWithSets.map(async (ex: any) => {
-              console.log("Processing exercise:", ex.exercise?.name, "Sets:", ex.sets);
               if (ex.sets && ex.sets.length > 0) {
                 // Workout has existing sets, use them and preserve their completion status
                 return {
@@ -592,6 +590,13 @@ export default function WorkoutSession() {
     },
   });
 
+  const updateSetMutation = useMutation({
+    mutationFn: async (setData: any) => {
+      const response = await apiRequest("PATCH", `/api/exercise-sets/${setData.id}`, setData);
+      return response.json();
+    },
+  });
+
   // Initialize workout (only if no template is being loaded and not editing existing)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -799,6 +804,39 @@ export default function WorkoutSession() {
           : ex
       )
     );
+
+    // Auto-save the set to database when weight or reps are updated
+    const exercise = workoutExercises[exerciseIndex];
+    const set = exercise?.sets[setIndex];
+    if (exercise && set && (field === 'weight' || field === 'reps') && value > 0) {
+      // Debounce the save to avoid too many database calls
+      const saveKey = `${exerciseIndex}-${setIndex}`;
+      clearTimeout(autoSaveTimeouts.current[saveKey]);
+      
+      autoSaveTimeouts.current[saveKey] = setTimeout(() => {
+        const updatedSet = { ...set, [field]: value };
+        
+        // Check if this set already exists in database
+        if (updatedSet.id) {
+          // Update existing set
+          updateSetMutation.mutate({
+            id: updatedSet.id,
+            [field]: value,
+            completed: false // Keep as incomplete until user marks it complete
+          });
+        } else {
+          // Create new set
+          createSetMutation.mutate({
+            workoutExerciseId: exercise.id,
+            setNumber: updatedSet.setNumber,
+            weight: field === 'weight' ? value : (updatedSet.weight || 0),
+            reps: field === 'reps' ? value : (updatedSet.reps || 0),
+            rpe: updatedSet.rpe,
+            completed: false // Mark as incomplete
+          });
+        }
+      }, 1000); // Wait 1 second after user stops typing
+    }
   };
 
   const updateSetWeight = (exerciseIndex: number, setIndex: number, displayWeight: string) => {
