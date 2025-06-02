@@ -386,7 +386,7 @@ export default function BodyTracking() {
                             />
                             <YAxis 
                               tick={{ fontSize: 12 }}
-                              domain={['dataMin - 2', 'dataMax + 2']}
+                              domain={['dataMin - 1', 'dataMax + 1']}
                               label={{ value: `Weight (${(user as any)?.weightUnit || "kg"})`, angle: -90, position: 'insideLeft' }}
                             />
                             <Tooltip 
@@ -516,7 +516,10 @@ export default function BodyTracking() {
                                 tick={{ fontSize: 12 }}
                                 tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               />
-                              <YAxis tick={{ fontSize: 12 }} />
+                              <YAxis 
+                                tick={{ fontSize: 12 }} 
+                                domain={['dataMin - 2', 'dataMax + 2']}
+                              />
                               <Tooltip 
                                 contentStyle={{
                                   backgroundColor: 'white',
@@ -605,7 +608,10 @@ export default function BodyTracking() {
                                 tick={{ fontSize: 12 }}
                                 tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               />
-                              <YAxis tick={{ fontSize: 12 }} />
+                              <YAxis 
+                                tick={{ fontSize: 12 }} 
+                                domain={['dataMin - 2', 'dataMax + 2']}
+                              />
                               <Tooltip 
                                 contentStyle={{
                                   backgroundColor: 'white',
