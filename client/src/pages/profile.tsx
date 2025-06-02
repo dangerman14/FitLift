@@ -183,7 +183,7 @@ export default function Profile() {
         {/* Profile Header */}
         <Card className="shadow-material-1 border border-neutral-200">
           <CardContent className="p-6">
-            <div className="flex items-center space-x-6">
+            <div className="flex items-start space-x-6">
               {user?.profileImageUrl ? (
                 <img 
                   src={user.profileImageUrl} 
@@ -209,6 +209,34 @@ export default function Profile() {
                   <span>Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
                   <span>•</span>
                   <span>{workoutStats?.totalWorkouts || 0} workouts completed</span>
+                </div>
+                
+                {/* Analytics under user name */}
+                <div className="mt-4">
+                  <div className="flex items-center mb-3">
+                    <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
+                    <h3 className="text-lg font-semibold text-neutral-900">Workout Statistics</h3>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <div className="text-xl font-bold text-blue-600">
+                        {workoutStats?.totalWorkouts || 0}
+                      </div>
+                      <div className="text-xs text-neutral-600">Total Workouts</div>
+                    </div>
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <div className="text-xl font-bold text-green-600">
+                        {Math.round((workoutStats?.totalVolume || 0) / 1000)}k
+                      </div>
+                      <div className="text-xs text-neutral-600">Total Volume (lbs)</div>
+                    </div>
+                    <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <div className="text-xl font-bold text-purple-600">
+                        {workoutStats?.personalRecords || 0}
+                      </div>
+                      <div className="text-xs text-neutral-600">Personal Records</div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <Button 
@@ -269,37 +297,7 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        {/* Workout Stats */}
-        <Card className="shadow-material-1 border border-neutral-200">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
-              Workout Statistics
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
-                  {workoutStats?.totalWorkouts || 0}
-                </div>
-                <div className="text-sm text-neutral-600">Total Workouts</div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
-                  {Math.round((workoutStats?.totalVolume || 0) / 1000)}k
-                </div>
-                <div className="text-sm text-neutral-600">Total Volume (lbs)</div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
-                  {workoutStats?.personalRecords || 0}
-                </div>
-                <div className="text-sm text-neutral-600">Personal Records</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        
 
         {/* Fitness Goals */}
         <Card className="shadow-material-1 border border-neutral-200">
