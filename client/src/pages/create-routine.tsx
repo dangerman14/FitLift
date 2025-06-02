@@ -1631,7 +1631,7 @@ export default function CreateRoutine() {
                   </div>
                   
                   {/* Mobile Layout - Simple list without drag and drop */}
-                  <div className="block lg:hidden space-y-4">
+                  <div className="lg:hidden space-y-4">
                     {selectedExercises.map((exercise, exerciseIndex) => (
                       <div key={`mobile-${exercise.exerciseId}-${exerciseIndex}`} className="border rounded-lg bg-white p-4 space-y-4">
                         {/* Exercise Header */}
