@@ -1651,9 +1651,26 @@ export default function CreateRoutine() {
                         strategy={verticalListSortingStrategy}
                       >
                         <div className="space-y-4">
-                    {selectedExercises.map((exercise, exerciseIndex) => (
-                      <div key={`mobile-${exercise.exerciseId}-${exerciseIndex}`} className="border rounded-lg bg-white p-4 space-y-4">
-                        {/* Exercise Header */}
+                          {selectedExercises.map((exercise, exerciseIndex) => (
+                            <SortableExerciseItem
+                              key={`mobile-${exercise.exerciseId}-${exerciseIndex}`}
+                              exercise={exercise}
+                              exerciseIndex={exerciseIndex}
+                              groupingMode={groupingMode}
+                              selectedForGrouping={selectedForGrouping}
+                              getSupersetColor={getSupersetColor}
+                              toggleExerciseSelection={toggleExerciseSelection}
+                              removeExercise={removeExercise}
+                              removeFromSuperset={removeFromSuperset}
+                              openSupersetModal={openSupersetModal}
+                              addToSuperset={addToSuperset}
+                              getSupersetsInUse={getSupersetsInUse}
+                              addSet={addSet}
+                              removeSet={removeSet}
+                              updateSet={updateSet}
+                            >
+                              <div className="border rounded-lg bg-white p-4 space-y-4">
+                                {/* Exercise Header */}
                         <div className="flex items-center justify-between">
                           <h3 className="font-medium text-lg">{exercise.exerciseName}</h3>
                           <Button
@@ -1744,7 +1761,11 @@ export default function CreateRoutine() {
                           </Select>
                         </div>
                       </div>
-                    ))}
+                            </SortableExerciseItem>
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
                   </div>
                 </>
               ) : (
