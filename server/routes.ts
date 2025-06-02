@@ -77,7 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const bodyweightEntry = await storage.createBodyweightEntry({
         userId,
         weight,
-        recordedAt: new Date(),
+        measurementDate: new Date().toISOString().split('T')[0], // Convert to YYYY-MM-DD format
       });
       
       // Update user's current bodyweight
