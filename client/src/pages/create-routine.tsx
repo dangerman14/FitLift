@@ -660,7 +660,9 @@ export default function CreateRoutine() {
 
       if (oldIndex !== -1 && newIndex !== -1) {
         setSelectedExercises((exercises) => {
-          return arrayMove(exercises, oldIndex, newIndex);
+          const reorderedExercises = arrayMove(exercises, oldIndex, newIndex);
+          // Automatically regroup supersets after manual reordering
+          return groupExercisesBySuperset(reorderedExercises);
         });
       }
     }
