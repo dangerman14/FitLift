@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocation } from "wouter";
 import { 
   Scale,
@@ -53,6 +54,8 @@ export default function BodyTracking() {
   const [, setLocation] = useLocation();
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [weightDateFilter, setWeightDateFilter] = useState("3m");
+  const [measurementDateFilter, setMeasurementDateFilter] = useState("3m");
 
   // Get current body weight
   const { data: currentBodyweight, isLoading: isLoadingBodyweight } = useQuery({
@@ -144,11 +147,44 @@ export default function BodyTracking() {
     uploadPhotoMutation.mutate(formData);
   };
 
-  // Transform bodyweight history for chart
-  const chartData = bodyWeightHistory?.map((entry: any) => ({
+  // Helper function to filter data by date range
+  const filterDataByDateRange = (data: any[], dateFilter: string, dateField: string) => {
+    if (!data || data.length === 0) return [];
+    
+    const now = new Date();
+    let cutoffDate: Date;
+    
+    switch (dateFilter) {
+      case "30d":
+        cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case "3m":
+        cutoffDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      case "1y":
+        cutoffDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+        break;
+      case "all":
+      default:
+        return data;
+    }
+    
+    return data.filter((item: any) => {
+      const itemDate = new Date(item[dateField]);
+      return itemDate >= cutoffDate;
+    });
+  };
+
+  // Transform and filter bodyweight history for chart
+  const allChartData = bodyWeightHistory?.map((entry: any) => ({
     date: entry.measurementDate, // Keep as YYYY-MM-DD format for proper chart sorting
     weight: parseFloat(entry.weight),
   })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+  
+  const chartData = filterDataByDateRange(allChartData, weightDateFilter, 'date');
+
+  // Filter body measurements data
+  const filteredBodyMeasurements = filterDataByDateRange(bodyMeasurements || [], measurementDateFilter, 'date');
 
   // Helper functions for calendar
   const getDaysInMonth = (date: Date) => {
@@ -291,13 +327,28 @@ export default function BodyTracking() {
                 {/* Enhanced Weight Progress Chart */}
                 <Card className="border border-neutral-200">
                   <CardHeader>
-                    <CardTitle className="text-xl flex items-center">
-                      <TrendingUp className="h-6 w-6 mr-3 text-blue-600" />
-                      Weight Progress Journey
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Track your weight changes over the last 3 months
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-xl flex items-center">
+                          <TrendingUp className="h-6 w-6 mr-3 text-blue-600" />
+                          Weight Progress Journey
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Track your weight changes over time
+                        </p>
+                      </div>
+                      <Select value={weightDateFilter} onValueChange={setWeightDateFilter}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="30d">30 Days</SelectItem>
+                          <SelectItem value="3m">3 Months</SelectItem>
+                          <SelectItem value="1y">1 Year</SelectItem>
+                          <SelectItem value="all">All Time</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="h-96">
@@ -420,10 +471,23 @@ export default function BodyTracking() {
                     {/* Upper Body Measurements Chart */}
                     <Card className="border border-neutral-200">
                       <CardHeader>
-                        <CardTitle className="text-lg flex items-center">
-                          <Ruler className="h-5 w-5 mr-2 text-green-600" />
-                          Upper Body Progress
-                        </CardTitle>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg flex items-center">
+                            <Ruler className="h-5 w-5 mr-2 text-green-600" />
+                            Body Measurements Progress
+                          </CardTitle>
+                          <Select value={measurementDateFilter} onValueChange={setMeasurementDateFilter}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="30d">30 Days</SelectItem>
+                              <SelectItem value="3m">3 Months</SelectItem>
+                              <SelectItem value="1y">1 Year</SelectItem>
+                              <SelectItem value="all">All Time</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </CardHeader>
                       <CardContent>
                         <div className="h-80">
