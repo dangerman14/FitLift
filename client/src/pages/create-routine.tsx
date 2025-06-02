@@ -84,6 +84,8 @@ interface SortableExerciseItemProps {
   removeSet: (exerciseIndex: number, setIndex: number) => void;
   updateSet: (exerciseIndex: number, setIndex: number, field: keyof RoutineSet, value: string) => void;
   isDraggingGlobal: boolean;
+  exerciseWeightUnits: {[key: number]: string};
+  setExerciseWeightUnits: React.Dispatch<React.SetStateAction<{[key: number]: string}>>;
   children: React.ReactNode;
 }
 
@@ -102,7 +104,10 @@ function SortableExerciseItem({
   addSet,
   removeSet,
   updateSet,
-  isDraggingGlobal
+  isDraggingGlobal,
+  exerciseWeightUnits,
+  setExerciseWeightUnits,
+  children
 }: SortableExerciseItemProps) {
   const {
     attributes,
@@ -350,7 +355,7 @@ function SortableExerciseItem({
             <Select
               value={(() => {
                 const userWeightUnit = 'kg'; // Default to kg for now
-                const unit = exerciseWeightUnits[exercise.exerciseId] || userWeightUnit;
+                const unit = exerciseWeightUnits?.[exercise.exerciseId] || userWeightUnit;
                 if (unit === userWeightUnit) return 'default';
                 return unit;
               })()}
@@ -380,7 +385,7 @@ function SortableExerciseItem({
             >
               <SelectTrigger className="h-4 w-auto text-xs p-0 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0">
                 <span className="text-gray-600">
-                  ({(exerciseWeightUnits[exercise.exerciseId] || 'kg').toUpperCase()})
+                  ({(exerciseWeightUnits?.[exercise.exerciseId] || 'kg').toUpperCase()})
                 </span>
               </SelectTrigger>
               <SelectContent>
@@ -1557,6 +1562,8 @@ export default function CreateRoutine() {
                               removeSet={removeSet}
                               updateSet={updateSet}
                               isDraggingGlobal={isDragging}
+                              exerciseWeightUnits={exerciseWeightUnits}
+                              setExerciseWeightUnits={setExerciseWeightUnits}
                             >
                               <div 
                                 className={`relative border rounded-lg bg-white ${
@@ -1900,6 +1907,8 @@ export default function CreateRoutine() {
                         removeSet={removeSet}
                         updateSet={updateSet}
                         isDraggingGlobal={isDragging}
+                        exerciseWeightUnits={exerciseWeightUnits}
+                        setExerciseWeightUnits={setExerciseWeightUnits}
                       >
                         <div className="bg-white space-y-4 py-4">
                           {/* Exercise Header */}
