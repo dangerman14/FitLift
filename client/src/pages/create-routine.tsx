@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -551,6 +551,9 @@ export default function CreateRoutine() {
   
   // Exercise weight unit preferences
   const [exerciseWeightUnits, setExerciseWeightUnits] = useState<{[key: number]: string}>({});
+  
+  // Ref for exercise list container
+  const exerciseListRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -2345,13 +2348,26 @@ export default function CreateRoutine() {
             </div>
 
             {/* Exercise List */}
-            <div className="space-y-2 flex-1 overflow-y-auto border rounded-lg p-2 bg-gray-50">
-              {filteredExercises.map((exercise: any) => (
+            <div ref={exerciseListRef} className="space-y-2 flex-1 overflow-y-auto border rounded-lg p-2 bg-gray-50">
+              {filteredExercises.map((exercise: any, index: number) => (
                 <button
                   key={exercise.id}
+                  id={`mobile-exercise-${exercise.id}`}
                   onClick={() => {
                     console.log('Mobile exercise selected:', exercise);
                     setSelectedExerciseId(exercise.id.toString());
+                    
+                    // Scroll the selected exercise into view
+                    setTimeout(() => {
+                      const selectedElement = document.getElementById(`mobile-exercise-${exercise.id}`);
+                      if (selectedElement && exerciseListRef.current) {
+                        selectedElement.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'center',
+                          inline: 'nearest'
+                        });
+                      }
+                    }, 100);
                   }}
                   className={`w-full text-left p-3 border rounded-lg transition-colors flex items-center justify-between ${
                     selectedExerciseId === exercise.id.toString() 
