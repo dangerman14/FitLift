@@ -349,7 +349,20 @@ export default function WorkoutSession() {
               };
             }));
             
-            setWorkoutExercises(formattedExercises);
+            // Check if there's temporary session data in localStorage
+            const sessionData = localStorage.getItem(`workout_session_${workoutData.id}`);
+            if (sessionData) {
+              try {
+                const tempExercises = JSON.parse(sessionData);
+                console.log("Loading temporary session data from localStorage");
+                setWorkoutExercises(tempExercises);
+              } catch (err) {
+                console.error("Failed to parse session data:", err);
+                setWorkoutExercises(formattedExercises);
+              }
+            } else {
+              setWorkoutExercises(formattedExercises);
+            }
           }
         } catch (error) {
           console.error('Error loading existing workout:', error);
@@ -704,38 +717,15 @@ export default function WorkoutSession() {
         timeLeft: restTime
       });
 
-      // Clear any pending auto-save to prevent duplicate creation
-      clearTimeout(autoSaveTimeouts.current[`${exerciseIndex}-${setIndex}`]);
-      
-      // Save to database - update existing set if it has an ID, otherwise create new
-      console.log("Saving set for exercise ID:", exercise.id);
-      if (set.id) {
-        // Update existing set
-        try {
-          await fetch(`/api/exercise-sets/${set.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              weight: set.weight,
-              reps: set.reps,
-              rpe: set.rpe,
-              completed: true
-            })
-          });
-        } catch (err) {
-          console.error('Failed to update existing set:', err);
-        }
-      } else {
-        // Create new set
-        createSetMutation.mutate({
-          workoutExerciseId: exercise.id,
-          setNumber: set.setNumber,
-          weight: set.weight,
-          reps: set.reps,
-          rpe: set.rpe
-        });
-      }
+      // Save completed set to database only
+      console.log("Saving completed set for exercise ID:", exercise.id);
+      createSetMutation.mutate({
+        workoutExerciseId: exercise.id,
+        setNumber: set.setNumber,
+        weight: set.weight,
+        reps: set.reps,
+        rpe: set.rpe
+      });
 
       // Show achievement notification
       if (recordData.isHeaviestWeight || recordData.isBest1RM || recordData.isVolumeRecord) {
@@ -799,8 +789,8 @@ export default function WorkoutSession() {
   };
 
   const updateSetValue = (exerciseIndex: number, setIndex: number, field: string, value: number) => {
-    setWorkoutExercises(prev => 
-      prev.map((ex, exIndex) => 
+    setWorkoutExercises(prev => {
+      const updated = prev.map((ex, exIndex) => 
         exIndex === exerciseIndex 
           ? {
               ...ex,
@@ -809,67 +799,15 @@ export default function WorkoutSession() {
               )
             }
           : ex
-      )
-    );
-
-    // Auto-save incomplete sets to prevent data loss
-    const exercise = workoutExercises[exerciseIndex];
-    const set = exercise?.sets[setIndex];
-    
-    if (exercise && set && (field === 'weight' || field === 'reps') && value > 0) {
-      // Clear any existing timeout to prevent duplicate saves
-      clearTimeout(autoSaveTimeouts.current[`${exerciseIndex}-${setIndex}`]);
+      );
       
-      // Debounce the save to prevent duplicate API calls
-      autoSaveTimeouts.current[`${exerciseIndex}-${setIndex}`] = setTimeout(() => {
-        const updatedSet = { ...set, [field]: value };
-        
-        // Check if this set already exists in database (has an ID)
-        if (updatedSet.id) {
-          // Update existing set
-          fetch(`/api/exercise-sets/${updatedSet.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              [field]: value,
-              completed: false // Keep as incomplete
-            })
-          }).catch(err => console.log('Auto-save update failed:', err));
-        } else {
-          // Create new incomplete set (only if it doesn't have an ID yet)
-          fetch(`/api/workout-exercises/${exercise.id}/sets`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              setNumber: updatedSet.setNumber,
-              weight: field === 'weight' ? value : (updatedSet.weight || 0),
-              reps: field === 'reps' ? value : (updatedSet.reps || 0),
-              rpe: updatedSet.rpe,
-              completed: false // Mark as incomplete
-            })
-          })
-          .then(response => response.json())
-          .then(savedSet => {
-            // Update the local set with the database ID to prevent future duplicates
-            setWorkoutExercises(prev => 
-              prev.map((ex, exIndex) => 
-                exIndex === exerciseIndex 
-                  ? {
-                      ...ex,
-                      sets: ex.sets.map((s, sIndex) => 
-                        sIndex === setIndex ? { ...s, id: savedSet.id } : s
-                      )
-                    }
-                  : ex
-              )
-            );
-          })
-          .catch(err => console.log('Auto-save create failed:', err));
-        }
-      }, 1000); // Wait 1 second after user stops typing
-    }
+      // Auto-save to localStorage only (no database calls)
+      if (activeWorkout) {
+        localStorage.setItem(`workout_session_${activeWorkout.id}`, JSON.stringify(updated));
+      }
+      
+      return updated;
+    });
   };
 
   const updateSetWeight = (exerciseIndex: number, setIndex: number, displayWeight: string) => {
@@ -965,6 +903,9 @@ export default function WorkoutSession() {
 
       // Parse the response to get updated workout data
       const updatedWorkout = await response.json();
+      
+      // Clean up temporary session data since workout is now complete
+      localStorage.removeItem(`workout_session_${activeWorkout.id}`);
       
       // Invalidate workout cache to ensure fresh data on completion page
       queryClient.invalidateQueries({ queryKey: [`/api/workouts/${activeWorkout.id}`] });
