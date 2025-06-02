@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLocation } from "wouter";
 import { 
   Scale,
   Save,
@@ -14,7 +15,9 @@ import {
   TrendingUp,
   Calendar,
   ArrowLeft,
-  Ruler
+  Ruler,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { 
   LineChart, 
@@ -30,7 +33,6 @@ import {
   Bar,
   Legend
 } from "recharts";
-import { useLocation } from "wouter";
 
 const bodyWeightSchema = z.object({
   weight: z.number().min(0.1, "Weight must be greater than 0"),
@@ -44,6 +46,7 @@ export default function BodyTracking() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const [weightInput, setWeightInput] = useState("");
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // Get current body weight
   const { data: currentBodyweight, isLoading: isLoadingBodyweight } = useQuery({
@@ -195,6 +198,41 @@ export default function BodyTracking() {
     date: entry.measurementDate, // Keep as YYYY-MM-DD format for proper chart sorting
     weight: parseFloat(entry.weight),
   })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+
+  // Helper functions for calendar
+  const getDaysInMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
+  const formatDateForComparison = (date: Date) => {
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+  };
+
+  // Get all entries dates for easy lookup
+  const entryDates = new Set([
+    ...(bodyWeightHistory || []).map((entry: any) => entry.measurementDate),
+    ...(bodyMeasurements || []).map((entry: any) => entry.date)
+  ]);
+
+  const handleDateClick = (dateStr: string) => {
+    setLocation(`/body-tracking/entry/${dateStr}`);
+  };
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentMonth(prev => {
+      const newDate = new Date(prev);
+      if (direction === 'prev') {
+        newDate.setMonth(newDate.getMonth() - 1);
+      } else {
+        newDate.setMonth(newDate.getMonth() + 1);
+      }
+      return newDate;
+    });
+  };
 
 
 
