@@ -17,7 +17,15 @@ import {
   ArrowLeft,
   Ruler,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  User,
+  Zap,
+  Circle,
+  Square,
+  Maximize2,
+  Minimize2,
+  Activity,
+  Target
 } from "lucide-react";
 import { 
   LineChart, 
@@ -667,11 +675,76 @@ export default function BodyTracking() {
                                 )}
                               </div>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                                {measurement.chest && <div><span className="text-neutral-600">Chest:</span> <span className="font-medium">{measurement.chest}cm</span></div>}
-                                {measurement.shoulders && <div><span className="text-neutral-600">Shoulders:</span> <span className="font-medium">{measurement.shoulders}cm</span></div>}
-                                {measurement.waist && <div><span className="text-neutral-600">Waist:</span> <span className="font-medium">{measurement.waist}cm</span></div>}
-                                {measurement.abdomen && <div><span className="text-neutral-600">Abdomen:</span> <span className="font-medium">{measurement.abdomen}cm</span></div>}
-                                {measurement.bodyFatPercentage && <div><span className="text-neutral-600">Body Fat:</span> <span className="font-medium">{measurement.bodyFatPercentage}%</span></div>}
+                                {measurement.chest && (
+                                  <div className="flex items-center gap-1">
+                                    <Square className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">Chest:</span> 
+                                    <span className="font-medium">{measurement.chest}cm</span>
+                                  </div>
+                                )}
+                                {measurement.shoulders && (
+                                  <div className="flex items-center gap-1">
+                                    <Maximize2 className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">Shoulders:</span> 
+                                    <span className="font-medium">{measurement.shoulders}cm</span>
+                                  </div>
+                                )}
+                                {measurement.waist && (
+                                  <div className="flex items-center gap-1">
+                                    <Minimize2 className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">Waist:</span> 
+                                    <span className="font-medium">{measurement.waist}cm</span>
+                                  </div>
+                                )}
+                                {measurement.abdomen && (
+                                  <div className="flex items-center gap-1">
+                                    <Circle className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">Abdomen:</span> 
+                                    <span className="font-medium">{measurement.abdomen}cm</span>
+                                  </div>
+                                )}
+                                {measurement.hips && (
+                                  <div className="flex items-center gap-1">
+                                    <Target className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">Hips:</span> 
+                                    <span className="font-medium">{measurement.hips}cm</span>
+                                  </div>
+                                )}
+                                {measurement.bicepsLeft && (
+                                  <div className="flex items-center gap-1">
+                                    <Zap className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">L. Bicep:</span> 
+                                    <span className="font-medium">{measurement.bicepsLeft}cm</span>
+                                  </div>
+                                )}
+                                {measurement.bicepsRight && (
+                                  <div className="flex items-center gap-1">
+                                    <Zap className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">R. Bicep:</span> 
+                                    <span className="font-medium">{measurement.bicepsRight}cm</span>
+                                  </div>
+                                )}
+                                {measurement.thighLeft && (
+                                  <div className="flex items-center gap-1">
+                                    <Activity className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">L. Thigh:</span> 
+                                    <span className="font-medium">{measurement.thighLeft}cm</span>
+                                  </div>
+                                )}
+                                {measurement.thighRight && (
+                                  <div className="flex items-center gap-1">
+                                    <Activity className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">R. Thigh:</span> 
+                                    <span className="font-medium">{measurement.thighRight}cm</span>
+                                  </div>
+                                )}
+                                {measurement.bodyFatPercentage && (
+                                  <div className="flex items-center gap-1">
+                                    <User className="h-3 w-3 text-green-600" />
+                                    <span className="text-neutral-600">Body Fat:</span> 
+                                    <span className="font-medium">{measurement.bodyFatPercentage}%</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
