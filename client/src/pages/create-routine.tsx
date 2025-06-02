@@ -767,17 +767,25 @@ export default function CreateRoutine() {
     },
   });
 
-  const addExerciseToRoutine = () => {
-    if (!selectedExerciseId) {
-      toast({
-        title: "Select Exercise",
-        description: "Please select an exercise to add to your routine.",
-        variant: "destructive",
-      });
-      return;
+  const addExerciseToRoutine = (exerciseParam?: any) => {
+    let exercise;
+    
+    if (exerciseParam) {
+      // Called from mobile exercise list with exercise parameter
+      exercise = exerciseParam;
+    } else {
+      // Called from desktop form using selectedExerciseId
+      if (!selectedExerciseId) {
+        toast({
+          title: "Select Exercise",
+          description: "Please select an exercise to add to your routine.",
+          variant: "destructive",
+        });
+        return;
+      }
+      exercise = exercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
     }
-
-    const exercise = exercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
+    
     if (!exercise) return;
 
     const repsValue = useRepRange 
