@@ -313,39 +313,22 @@ export default function WorkoutSession() {
                   const template = await templateResponse.json();
                   const templateEx = template.exercises?.find((te: any) => te.exerciseId === ex.exerciseId);
                   
-                  if (templateEx && templateEx.notes) {
-                    const notesData = JSON.parse(templateEx.notes || '{}');
-                    const setsData = notesData.setsData || [];
+                  if (templateEx) {
+                    // Use setsTarget from template to create correct number of empty sets
+                    const numSets = templateEx.setsTarget || 3;
+                    const templateSets = Array.from({ length: numSets }, (_, setIndex) => ({
+                      setNumber: setIndex + 1,
+                      weight: 0,
+                      reps: 0,
+                      rpe: null,
+                      minReps: templateEx.repsTarget || undefined,
+                      maxReps: templateEx.repsTarget || undefined,
+                      completed: false,
+                      previousWeight: 75,
+                      previousReps: 10
+                    }));
                     
-                    if (setsData.length > 0) {
-                      const templateSets = setsData.map((setData: any, setIndex: number) => {
-                        let minReps = 0;
-                        let maxReps = 0;
-                        if (setData.reps) {
-                          if (setData.reps.includes('-')) {
-                            const [min, max] = setData.reps.split('-').map(Number);
-                            minReps = min;
-                            maxReps = max;
-                          } else {
-                            minReps = maxReps = parseInt(setData.reps);
-                          }
-                        }
-                        
-                        return {
-                          setNumber: setIndex + 1,
-                          weight: setData.weight || 0,
-                          reps: 0,
-                          rpe: setData.rpe || null,
-                          minReps,
-                          maxReps,
-                          completed: false,
-                          previousWeight: 75,
-                          previousReps: 10
-                        };
-                      });
-                      
-                      return { ...ex, sets: templateSets };
-                    }
+                    return { ...ex, sets: templateSets };
                   }
                 } catch (error) {
                   console.error('Failed to load template data for existing workout:', error);
