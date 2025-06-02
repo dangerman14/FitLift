@@ -1055,19 +1055,9 @@ export default function WorkoutSession() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <h3 className="font-medium text-blue-600 text-lg">
-                          {workoutExercise.exercise?.name}
-                        </h3>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => toggleExerciseWeightUnit(workoutExercise.exercise.id)}
-                          className="h-6 px-2 text-xs"
-                        >
-                          {getWeightUnit(workoutExercise.exercise.id)}
-                        </Button>
-                      </div>
+                      <h3 className="font-medium text-blue-600 text-lg">
+                        {workoutExercise.exercise?.name}
+                      </h3>
                       <ExerciseMiniChart exerciseId={workoutExercise.exercise?.id} />
                     </div>
                     <Textarea
@@ -1137,7 +1127,49 @@ export default function WorkoutSession() {
               <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
                 <div>SET</div>
                 <div>PREVIOUS</div>
-                <div>WEIGHT (KG)</div>
+                <div className="flex items-center space-x-1">
+                  <span>WEIGHT</span>
+                  <Select
+                    value={(() => {
+                      const unit = getWeightUnit(workoutExercise.exercise.id);
+                      const defaultUnit = user?.weightUnit || 'kg';
+                      if (unit === defaultUnit) return 'default';
+                      return unit;
+                    })()}
+                    onValueChange={(value) => {
+                      const defaultUnit = user?.weightUnit || 'kg';
+                      let newUnit;
+                      if (value === 'default') {
+                        newUnit = defaultUnit;
+                      } else {
+                        newUnit = value;
+                      }
+                      
+                      setExerciseWeightUnits(prev => ({
+                        ...prev,
+                        [workoutExercise.exercise.id]: newUnit
+                      }));
+                      
+                      // Save to localStorage
+                      const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
+                      if (value === 'default') {
+                        delete existingPrefs[workoutExercise.exercise.id];
+                      } else {
+                        existingPrefs[workoutExercise.exercise.id] = newUnit;
+                      }
+                      localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
+                    }}
+                  >
+                    <SelectTrigger className="h-5 w-20 text-xs p-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">Default ({user?.weightUnit || 'kg'})</SelectItem>
+                      <SelectItem value="kg">kg</SelectItem>
+                      <SelectItem value="lbs">lbs</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div>REPS</div>
                 <div>RPE</div>
                 <div className="text-center">✓</div>
