@@ -947,8 +947,11 @@ export default function WorkoutSession() {
       // Clean up temporary session data since workout is now complete
       localStorage.removeItem(`workout_session_${activeWorkout.id}`);
       
-      // Invalidate workout cache to ensure fresh data on completion page
+      // Invalidate all workout-related caches to ensure fresh data
       queryClient.invalidateQueries({ queryKey: [`/api/workouts/${activeWorkout.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/workouts/${updatedWorkout.slug}`] });
+      queryClient.invalidateQueries({ queryKey: ['/api/workouts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/workouts/recent'] });
       
       // Navigate to completion screen using slug (duration will be calculated from workout data)
       const slug = updatedWorkout.slug || activeWorkout.slug || activeWorkout.id;

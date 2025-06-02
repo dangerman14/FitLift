@@ -42,10 +42,12 @@ export default function WorkoutComplete() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Get workout details and statistics
+  // Get workout details and statistics - always refetch to get latest data
   const { data: workoutData } = useQuery({
     queryKey: [`/api/workouts/${workoutId}`],
     enabled: !!workoutId,
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   // Extract workout and exercises from the same query response
