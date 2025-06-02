@@ -351,7 +351,6 @@ function SortableExerciseItem({
         <div className="grid grid-cols-5 gap-2 py-2 px-3 bg-gray-100 rounded text-xs font-medium text-gray-600 mb-2">
           <div className="text-center">Set</div>
           <div className="text-center flex items-center justify-center space-x-1">
-            <span>Weight</span>
             <Select
               value={(() => {
                 const userWeightUnit = 'kg'; // Default to kg for now
@@ -2342,6 +2341,119 @@ export default function CreateRoutine() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Sets Configuration */}
+            <div className="space-y-2">
+              <Label>Sets</Label>
+              <Input
+                type="number"
+                value={sets}
+                onChange={(e) => setSets(e.target.value)}
+                placeholder="3"
+                min="1"
+              />
+            </div>
+
+            {/* Reps Configuration - Only show for exercises that use reps */}
+            {(() => {
+              const selectedExercise = exercises?.find((ex: any) => ex.id === parseInt(selectedExerciseId || "0"));
+              const exerciseType = selectedExercise?.exerciseType || selectedExercise?.type || 'weight_reps';
+              const needsReps = ['weight_reps', 'bodyweight', 'assisted_bodyweight', 'weighted_bodyweight'].includes(exerciseType);
+              
+              return needsReps ? (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setUseRepRange(!useRepRange)}
+                    className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                  >
+                    <Label className="cursor-pointer">
+                      {useRepRange ? "Rep Range" : "Reps"}
+                    </Label>
+                    <ChevronDown 
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        useRepRange ? 'rotate-180' : 'rotate-0'
+                      }`}
+                    />
+                  </button>
+                  
+                  {useRepRange ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          placeholder="8"
+                          value={minReps}
+                          onChange={(e) => setMinReps(e.target.value)}
+                          min="1"
+                          className="flex-1"
+                        />
+                        <span className="text-gray-500 font-medium">-</span>
+                        <Input
+                          type="number"
+                          placeholder="12"
+                          value={maxReps}
+                          onChange={(e) => setMaxReps(e.target.value)}
+                          min="1"
+                          className="flex-1"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500">Set minimum and maximum reps (e.g., 8-12)</p>
+                    </>
+                  ) : (
+                    <>
+                      <Input
+                        type="number"
+                        placeholder="10"
+                        value={singleReps}
+                        onChange={(e) => setSingleReps(e.target.value)}
+                        min="1"
+                      />
+                      <p className="text-xs text-gray-500">Set exact number of reps</p>
+                    </>
+                  )}
+                </div>
+              ) : null;
+            })()}
+
+            {/* Rest Time */}
+            <div className="space-y-2">
+              <Label>Rest Time Between Sets</Label>
+              <Select value={restDuration} onValueChange={setRestDuration}>
+                <SelectTrigger>
+                  <SelectValue>
+                    {(() => {
+                      const seconds = parseInt(restDuration || "120");
+                      const mins = Math.floor(seconds / 60);
+                      const secs = seconds % 60;
+                      return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+                    })()}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {/* 5 second intervals up to 2 minutes */}
+                  {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
+                    <SelectItem key={seconds} value={seconds.toString()}>
+                      {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
+                    </SelectItem>
+                  ))}
+                  
+                  {/* 15 second intervals from 2m 15s to 5 minutes */}
+                  {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
+                    <SelectItem key={seconds} value={seconds.toString()}>
+                      {Math.floor(seconds / 60)}m {seconds % 60}s
+                    </SelectItem>
+                  ))}
+                  
+                  {/* 30 second intervals from 5m 30s to 10 minutes */}
+                  {Array.from({ length: 10 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
+                    <SelectItem key={seconds} value={seconds.toString()}>
+                      {Math.floor(seconds / 60)}m {seconds % 60}s
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Exercise List */}
