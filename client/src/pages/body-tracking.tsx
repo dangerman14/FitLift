@@ -289,102 +289,167 @@ export default function BodyTracking() {
               </TabsList>
               
               <TabsContent value="weight" className="space-y-6">
-                {/* Add Weight Entry */}
-                <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        value={weightInput}
-                        onChange={(e) => setWeightInput(e.target.value)}
-                        placeholder="Enter your current weight"
-                        step="0.1"
-                        min="0"
-                        className="rounded-xl border-2"
-                        disabled={isLoadingBodyweight}
-                      />
-                      <span className="text-sm text-muted-foreground min-w-[30px]">
-                        {(user as any)?.weightUnit || "kg"}
-                      </span>
+                {/* Enhanced Weight Entry Card */}
+                <Card className="border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            value={weightInput}
+                            onChange={(e) => setWeightInput(e.target.value)}
+                            placeholder="Enter your current weight"
+                            step="0.1"
+                            min="0"
+                            className="rounded-xl border-2 border-blue-200 focus:border-blue-400"
+                            disabled={isLoadingBodyweight}
+                          />
+                          <span className="text-sm text-muted-foreground min-w-[30px] font-medium">
+                            {(user as any)?.weightUnit || "kg"}
+                          </span>
+                        </div>
+                        {currentBodyweight && (
+                          <p className="text-xs text-blue-600 mt-1 font-medium">
+                            Last recorded: {currentBodyweight} {(user as any)?.weightUnit || "kg"}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        onClick={handleBodyWeightSubmit}
+                        disabled={updateBodyweightMutation.isPending || !weightInput}
+                        className="bg-blue-500 hover:bg-blue-600 shadow-lg"
+                      >
+                        <Save className="h-4 w-4 mr-2" />
+                        {updateBodyweightMutation.isPending ? "Saving..." : "Add Entry"}
+                      </Button>
                     </div>
-                    {currentBodyweight && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Last recorded: {currentBodyweight} {(user as any)?.weightUnit || "kg"}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    onClick={handleBodyWeightSubmit}
-                    disabled={updateBodyweightMutation.isPending || !weightInput}
-                    className="bg-blue-500 hover:bg-blue-600"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {updateBodyweightMutation.isPending ? "Saving..." : "Add Entry"}
-                  </Button>
-                </div>
+                  </CardContent>
+                </Card>
                 
                 {/* Enhanced Weight Progress Chart */}
-                <div className="h-96">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2 text-blue-600" />
-                    Weight Progress Trend
-                  </h3>
-                  {chartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                        <defs>
-                          <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis 
-                          dataKey="date" 
-                          tick={{ fontSize: 12 }}
-                          tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        />
-                        <YAxis 
-                          tick={{ fontSize: 12 }}
-                          domain={['dataMin - 2', 'dataMax + 2']}
-                        />
-                        <Tooltip 
-                          contentStyle={{
-                            backgroundColor: 'white',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                          }}
-                          formatter={(value, name) => [
-                            `${value} ${(user as any)?.weightUnit || "kg"}`,
-                            "Weight"
-                          ]}
-                          labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { 
-                            weekday: 'long', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="weight"
-                          stroke="#3b82f6"
-                          strokeWidth={3}
-                          fill="url(#weightGradient)"
-                          dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4 }}
-                          activeDot={{ r: 6, stroke: "#3b82f6", strokeWidth: 2 }}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-neutral-500">
-                      <div className="text-center">
-                        <Scale className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No weight data yet. Add your first entry to see your progress!</p>
-                      </div>
+                <Card className="border border-neutral-200">
+                  <CardHeader>
+                    <CardTitle className="text-xl flex items-center">
+                      <TrendingUp className="h-6 w-6 mr-3 text-blue-600" />
+                      Weight Progress Journey
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      Track your weight changes over the last 3 months
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-96">
+                      {chartData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                            <defs>
+                              <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                            <XAxis 
+                              dataKey="date" 
+                              tick={{ fontSize: 12 }}
+                              tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            />
+                            <YAxis 
+                              tick={{ fontSize: 12 }}
+                              domain={['dataMin - 2', 'dataMax + 2']}
+                              label={{ value: `Weight (${(user as any)?.weightUnit || "kg"})`, angle: -90, position: 'insideLeft' }}
+                            />
+                            <Tooltip 
+                              contentStyle={{
+                                backgroundColor: 'white',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '12px',
+                                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+                                padding: '12px'
+                              }}
+                              formatter={(value, name) => [
+                                `${value} ${(user as any)?.weightUnit || "kg"}`,
+                                "Weight"
+                              ]}
+                              labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { 
+                                weekday: 'long', 
+                                month: 'long', 
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="weight"
+                              stroke="#3b82f6"
+                              strokeWidth={3}
+                              fill="url(#weightGradient)"
+                              dot={{ fill: "#3b82f6", strokeWidth: 2, r: 5 }}
+                              activeDot={{ r: 8, stroke: "#3b82f6", strokeWidth: 3, fill: "white" }}
+                            />
+                          </ComposedChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-neutral-500">
+                          <div className="text-center">
+                            <Scale className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                            <p className="text-lg font-medium mb-2">No weight data yet</p>
+                            <p className="text-sm">Add your first entry to start tracking your progress!</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </CardContent>
+                </Card>
+
+                {/* Weight Statistics Cards */}
+                {chartData.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-green-800">Current Weight</p>
+                            <p className="text-2xl font-bold text-green-900">
+                              {chartData[chartData.length - 1]?.weight} {(user as any)?.weightUnit || "kg"}
+                            </p>
+                          </div>
+                          <Scale className="h-8 w-8 text-green-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-50">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-blue-800">Weight Change</p>
+                            <p className="text-2xl font-bold text-blue-900">
+                              {chartData.length > 1 ? (
+                                (chartData[chartData.length - 1]?.weight - chartData[0]?.weight > 0 ? '+' : '') +
+                                (chartData[chartData.length - 1]?.weight - chartData[0]?.weight).toFixed(1)
+                              ) : '0.0'} {(user as any)?.weightUnit || "kg"}
+                            </p>
+                          </div>
+                          <TrendingUp className="h-8 w-8 text-blue-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-purple-800">Total Entries</p>
+                            <p className="text-2xl font-bold text-purple-900">{chartData.length}</p>
+                          </div>
+                          <Calendar className="h-8 w-8 text-purple-600" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="measurements" className="space-y-6">
