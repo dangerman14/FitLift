@@ -2004,8 +2004,8 @@ export default function CreateRoutine() {
                 <button
                   key={exercise.id}
                   onClick={() => {
-                    setSelectedExerciseId(exercise.id.toString());
-                    addExerciseToRoutine();
+                    console.log('Mobile exercise button clicked:', exercise);
+                    addExerciseToRoutine(exercise);
                     setShowMobileExerciseModal(false);
                   }}
                   className="w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between"
