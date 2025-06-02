@@ -48,6 +48,12 @@ export default function BodyTracking() {
     queryFn: () => fetch("/api/progress-photos", { credentials: "include" }).then(res => res.json()),
   });
 
+  // Get body measurements
+  const { data: bodyMeasurements } = useQuery({
+    queryKey: ["/api/body-measurements"],
+    queryFn: () => fetch("/api/body-measurements", { credentials: "include" }).then(res => res.json()),
+  });
+
   // Update weight input when current bodyweight is loaded
   useEffect(() => {
     if (currentBodyweight && typeof currentBodyweight === 'number') {
@@ -193,7 +199,7 @@ export default function BodyTracking() {
 
       <div className="space-y-6">
         {/* Current Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="shadow-material-1 border border-neutral-200">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-blue-600">
@@ -210,7 +216,16 @@ export default function BodyTracking() {
               <div className="text-2xl font-bold text-green-600">
                 {bodyWeightHistory?.length || 0}
               </div>
-              <div className="text-sm text-neutral-600">Total Entries</div>
+              <div className="text-sm text-neutral-600">Weight Entries</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="shadow-material-1 border border-neutral-200">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-orange-600">
+                {bodyMeasurements?.length || 0}
+              </div>
+              <div className="text-sm text-neutral-600">Measurements</div>
             </CardContent>
           </Card>
           
@@ -253,8 +268,9 @@ export default function BodyTracking() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="weight" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="weight">Weight Progress</TabsTrigger>
+                <TabsTrigger value="measurements">Body Measurements</TabsTrigger>
                 <TabsTrigger value="photos">Progress Photos</TabsTrigger>
               </TabsList>
               
@@ -321,6 +337,91 @@ export default function BodyTracking() {
                         <Scale className="h-12 w-12 mx-auto mb-4 opacity-50" />
                         <p>No weight data yet. Add your first entry to see your progress!</p>
                       </div>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="measurements" className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <Ruler className="h-5 w-5 mr-2 text-neutral-600" />
+                    Body Measurements History
+                  </h3>
+                  {bodyMeasurements && bodyMeasurements.length > 0 ? (
+                    <div className="space-y-4">
+                      {bodyMeasurements.slice(0, 10).map((measurement: any, index: number) => (
+                        <Card key={index} className="border border-neutral-200">
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start mb-3">
+                              <div className="text-sm font-medium text-neutral-900">
+                                {new Date(measurement.date).toLocaleDateString()}
+                              </div>
+                              {measurement.notes && (
+                                <div className="text-xs text-neutral-500 max-w-xs">
+                                  {measurement.notes}
+                                </div>
+                              )}
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                              {measurement.chest && (
+                                <div>
+                                  <span className="text-neutral-600">Chest:</span>
+                                  <span className="font-medium ml-1">{measurement.chest} cm</span>
+                                </div>
+                              )}
+                              {measurement.waist && (
+                                <div>
+                                  <span className="text-neutral-600">Waist:</span>
+                                  <span className="font-medium ml-1">{measurement.waist} cm</span>
+                                </div>
+                              )}
+                              {measurement.hips && (
+                                <div>
+                                  <span className="text-neutral-600">Hips:</span>
+                                  <span className="font-medium ml-1">{measurement.hips} cm</span>
+                                </div>
+                              )}
+                              {measurement.bodyFatPercentage && (
+                                <div>
+                                  <span className="text-neutral-600">Body Fat:</span>
+                                  <span className="font-medium ml-1">{measurement.bodyFatPercentage}%</span>
+                                </div>
+                              )}
+                              {measurement.bicepsLeft && (
+                                <div>
+                                  <span className="text-neutral-600">L Bicep:</span>
+                                  <span className="font-medium ml-1">{measurement.bicepsLeft} cm</span>
+                                </div>
+                              )}
+                              {measurement.bicepsRight && (
+                                <div>
+                                  <span className="text-neutral-600">R Bicep:</span>
+                                  <span className="font-medium ml-1">{measurement.bicepsRight} cm</span>
+                                </div>
+                              )}
+                              {measurement.thighLeft && (
+                                <div>
+                                  <span className="text-neutral-600">L Thigh:</span>
+                                  <span className="font-medium ml-1">{measurement.thighLeft} cm</span>
+                                </div>
+                              )}
+                              {measurement.thighRight && (
+                                <div>
+                                  <span className="text-neutral-600">R Thigh:</span>
+                                  <span className="font-medium ml-1">{measurement.thighRight} cm</span>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Ruler className="h-16 w-16 mx-auto mb-4 text-neutral-300" />
+                      <p className="text-lg text-neutral-500 mb-2">No body measurements yet</p>
+                      <p className="text-sm text-neutral-400">Add your first measurement using the "Add New Body Entry" button!</p>
                     </div>
                   )}
                 </div>
