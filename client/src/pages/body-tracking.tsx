@@ -56,6 +56,23 @@ export default function BodyTracking() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [weightDateFilter, setWeightDateFilter] = useState("3m");
   const [measurementDateFilter, setMeasurementDateFilter] = useState("3m");
+  
+  // State for hiding/showing chart lines
+  const [hiddenLines, setHiddenLines] = useState<Set<string>>(new Set());
+
+  // Handler for toggling legend visibility
+  const handleLegendClick = (data: any, index: number, event: any) => {
+    const dataKey = data.dataKey;
+    setHiddenLines(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dataKey)) {
+        newSet.delete(dataKey);
+      } else {
+        newSet.add(dataKey);
+      }
+      return newSet;
+    });
+  };
 
   // Get current body weight
   const { data: currentBodyweight, isLoading: isLoadingBodyweight } = useQuery({
@@ -514,11 +531,43 @@ export default function BodyTracking() {
                                   day: 'numeric' 
                                 })}
                               />
-                              <Legend />
-                              <Line type="monotone" dataKey="chest" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} name="Chest" />
-                              <Line type="monotone" dataKey="shoulders" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} name="Shoulders" />
-                              <Line type="monotone" dataKey="bicepsLeft" stroke="#eab308" strokeWidth={2} dot={{ r: 3 }} name="Left Bicep" />
-                              <Line type="monotone" dataKey="bicepsRight" stroke="#facc15" strokeWidth={2} dot={{ r: 3 }} name="Right Bicep" />
+                              <Legend onClick={handleLegendClick} />
+                              <Line 
+                                type="monotone" 
+                                dataKey="chest" 
+                                stroke="#ef4444" 
+                                strokeWidth={2} 
+                                dot={{ r: 3 }} 
+                                name="Chest"
+                                hide={hiddenLines.has("chest")}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="shoulders" 
+                                stroke="#f97316" 
+                                strokeWidth={2} 
+                                dot={{ r: 3 }} 
+                                name="Shoulders"
+                                hide={hiddenLines.has("shoulders")}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="bicepsLeft" 
+                                stroke="#eab308" 
+                                strokeWidth={2} 
+                                dot={{ r: 3 }} 
+                                name="Left Bicep"
+                                hide={hiddenLines.has("bicepsLeft")}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="bicepsRight" 
+                                stroke="#facc15" 
+                                strokeWidth={2} 
+                                dot={{ r: 3 }} 
+                                name="Right Bicep"
+                                hide={hiddenLines.has("bicepsRight")}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         </div>
@@ -571,12 +620,52 @@ export default function BodyTracking() {
                                   day: 'numeric' 
                                 })}
                               />
-                              <Legend />
-                              <Line type="monotone" dataKey="waist" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} name="Waist" />
-                              <Line type="monotone" dataKey="abdomen" stroke="#a855f7" strokeWidth={2} dot={{ r: 3 }} name="Abdomen" />
-                              <Line type="monotone" dataKey="hips" stroke="#c084fc" strokeWidth={2} dot={{ r: 3 }} name="Hips" />
-                              <Line type="monotone" dataKey="thighLeft" stroke="#06b6d4" strokeWidth={2} dot={{ r: 3 }} name="Left Thigh" />
-                              <Line type="monotone" dataKey="thighRight" stroke="#0891b2" strokeWidth={2} dot={{ r: 3 }} name="Right Thigh" />
+                              <Legend onClick={handleLegendClick} />
+                              <Line 
+                                type="monotone" 
+                                dataKey="waist" 
+                                stroke="#8b5cf6" 
+                                strokeWidth={2} 
+                                dot={{ r: 3 }} 
+                                name="Waist"
+                                hide={hiddenLines.has("waist")}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="abdomen" 
+                                stroke="#a855f7" 
+                                strokeWidth={2} 
+                                dot={{ r: 3 }} 
+                                name="Abdomen"
+                                hide={hiddenLines.has("abdomen")}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="hips" 
+                                stroke="#c084fc" 
+                                strokeWidth={2} 
+                                dot={{ r: 3 }} 
+                                name="Hips"
+                                hide={hiddenLines.has("hips")}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="thighLeft" 
+                                stroke="#06b6d4" 
+                                strokeWidth={2} 
+                                dot={{ r: 3 }} 
+                                name="Left Thigh"
+                                hide={hiddenLines.has("thighLeft")}
+                              />
+                              <Line 
+                                type="monotone" 
+                                dataKey="thighRight" 
+                                stroke="#0891b2" 
+                                strokeWidth={2} 
+                                dot={{ r: 3 }} 
+                                name="Right Thigh"
+                                hide={hiddenLines.has("thighRight")}
+                              />
                             </LineChart>
                           </ResponsiveContainer>
                         </div>
