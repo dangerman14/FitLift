@@ -1639,8 +1639,18 @@ export default function CreateRoutine() {
                 </DndContext>
                   </div>
                   
-                  {/* Mobile Layout - Simple list without drag and drop */}
-                  <div className="lg:hidden space-y-4">
+                  {/* Mobile Layout - With drag and drop support */}
+                  <div className="lg:hidden">
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <SortableContext 
+                        items={selectedExercises.map((_, index) => index.toString())}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <div className="space-y-4">
                     {selectedExercises.map((exercise, exerciseIndex) => (
                       <div key={`mobile-${exercise.exerciseId}-${exerciseIndex}`} className="border rounded-lg bg-white p-4 space-y-4">
                         {/* Exercise Header */}
