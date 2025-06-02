@@ -367,11 +367,6 @@ export default function BodyTracking() {
                             {(user as any)?.weightUnit || "kg"}
                           </span>
                         </div>
-                        {currentBodyweight && (
-                          <p className="text-xs text-blue-600 mt-1 font-medium">
-                            Last recorded: {currentBodyweight} {(user as any)?.weightUnit || "kg"}
-                          </p>
-                        )}
                       </div>
                       <Button
                         onClick={handleBodyWeightSubmit}
