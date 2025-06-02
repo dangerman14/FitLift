@@ -371,10 +371,22 @@ export default function BodyTracking() {
                                   <span className="font-medium ml-1">{measurement.chest} cm</span>
                                 </div>
                               )}
+                              {measurement.shoulders && (
+                                <div>
+                                  <span className="text-neutral-600">Shoulders:</span>
+                                  <span className="font-medium ml-1">{measurement.shoulders} cm</span>
+                                </div>
+                              )}
                               {measurement.waist && (
                                 <div>
                                   <span className="text-neutral-600">Waist:</span>
                                   <span className="font-medium ml-1">{measurement.waist} cm</span>
+                                </div>
+                              )}
+                              {measurement.abdomen && (
+                                <div>
+                                  <span className="text-neutral-600">Abdomen:</span>
+                                  <span className="font-medium ml-1">{measurement.abdomen} cm</span>
                                 </div>
                               )}
                               {measurement.hips && (

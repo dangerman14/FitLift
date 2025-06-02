@@ -23,7 +23,9 @@ import { useLocation } from "wouter";
 const bodyEntrySchema = z.object({
   weight: z.number().min(0.1, "Weight must be greater than 0").optional(),
   chest: z.number().min(0, "Measurement must be positive").optional(),
+  shoulders: z.number().min(0, "Measurement must be positive").optional(),
   waist: z.number().min(0, "Measurement must be positive").optional(),
+  abdomen: z.number().min(0, "Measurement must be positive").optional(),
   hips: z.number().min(0, "Measurement must be positive").optional(),
   bicepsLeft: z.number().min(0, "Measurement must be positive").optional(),
   bicepsRight: z.number().min(0, "Measurement must be positive").optional(),
@@ -48,7 +50,9 @@ export default function AddBodyEntry() {
     defaultValues: {
       weight: undefined,
       chest: undefined,
+      shoulders: undefined,
       waist: undefined,
+      abdomen: undefined,
       hips: undefined,
       bicepsLeft: undefined,
       bicepsRight: undefined,
@@ -249,6 +253,27 @@ export default function AddBodyEntry() {
 
                 <FormField
                   control={form.control}
+                  name="shoulders"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Shoulders</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          placeholder="Shoulder measurement"
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="waist"
                   render={({ field }) => (
                     <FormItem>
@@ -258,6 +283,27 @@ export default function AddBodyEntry() {
                           type="number"
                           step="0.1"
                           placeholder="Waist measurement"
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="abdomen"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Abdomen</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          placeholder="Abdomen measurement"
                           {...field}
                           onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                           value={field.value || ""}
