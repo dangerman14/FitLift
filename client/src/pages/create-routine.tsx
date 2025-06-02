@@ -88,6 +88,8 @@ interface SortableExerciseItemProps {
   isDraggingGlobal: boolean;
   exerciseWeightUnits: {[key: number]: string};
   setExerciseWeightUnits: React.Dispatch<React.SetStateAction<{[key: number]: string}>>;
+  selectedExercises: RoutineExercise[];
+  setSelectedExercises: React.Dispatch<React.SetStateAction<RoutineExercise[]>>;
   children: React.ReactNode;
 }
 
@@ -109,6 +111,8 @@ function SortableExerciseItem({
   isDraggingGlobal,
   exerciseWeightUnits,
   setExerciseWeightUnits,
+  selectedExercises,
+  setSelectedExercises,
   children
 }: SortableExerciseItemProps) {
   const {
@@ -597,7 +601,7 @@ export default function CreateRoutine() {
         throw error;
       }
     },
-  });
+  }) as { data: any[] };
 
   const { data: folders = [] } = useQuery({
     queryKey: ["/api/routine-folders"],
@@ -625,13 +629,14 @@ export default function CreateRoutine() {
   // Populate form fields when existing routine data is loaded
   useEffect(() => {
     if (existingRoutine && isEditMode) {
-      setRoutineName(existingRoutine.name || "");
-      setRoutineDescription(existingRoutine.description || "");
-      setSelectedFolderId(existingRoutine.folderId?.toString() || "");
+      const routine = existingRoutine as any;
+      setRoutineName(routine.name || "");
+      setRoutineDescription(routine.description || "");
+      setSelectedFolderId(routine.folderId?.toString() || "");
       
       // Load routine exercises if they exist
-      if (existingRoutine.exercises && Array.isArray(existingRoutine.exercises)) {
-        const routineExercises = existingRoutine.exercises.map((exercise: any) => {
+      if (routine.exercises && Array.isArray(routine.exercises)) {
+        const routineExercises = routine.exercises.map((exercise: any) => {
           // Try to parse stored sets data from notes field
           let setsData = [];
           let userNotes = "";
@@ -1594,6 +1599,8 @@ export default function CreateRoutine() {
                               isDraggingGlobal={isDragging}
                               exerciseWeightUnits={exerciseWeightUnits}
                               setExerciseWeightUnits={setExerciseWeightUnits}
+                              selectedExercises={selectedExercises}
+                              setSelectedExercises={setSelectedExercises}
                             >
                               <div 
                                 className={`relative border rounded-lg bg-white ${
@@ -1939,6 +1946,8 @@ export default function CreateRoutine() {
                         isDraggingGlobal={isDragging}
                         exerciseWeightUnits={exerciseWeightUnits}
                         setExerciseWeightUnits={setExerciseWeightUnits}
+                        selectedExercises={selectedExercises}
+                        setSelectedExercises={setSelectedExercises}
                       >
                         <div className="bg-white space-y-4 py-4">
                           {/* Exercise Header */}
