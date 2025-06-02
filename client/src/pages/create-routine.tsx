@@ -119,8 +119,8 @@ function SortableExerciseItem({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // Show minimized view during drag operations
-  if (isDraggingGlobal && isDragging) {
+  // Show minimized view during any drag operation (for all exercises)
+  if (isDraggingGlobal) {
     return (
       <div 
         ref={setNodeRef}
@@ -129,7 +129,7 @@ function SortableExerciseItem({
           exercise.supersetId 
             ? getSupersetColor(exercise.supersetId)
             : 'border-l-gray-200'
-        } cursor-grabbing shadow-lg scale-105`}
+        } ${isDragging ? 'cursor-grabbing shadow-lg scale-105' : 'cursor-grab'}`}
       >
         <div className="flex items-center gap-2">
           <div 
@@ -139,7 +139,9 @@ function SortableExerciseItem({
           >
             <GripVertical className="h-4 w-4 text-gray-400" />
           </div>
-          <div className="font-medium text-gray-700">:: {exercise.exerciseName}</div>
+          <div className={`font-medium ${isDragging ? 'text-gray-700' : 'text-gray-600'}`}>
+            :: {exercise.exerciseName}
+          </div>
           {exercise.supersetId && (
             <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
               {exercise.supersetId}
