@@ -17,6 +17,7 @@ import CreateRoutine from "@/pages/create-routine";
 import Profile from "@/pages/profile";
 import BodyTracking from "@/pages/body-tracking";
 import AddBodyEntry from "@/pages/add-body-entry";
+import EditBodyEntry from "@/pages/edit-body-entry";
 import ProgressEntry from "@/pages/progress-entry";
 import Settings from "@/pages/settings";
 import WorkoutSession from "@/pages/workout-session";
@@ -63,6 +64,7 @@ function Router() {
                 <Route path="/profile" component={Profile} />
                 <Route path="/body-tracking" component={BodyTracking} />
                 <Route path="/body-tracking/entry/:date" component={ProgressEntry} />
+                <Route path="/body-tracking/edit/:date" component={EditBodyEntry} />
                 <Route path="/add-body-entry" component={AddBodyEntry} />
                 <Route path="/settings" component={Settings} />
                 <Route component={NotFound} />

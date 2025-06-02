@@ -66,6 +66,13 @@ export default function AddBodyEntry() {
     new Date(entry.measurementDate).toISOString().split('T')[0] === today
   ));
 
+  // Redirect to edit page if entry already exists
+  useEffect(() => {
+    if (hasEntryToday) {
+      setLocation(`/body-tracking/edit/${today}`);
+    }
+  }, [hasEntryToday, setLocation, today]);
+
   const form = useForm<BodyEntryForm>({
     resolver: zodResolver(bodyEntrySchema),
     defaultValues: {

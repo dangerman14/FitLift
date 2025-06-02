@@ -1205,6 +1205,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update existing body entry endpoint
+  app.put('/api/body-entry', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const formData = req.body;
+      const entryDate = formData.date || new Date().toISOString().split('T')[0];
+      
+      console.log('Updating body entry for date:', entryDate, 'Data:', formData);
+      
+      let results: any = {};
+      
+      // Handle weight entry update
+      if (formData.weight && !isNaN(parseFloat(formData.weight))) {
+        const weight = parseFloat(formData.weight);
+        
+        // First check if there's an existing weight entry for this date
+        const existingWeight = await storage.getUserBodyweight(userId);
+        const existingEntryForDate = existingWeight.find((entry: any) => 
+          new Date(entry.measurementDate).toISOString().split('T')[0] === entryDate
+        );
+        
+        if (existingEntryForDate) {
+          // Update existing entry
+          results.bodyweight = await storage.updateExistingBodyweight(existingEntryForDate.id, weight);
+        } else {
+          // Create new entry if none exists for this date
+          results.bodyweight = await storage.createBodyweightEntry({
+            userId,
+            weight: weight.toString(),
+            measurementDate: entryDate,
+          });
+        }
+        
+        await storage.updateUserCurrentBodyweight(userId, weight);
+      }
+      
+      // Handle body measurements update
+      const measurements: any = {};
+      let hasMeasurements = false;
+      
+      ['chest', 'shoulders', 'waist', 'abdomen', 'hips', 'bicepsLeft', 'bicepsRight', 'thighLeft', 'thighRight', 'bodyFatPercentage'].forEach(field => {
+        if (formData[field] && !isNaN(parseFloat(formData[field]))) {
+          measurements[field] = parseFloat(formData[field]).toString();
+          hasMeasurements = true;
+        }
+      });
+      
+      if (hasMeasurements) {
+        // Check if there's an existing measurement for this date
+        const existingMeasurements = await storage.getBodyMeasurements(userId);
+        const existingMeasurementForDate = existingMeasurements.find((measurement: any) => 
+          new Date(measurement.date).toISOString().split('T')[0] === entryDate
+        );
+        
+        if (existingMeasurementForDate) {
+          // Update existing measurement
+          results.measurement = await storage.updateBodyMeasurement(existingMeasurementForDate.id, {
+            ...measurements,
+            notes: formData.notes || null,
+          });
+        } else {
+          // Create new measurement if none exists for this date
+          results.measurement = await storage.createBodyMeasurement({
+            userId,
+            date: entryDate,
+            ...measurements,
+            notes: formData.notes || null,
+          });
+        }
+      }
+      
+      res.json(results);
+    } catch (error) {
+      console.error("Error updating body entry:", error);
+      res.status(500).json({ message: "Failed to update body entry" });
+    }
+  });
+
   // Progress photos routes
   app.get('/api/progress-photos', isAuthenticated, async (req: any, res) => {
     try {
