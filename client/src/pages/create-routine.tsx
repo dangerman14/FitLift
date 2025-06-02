@@ -580,15 +580,7 @@ export default function CreateRoutine() {
         </Select>
       </div>
 
-      {/* Add Exercise Button */}
-      <Button 
-        onClick={() => setShowExerciseModal(true)}
-        className="w-full"
-        variant="outline"
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        Add Exercise
-      </Button>
+
 
       {/* Exercise Selection Modal */}
       <Dialog open={showExerciseModal} onOpenChange={setShowExerciseModal}>
@@ -844,6 +836,16 @@ export default function CreateRoutine() {
           </DndContext>
         </div>
       )}
+
+      {/* Add Exercise Button */}
+      <Button 
+        onClick={() => setShowExerciseModal(true)}
+        className="w-full"
+        variant="outline"
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Add Exercise
+      </Button>
 
       {/* Save Button */}
       <div className="pt-4 border-t">
