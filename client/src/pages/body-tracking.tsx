@@ -492,7 +492,7 @@ export default function BodyTracking() {
                       <CardContent>
                         <div className="h-80">
                           <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={bodyMeasurements.slice().reverse()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <LineChart data={filteredBodyMeasurements.slice().reverse()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                               <XAxis 
                                 dataKey="date" 
@@ -536,7 +536,7 @@ export default function BodyTracking() {
                       <CardContent>
                         <div className="h-80">
                           <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={bodyMeasurements.slice().reverse()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <LineChart data={filteredBodyMeasurements.slice().reverse()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                               <XAxis 
                                 dataKey="date" 
