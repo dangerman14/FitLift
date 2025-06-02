@@ -1114,90 +1114,16 @@ export default function CreateRoutine() {
                           key={`${exercise.exerciseId}-${exerciseIndex}`}
                           exercise={exercise}
                           exerciseIndex={exerciseIndex}
-                        >
-                          <div 
-                            className={`border rounded-lg bg-white border-l-4 transition-all duration-200 ${
-                        exercise.supersetId 
-                          ? getSupersetColor(exercise.supersetId)
-                          : 'border-l-gray-200'
-                      } ${
-                        groupingMode && !exercise.supersetId
-                          ? 'cursor-pointer hover:shadow-md hover:border-blue-300'
-                          : ''
-                      } ${
-                        selectedForGrouping.includes(exerciseIndex)
-                          ? 'ring-2 ring-blue-500 bg-blue-50'
-                          : ''
-                      }`}
-                      onClick={() => {
-                        if (groupingMode && !exercise.supersetId) {
-                          toggleExerciseSelection(exerciseIndex);
-                        }
-                      }}
-                    >
-                      {/* Exercise Header */}
-                      <div className="flex items-center justify-between p-4 border-b bg-gray-50">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            {groupingMode && !exercise.supersetId && (
-                              <div className="flex items-center">
-                                <Checkbox
-                                  checked={selectedForGrouping.includes(exerciseIndex)}
-                                  readOnly
-                                  className="mr-2"
-                                />
-                              </div>
-                            )}
-                            <div className="font-medium text-lg">{exercise.exerciseName}</div>
-                            {exercise.supersetId && (
-                              <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                                {exercise.supersetId}
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            {exercise.sets.length} sets • Rest: {(() => {
-                              const seconds = exercise.restDuration;
-                              const mins = Math.floor(seconds / 60);
-                              const secs = seconds % 60;
-                              return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-                            })()}
-                          </div>
-                          
-                          {/* Exercise Notes under title */}
-                          <div className="mt-2">
-                            <Input
-                              value={exercise.notes || ""}
-                              onChange={(e) => {
-                                const updatedExercises = [...selectedExercises];
-                                updatedExercises[exerciseIndex].notes = e.target.value;
-                                setSelectedExercises(updatedExercises);
-                              }}
-                              placeholder="Add exercise notes (e.g., slow tempo, pause at bottom)"
-                              className="text-sm"
-                            />
-                          </div>
-                        </div>
-                        
-                        {/* Rest Time Selector */}
-                        <div className="flex items-center gap-2">
-                          <Select 
-                            value={exercise.restDuration.toString()} 
-                            onValueChange={(value) => updateExerciseRestTime(exerciseIndex, parseInt(value))}
-                          >
-                            <SelectTrigger className="w-24 h-8 text-xs">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-40">
-                              {/* 5 second intervals up to 2 minutes */}
-                              {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
-                                <SelectItem key={seconds} value={seconds.toString()}>
-                                  {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
-                                </SelectItem>
-                              ))}
-                              
-                              {/* 15 second intervals from 2m 15s to 5 minutes */}
-                              {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
+                          onRemove={removeExercise}
+                          onAddSet={addSetToExercise}
+                          onUpdateSet={updateExerciseSet}
+                          weightUnitOverride={weightUnitOverride}
+                          allExercises={exercises?.data || []}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
                                 <SelectItem key={seconds} value={seconds.toString()}>
                                   {Math.floor(seconds / 60)}m {seconds % 60}s
                                 </SelectItem>
