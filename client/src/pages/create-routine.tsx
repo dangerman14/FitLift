@@ -538,6 +538,27 @@ export default function CreateRoutine() {
     return `SS${supersetCounter}`;
   };
 
+  const groupExercisesBySuperset = (exercises: RoutineExercise[]) => {
+    // Group exercises to keep superset members adjacent while preserving order
+    const result: RoutineExercise[] = [];
+    const processedSupersets = new Set<string>();
+    
+    exercises.forEach(exercise => {
+      if (exercise.supersetId && !processedSupersets.has(exercise.supersetId)) {
+        // Find all exercises in this superset and add them together
+        const supersetExercises = exercises.filter(e => e.supersetId === exercise.supersetId);
+        result.push(...supersetExercises);
+        processedSupersets.add(exercise.supersetId);
+      } else if (!exercise.supersetId) {
+        // Add non-superset exercises
+        result.push(exercise);
+      }
+      // Skip exercises already processed as part of a superset
+    });
+    
+    return result;
+  };
+
   const getSupersetsInUse = () => {
     const supersets = new Set<string>();
     selectedExercises.forEach(exercise => {
@@ -593,13 +614,17 @@ export default function CreateRoutine() {
   const addToSuperset = (exerciseIndex: number, supersetId?: string) => {
     const newSupersetId = supersetId || generateSupersetId();
     
-    setSelectedExercises(prev => 
-      prev.map((exercise, index) => 
+    setSelectedExercises(prev => {
+      // Update the exercise with the superset ID
+      const updatedExercises = prev.map((exercise, index) => 
         index === exerciseIndex 
           ? { ...exercise, supersetId: newSupersetId }
           : exercise
-      )
-    );
+      );
+
+      // Group exercises by superset to maintain adjacency
+      return groupExercisesBySuperset(updatedExercises);
+    });
 
     if (!supersetId) {
       setSupersetCounter(prev => prev + 1);
@@ -607,13 +632,16 @@ export default function CreateRoutine() {
   };
 
   const removeFromSuperset = (exerciseIndex: number) => {
-    setSelectedExercises(prev => 
-      prev.map((exercise, index) => 
+    setSelectedExercises(prev => {
+      const updatedExercises = prev.map((exercise, index) => 
         index === exerciseIndex 
           ? { ...exercise, supersetId: undefined }
           : exercise
-      )
-    );
+      );
+      
+      // Group exercises by superset to maintain adjacency
+      return groupExercisesBySuperset(updatedExercises);
+    });
   };
 
   // Drag and drop handler
