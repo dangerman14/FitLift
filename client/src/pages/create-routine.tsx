@@ -1844,7 +1844,11 @@ export default function CreateRoutine() {
                 {filteredExercises.map((exercise) => (
                   <div
                     key={exercise.id}
-                    onClick={() => addExerciseToRoutine(exercise)}
+                    onClick={() => {
+                      console.log('Exercise clicked:', exercise);
+                      addExerciseToRoutine(exercise);
+                      setShowExerciseModal(false);
+                    }}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
                   >
                     <div>
