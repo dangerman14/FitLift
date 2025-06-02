@@ -16,7 +16,20 @@ import {
   ArrowLeft,
   Ruler
 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+  ComposedChart,
+  Bar,
+  Legend
+} from "recharts";
 import { useLocation } from "wouter";
 
 const bodyWeightSchema = z.object({
@@ -310,27 +323,58 @@ export default function BodyTracking() {
                   </Button>
                 </div>
                 
-                {/* Weight Progress Chart */}
-                <div className="h-80">
+                {/* Enhanced Weight Progress Chart */}
+                <div className="h-96">
                   <h3 className="text-lg font-semibold mb-4 flex items-center">
-                    <Calendar className="h-5 w-5 mr-2 text-neutral-600" />
-                    Weight History
+                    <TrendingUp className="h-5 w-5 mr-2 text-blue-600" />
+                    Weight Progress Trend
                   </h3>
                   {chartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip formatter={(value) => [`${value} ${(user as any)?.weightUnit || "kg"}`, "Weight"]} />
-                        <Line 
-                          type="monotone" 
-                          dataKey="weight" 
-                          stroke="#3b82f6" 
-                          strokeWidth={3}
-                          dot={{ fill: "#3b82f6", strokeWidth: 2, r: 5 }}
+                      <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis 
+                          dataKey="date" 
+                          tick={{ fontSize: 12 }}
+                          tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         />
-                      </LineChart>
+                        <YAxis 
+                          tick={{ fontSize: 12 }}
+                          domain={['dataMin - 2', 'dataMax + 2']}
+                        />
+                        <Tooltip 
+                          contentStyle={{
+                            backgroundColor: 'white',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                          }}
+                          formatter={(value, name) => [
+                            `${value} ${(user as any)?.weightUnit || "kg"}`,
+                            "Weight"
+                          ]}
+                          labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { 
+                            weekday: 'long', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="weight"
+                          stroke="#3b82f6"
+                          strokeWidth={3}
+                          fill="url(#weightGradient)"
+                          dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4 }}
+                          activeDot={{ r: 6, stroke: "#3b82f6", strokeWidth: 2 }}
+                        />
+                      </AreaChart>
                     </ResponsiveContainer>
                   ) : (
                     <div className="flex items-center justify-center h-full text-neutral-500">
@@ -344,100 +388,191 @@ export default function BodyTracking() {
               </TabsContent>
 
               <TabsContent value="measurements" className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center">
-                    <Ruler className="h-5 w-5 mr-2 text-neutral-600" />
-                    Body Measurements History
-                  </h3>
-                  {bodyMeasurements && bodyMeasurements.length > 0 ? (
-                    <div className="space-y-4">
-                      {bodyMeasurements.slice(0, 10).map((measurement: any, index: number) => (
-                        <Card key={index} className="border border-neutral-200">
-                          <CardContent className="p-4">
-                            <div className="flex justify-between items-start mb-3">
-                              <div className="text-sm font-medium text-neutral-900">
-                                {new Date(measurement.date).toLocaleDateString()}
+                {/* Interactive Measurement Charts */}
+                {bodyMeasurements && bodyMeasurements.length > 0 ? (
+                  <div className="space-y-8">
+                    {/* Upper Body Measurements Chart */}
+                    <Card className="border border-neutral-200">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center">
+                          <Ruler className="h-5 w-5 mr-2 text-green-600" />
+                          Upper Body Progress
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="h-80">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={bodyMeasurements.slice().reverse()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                              <XAxis 
+                                dataKey="date" 
+                                tick={{ fontSize: 12 }}
+                                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              />
+                              <YAxis tick={{ fontSize: 12 }} />
+                              <Tooltip 
+                                contentStyle={{
+                                  backgroundColor: 'white',
+                                  border: '1px solid #e5e7eb',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                }}
+                                formatter={(value, name) => [`${value} cm`, name]}
+                                labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { 
+                                  weekday: 'long', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}
+                              />
+                              <Legend />
+                              <Line type="monotone" dataKey="chest" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} name="Chest" />
+                              <Line type="monotone" dataKey="shoulders" stroke="#f97316" strokeWidth={2} dot={{ r: 3 }} name="Shoulders" />
+                              <Line type="monotone" dataKey="bicepsLeft" stroke="#eab308" strokeWidth={2} dot={{ r: 3 }} name="Left Bicep" />
+                              <Line type="monotone" dataKey="bicepsRight" stroke="#facc15" strokeWidth={2} dot={{ r: 3 }} name="Right Bicep" />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Core & Lower Body Chart */}
+                    <Card className="border border-neutral-200">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center">
+                          <TrendingUp className="h-5 w-5 mr-2 text-purple-600" />
+                          Core & Lower Body Progress
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="h-80">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={bodyMeasurements.slice().reverse()} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                              <XAxis 
+                                dataKey="date" 
+                                tick={{ fontSize: 12 }}
+                                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              />
+                              <YAxis tick={{ fontSize: 12 }} />
+                              <Tooltip 
+                                contentStyle={{
+                                  backgroundColor: 'white',
+                                  border: '1px solid #e5e7eb',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                }}
+                                formatter={(value, name) => [`${value} cm`, name]}
+                                labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { 
+                                  weekday: 'long', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}
+                              />
+                              <Legend />
+                              <Line type="monotone" dataKey="waist" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} name="Waist" />
+                              <Line type="monotone" dataKey="abdomen" stroke="#a855f7" strokeWidth={2} dot={{ r: 3 }} name="Abdomen" />
+                              <Line type="monotone" dataKey="hips" stroke="#c084fc" strokeWidth={2} dot={{ r: 3 }} name="Hips" />
+                              <Line type="monotone" dataKey="thighLeft" stroke="#06b6d4" strokeWidth={2} dot={{ r: 3 }} name="Left Thigh" />
+                              <Line type="monotone" dataKey="thighRight" stroke="#0891b2" strokeWidth={2} dot={{ r: 3 }} name="Right Thigh" />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Body Fat Percentage Chart */}
+                    <Card className="border border-neutral-200">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center">
+                          <Scale className="h-5 w-5 mr-2 text-red-600" />
+                          Body Fat Percentage
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="h-64">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={bodyMeasurements.slice().reverse()} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                              <defs>
+                                <linearGradient id="bodyFatGradient" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#dc2626" stopOpacity={0.8}/>
+                                  <stop offset="95%" stopColor="#dc2626" stopOpacity={0.1}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                              <XAxis 
+                                dataKey="date" 
+                                tick={{ fontSize: 12 }}
+                                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              />
+                              <YAxis tick={{ fontSize: 12 }} />
+                              <Tooltip 
+                                contentStyle={{
+                                  backgroundColor: 'white',
+                                  border: '1px solid #e5e7eb',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                }}
+                                formatter={(value) => [`${value}%`, "Body Fat"]}
+                                labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { 
+                                  weekday: 'long', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                })}
+                              />
+                              <Area
+                                type="monotone"
+                                dataKey="bodyFatPercentage"
+                                stroke="#dc2626"
+                                strokeWidth={3}
+                                fill="url(#bodyFatGradient)"
+                                dot={{ fill: "#dc2626", strokeWidth: 2, r: 4 }}
+                                activeDot={{ r: 6, stroke: "#dc2626", strokeWidth: 2 }}
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Recent Measurements List */}
+                    <Card className="border border-neutral-200">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Recent Measurements</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          {bodyMeasurements.slice(0, 5).map((measurement: any, index: number) => (
+                            <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                              <div className="flex justify-between items-start mb-2">
+                                <div className="text-sm font-medium text-neutral-900">
+                                  {new Date(measurement.date).toLocaleDateString()}
+                                </div>
+                                {measurement.notes && (
+                                  <div className="text-xs text-neutral-500 max-w-xs italic">
+                                    "{measurement.notes}"
+                                  </div>
+                                )}
                               </div>
-                              {measurement.notes && (
-                                <div className="text-xs text-neutral-500 max-w-xs">
-                                  {measurement.notes}
-                                </div>
-                              )}
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                {measurement.chest && <div><span className="text-neutral-600">Chest:</span> <span className="font-medium">{measurement.chest}cm</span></div>}
+                                {measurement.shoulders && <div><span className="text-neutral-600">Shoulders:</span> <span className="font-medium">{measurement.shoulders}cm</span></div>}
+                                {measurement.waist && <div><span className="text-neutral-600">Waist:</span> <span className="font-medium">{measurement.waist}cm</span></div>}
+                                {measurement.abdomen && <div><span className="text-neutral-600">Abdomen:</span> <span className="font-medium">{measurement.abdomen}cm</span></div>}
+                                {measurement.bodyFatPercentage && <div><span className="text-neutral-600">Body Fat:</span> <span className="font-medium">{measurement.bodyFatPercentage}%</span></div>}
+                              </div>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                              {measurement.chest && (
-                                <div>
-                                  <span className="text-neutral-600">Chest:</span>
-                                  <span className="font-medium ml-1">{measurement.chest} cm</span>
-                                </div>
-                              )}
-                              {measurement.shoulders && (
-                                <div>
-                                  <span className="text-neutral-600">Shoulders:</span>
-                                  <span className="font-medium ml-1">{measurement.shoulders} cm</span>
-                                </div>
-                              )}
-                              {measurement.waist && (
-                                <div>
-                                  <span className="text-neutral-600">Waist:</span>
-                                  <span className="font-medium ml-1">{measurement.waist} cm</span>
-                                </div>
-                              )}
-                              {measurement.abdomen && (
-                                <div>
-                                  <span className="text-neutral-600">Abdomen:</span>
-                                  <span className="font-medium ml-1">{measurement.abdomen} cm</span>
-                                </div>
-                              )}
-                              {measurement.hips && (
-                                <div>
-                                  <span className="text-neutral-600">Hips:</span>
-                                  <span className="font-medium ml-1">{measurement.hips} cm</span>
-                                </div>
-                              )}
-                              {measurement.bodyFatPercentage && (
-                                <div>
-                                  <span className="text-neutral-600">Body Fat:</span>
-                                  <span className="font-medium ml-1">{measurement.bodyFatPercentage}%</span>
-                                </div>
-                              )}
-                              {measurement.bicepsLeft && (
-                                <div>
-                                  <span className="text-neutral-600">L Bicep:</span>
-                                  <span className="font-medium ml-1">{measurement.bicepsLeft} cm</span>
-                                </div>
-                              )}
-                              {measurement.bicepsRight && (
-                                <div>
-                                  <span className="text-neutral-600">R Bicep:</span>
-                                  <span className="font-medium ml-1">{measurement.bicepsRight} cm</span>
-                                </div>
-                              )}
-                              {measurement.thighLeft && (
-                                <div>
-                                  <span className="text-neutral-600">L Thigh:</span>
-                                  <span className="font-medium ml-1">{measurement.thighLeft} cm</span>
-                                </div>
-                              )}
-                              {measurement.thighRight && (
-                                <div>
-                                  <span className="text-neutral-600">R Thigh:</span>
-                                  <span className="font-medium ml-1">{measurement.thighRight} cm</span>
-                                </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Ruler className="h-16 w-16 mx-auto mb-4 text-neutral-300" />
-                      <p className="text-lg text-neutral-500 mb-2">No body measurements yet</p>
-                      <p className="text-sm text-neutral-400">Add your first measurement using the "Add New Body Entry" button!</p>
-                    </div>
-                  )}
-                </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Ruler className="h-16 w-16 mx-auto mb-4 text-neutral-300" />
+                    <p className="text-lg text-neutral-500 mb-2">No body measurements yet</p>
+                    <p className="text-sm text-neutral-400">Add your first measurement using the "Add New Body Entry" button!</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="photos" className="space-y-6">
