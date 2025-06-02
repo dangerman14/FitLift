@@ -96,6 +96,12 @@ export default function WorkoutSession() {
     return () => clearInterval(timer);
   }, [startTime]);
 
+  // Load saved weight preferences from localStorage
+  useEffect(() => {
+    const savedPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
+    setExerciseWeightUnits(savedPrefs);
+  }, []);
+
   // Fetch previous exercise data when workout exercises are loaded
   useEffect(() => {
     if (workoutExercises.length > 0) {
@@ -108,6 +114,20 @@ export default function WorkoutSession() {
   // Weight unit conversion helpers
   const getWeightUnit = (exerciseId: number) => {
     return exerciseWeightUnits[exerciseId] || user?.weightUnit || 'kg';
+  };
+
+  const toggleExerciseWeightUnit = (exerciseId: number) => {
+    const currentUnit = getWeightUnit(exerciseId);
+    const newUnit = currentUnit === 'kg' ? 'lbs' : 'kg';
+    setExerciseWeightUnits(prev => ({
+      ...prev,
+      [exerciseId]: newUnit
+    }));
+    
+    // Save to localStorage to persist preference
+    const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
+    existingPrefs[exerciseId] = newUnit;
+    localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
   };
   
   const getDisplayWeight = (weight: number, exerciseId: number) => {
@@ -1035,9 +1055,19 @@ export default function WorkoutSession() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-blue-600 text-lg">
-                        {workoutExercise.exercise?.name}
-                      </h3>
+                      <div className="flex items-center space-x-2">
+                        <h3 className="font-medium text-blue-600 text-lg">
+                          {workoutExercise.exercise?.name}
+                        </h3>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleExerciseWeightUnit(workoutExercise.exercise.id)}
+                          className="h-6 px-2 text-xs"
+                        >
+                          {getWeightUnit(workoutExercise.exercise.id)}
+                        </Button>
+                      </div>
                       <ExerciseMiniChart exerciseId={workoutExercise.exercise?.id} />
                     </div>
                     <Textarea
@@ -1141,7 +1171,7 @@ export default function WorkoutSession() {
                   <div>
                     <Input
                       type="number"
-                      value={set.weight ? getDisplayWeight(set.weight).toString() : ""}
+                      value={set.weight ? getDisplayWeight(set.weight, workoutExercise.exercise.id).toString() : ""}
                       onChange={(e) => updateSetWeight(exerciseIndex, setIndex, e.target.value)}
                       className="h-8 text-center"
                       placeholder="0"
