@@ -300,110 +300,88 @@ function SortableExerciseItem({
       
       {/* Sets */}
       <div className="p-4">
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3">
           <h4 className="font-medium">Sets</h4>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => addSet(exerciseIndex)}
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Add Set
-          </Button>
         </div>
         
+        {/* Table Header */}
+        <div className="grid grid-cols-5 gap-2 py-2 px-3 bg-gray-100 rounded text-xs font-medium text-gray-600 mb-2">
+          <div className="text-center">Set</div>
+          <div className="text-center">Weight</div>
+          <div className="text-center">Reps</div>
+          <div className="text-center">RPE</div>
+          <div className="text-center">×</div>
+        </div>
+        
+        {/* Set Rows */}
         {exercise.sets.map((set, setIndex) => (
-          <div key={setIndex} className="flex items-center gap-2 mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-            <span className="text-sm font-medium min-w-[2rem]">#{setIndex + 1}</span>
+          <div key={setIndex} className="grid grid-cols-5 gap-2 py-2 px-3 bg-white border rounded mb-2">
+            {/* Set Number */}
+            <div className="flex items-center justify-center">
+              <span className="text-sm font-medium">#{setIndex + 1}</span>
+            </div>
             
-            {/* Weight input */}
-            <div className="flex-1">
-              <Label className="text-xs">Weight</Label>
+            {/* Weight Input */}
+            <div className="flex items-center">
               <Input
                 type="text"
                 placeholder="Weight"
                 value={set.weight || ""}
                 onChange={(e) => updateSet(exerciseIndex, setIndex, 'weight', e.target.value)}
-                className="h-8"
+                className="h-8 text-center text-sm"
               />
             </div>
             
-            {/* Reps input */}
-            <div className="flex-1">
-              <Label className="text-xs">Reps</Label>
+            {/* Reps Input */}
+            <div className="flex items-center">
               <Input
                 type="text"
                 placeholder="Reps"
                 value={set.reps || ""}
                 onChange={(e) => updateSet(exerciseIndex, setIndex, 'reps', e.target.value)}
-                className="h-8"
+                className="h-8 text-center text-sm"
               />
             </div>
             
-            {/* Duration input for time-based exercises */}
-            {set.duration !== undefined && (
-              <div className="flex-1">
-                <Label className="text-xs">Duration</Label>
-                <Input
-                  type="text"
-                  placeholder="Duration"
-                  value={set.duration || ""}
-                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'duration', e.target.value)}
-                  className="h-8"
-                />
-              </div>
-            )}
-            
-            {/* Distance input for distance-based exercises */}
-            {set.distance !== undefined && (
-              <div className="flex-1">
-                <Label className="text-xs">Distance</Label>
-                <Input
-                  type="text"
-                  placeholder="Distance"
-                  value={set.distance || ""}
-                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'distance', e.target.value)}
-                  className="h-8"
-                />
-              </div>
-            )}
-            
-            {/* Assistance weight for bodyweight exercises */}
-            {set.assistanceWeight !== undefined && (
-              <div className="flex-1">
-                <Label className="text-xs">Assistance</Label>
-                <Input
-                  type="text"
-                  placeholder="Assistance"
-                  value={set.assistanceWeight || ""}
-                  onChange={(e) => updateSet(exerciseIndex, setIndex, 'assistanceWeight', e.target.value)}
-                  className="h-8"
-                />
-              </div>
-            )}
-            
-            {/* RPE input */}
-            <div className="w-16">
-              <Label className="text-xs">RPE</Label>
+            {/* RPE Input */}
+            <div className="flex items-center">
               <Input
                 type="text"
                 placeholder="RPE"
                 value={set.rpe || ""}
                 onChange={(e) => updateSet(exerciseIndex, setIndex, 'rpe', e.target.value)}
-                className="h-8"
+                className="h-8 text-center text-sm"
               />
             </div>
             
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => removeSet(exerciseIndex, setIndex)}
-              className="text-red-600 hover:text-red-700 h-8 w-8 p-0"
-            >
-              <X className="h-3 w-3" />
-            </Button>
+            {/* Remove Set Button */}
+            <div className="flex items-center justify-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeSet(exerciseIndex, setIndex)}
+                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
         ))}
+        
+        {/* Add Set Button */}
+        <div className="grid grid-cols-5 gap-2 py-2 px-3">
+          <div className="col-span-5">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => addSet(exerciseIndex)}
+              className="w-full h-8 text-sm"
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              Add Set
+            </Button>
+          </div>
+        </div>
 
         
         {/* Notes */}
