@@ -7,7 +7,7 @@ interface ExerciseMiniChartProps {
 
 export function ExerciseMiniChart({ exerciseId }: ExerciseMiniChartProps) {
   const { data: chartData, isLoading, error } = useQuery({
-    queryKey: ['/api/exercises', exerciseId, 'mini-chart'],
+    queryKey: [`/api/exercises/${exerciseId}/mini-chart`],
     enabled: !!exerciseId,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
