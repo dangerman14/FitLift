@@ -49,6 +49,7 @@ import {
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import AddCustomExerciseModal from "@/components/add-custom-exercise-modal";
 import ExerciseSetInput from "@/components/exercise-set-input";
 import {
   DndContext,
@@ -556,6 +557,9 @@ export default function CreateRoutine() {
   
   // Mobile exercise modal
   const [showMobileExerciseModal, setShowMobileExerciseModal] = useState(false);
+  
+  // Create exercise modal
+  const [showCreateExerciseModal, setShowCreateExerciseModal] = useState(false);
   
   // Drag state for minimized view
   const [isDragging, setIsDragging] = useState(false);
@@ -1309,8 +1313,20 @@ export default function CreateRoutine() {
                 {/* Exercise List with Thumbnails */}
                 <div className="border rounded-lg max-h-64 overflow-y-auto">
                   {filteredExercises.length === 0 ? (
-                    <div className="p-4 text-center text-gray-500">
-                      No exercises found with current filters
+                    <div className="p-4 text-center space-y-3">
+                      <div className="text-gray-500">
+                        No exercises found with current filters
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowCreateExerciseModal(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Create New Exercise
+                      </Button>
                     </div>
                   ) : (
                     <div className="space-y-1 p-2">
@@ -2545,6 +2561,12 @@ export default function CreateRoutine() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Create Exercise Modal */}
+      <AddCustomExerciseModal
+        isOpen={showCreateExerciseModal}
+        onClose={() => setShowCreateExerciseModal(false)}
+      />
     </div>
   );
 }
