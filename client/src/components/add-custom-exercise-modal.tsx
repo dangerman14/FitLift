@@ -50,6 +50,7 @@ type CustomExerciseForm = z.infer<typeof customExerciseSchema>;
 interface AddCustomExerciseModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onExerciseCreated?: (exercise: any) => void;
 }
 
 const equipmentTypes = [
@@ -94,7 +95,7 @@ const muscleGroups = [
   "Delts"
 ];
 
-export default function AddCustomExerciseModal({ isOpen, onClose }: AddCustomExerciseModalProps) {
+export default function AddCustomExerciseModal({ isOpen, onClose, onExerciseCreated }: AddCustomExerciseModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -160,6 +161,10 @@ export default function AddCustomExerciseModal({ isOpen, onClose }: AddCustomExe
       queryClient.invalidateQueries({ queryKey: ["/api/exercises"] });
       form.reset();
       onClose();
+      // Call the callback with the newly created exercise data
+      if (onExerciseCreated && data) {
+        onExerciseCreated(data);
+      }
     },
     onError: (error: any) => {
       console.error("Error creating exercise:", error);

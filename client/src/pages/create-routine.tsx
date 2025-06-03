@@ -2589,6 +2589,11 @@ export default function CreateRoutine() {
       <AddCustomExerciseModal
         isOpen={showCreateExerciseModal}
         onClose={() => setShowCreateExerciseModal(false)}
+        onExerciseCreated={(exercise) => {
+          // Auto-select the newly created exercise and open the add exercise modal
+          setSelectedExerciseId(exercise.id.toString());
+          setShowMobileExerciseModal(true);
+        }}
       />
     </div>
   );
