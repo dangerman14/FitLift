@@ -1166,6 +1166,8 @@ export default function WorkoutSession() {
                 </Button>
               </div>
 
+
+
               {/* Rest Timer */}
               {restTimers[exerciseIndex] > 0 && (
                 <div className="flex items-center space-x-2 mb-4 p-2 bg-blue-50 rounded-lg">

@@ -126,12 +126,12 @@ export const ProgressiveOverloadSuggestions: React.FC<ProgressiveOverloadSuggest
     return null; // Hide if no data or error
   }
 
-  const data: ProgressiveOverloadData = progressData;
-  const topSuggestion = data.suggestions?.[0];
+  const data = progressData as ProgressiveOverloadData;
+  const topSuggestion = data?.suggestions?.[0];
 
   const handleApplySuggestion = (suggestion: ProgressiveOverloadSuggestion) => {
     const suggestionKey = `${suggestion.type}-${suggestion.suggestedValue}`;
-    setAppliedSuggestions(prev => new Set([...prev, suggestionKey]));
+    setAppliedSuggestions(prev => new Set(Array.from(prev).concat(suggestionKey)));
     onApplySuggestion?.(suggestion);
   };
 
