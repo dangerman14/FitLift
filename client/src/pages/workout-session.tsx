@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { X, Plus, Timer, MoreVertical, Check, Edit3, Camera, Image } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/use-auth";
 import { useWorkout } from "@/contexts/WorkoutContext";
 import { OfflineManager } from "@/lib/offline";
 import ExerciseSetInput from "@/components/exercise-set-input";

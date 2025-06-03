@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { X, Plus } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/use-auth";
 
 interface WorkoutSet {
   setNumber: number;
