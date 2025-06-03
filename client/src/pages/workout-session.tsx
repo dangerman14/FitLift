@@ -121,7 +121,7 @@ export default function WorkoutSession() {
   // Initialize progression display modes from user preference
   useEffect(() => {
     if (user && workoutExercises.length > 0) {
-      const userProgressionMode = (user as any)?.progressionDisplayMode || 'previous';
+      const userProgressionMode = (user as any)?.progressionDisplayMode === 'ai_suggestions' ? 'suggestion' : 'previous';
       const initialModes: {[exerciseId: number]: 'previous' | 'suggestion'} = {};
       workoutExercises.forEach(we => {
         initialModes[we.exercise.id] = userProgressionMode;
