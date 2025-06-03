@@ -788,6 +788,7 @@ export default function WorkoutSession() {
       
       if (activeWorkout) {
         localStorage.setItem(`workout_session_${activeWorkout.id}`, JSON.stringify(updatedExercises));
+        console.log('Saved to localStorage:', `workout_session_${activeWorkout.id}`, updatedExercises);
       }
 
       // Show achievement notification

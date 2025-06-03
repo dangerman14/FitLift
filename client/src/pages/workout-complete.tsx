@@ -305,6 +305,9 @@ export default function WorkoutComplete() {
 
       // Save completed sets to database from localStorage
       const storedExercises = localStorage.getItem(`workout_session_${workoutId}`);
+      console.log('Looking for localStorage key:', `workout_session_${workoutId}`);
+      console.log('Found localStorage data:', storedExercises);
+      
       if (storedExercises) {
         try {
           const exerciseData = JSON.parse(storedExercises);
