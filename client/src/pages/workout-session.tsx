@@ -17,6 +17,7 @@ import { OfflineManager } from "@/lib/offline";
 import ExerciseSetInput from "@/components/exercise-set-input";
 import { MiniProgressChart } from "@/components/MiniProgressChart";
 import { ExerciseMiniChart } from "@/components/ExerciseMiniChart";
+import { SwipeableSetRow } from "@/components/SwipeableSetRow";
 
 
 
