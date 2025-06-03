@@ -1166,7 +1166,7 @@ export default function WorkoutSession() {
       <div className="space-y-3 pb-8">
         {workoutExercises.map((workoutExercise, exerciseIndex) => (
           <Card key={`exercise-${exerciseIndex}-${workoutExercise.exercise?.id}`} className="border-0 shadow-none bg-white">
-            <CardContent className="p-3">
+            <CardContent className="p-0">
               {/* Exercise Header */}
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center space-x-2 flex-1">
@@ -1244,7 +1244,7 @@ export default function WorkoutSession() {
               )}
 
               {/* Sets Table Header */}
-              <div className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 text-xs text-neutral-500 font-medium mb-2 px-1`}>
+              <div className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 text-xs text-neutral-500 font-medium mb-2`}>
                 <div className="hidden md:block">SET</div>
                 <div className="flex items-center space-x-1">
                   <Select
@@ -1368,7 +1368,7 @@ export default function WorkoutSession() {
 
               {/* Sets List */}
               {workoutExercise.sets.map((set, setIndex) => (
-                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 items-center py-1 border-b border-gray-100`}>
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 items-center py-1`}>
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1 hidden md:flex">
                     <span>{set.setNumber}</span>
