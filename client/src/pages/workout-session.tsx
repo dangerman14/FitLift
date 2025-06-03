@@ -82,7 +82,7 @@ export default function WorkoutSession() {
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
   const [exerciseWeightUnits, setExerciseWeightUnits] = useState<{[exerciseId: number]: 'kg' | 'lbs'}>({});
-  const [swipeState, setSwipeState] = useState<{setKey: string, offset: number} | null>(null);
+
 
   const [exerciseProgressionModes, setExerciseProgressionModes] = useState<{[exerciseId: number]: 'previous' | 'suggestion'}>({});
   const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
@@ -946,6 +946,8 @@ export default function WorkoutSession() {
       return updated;
     });
   };
+
+
 
 
 
