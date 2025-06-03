@@ -1413,13 +1413,12 @@ export default function WorkoutSession() {
                   <div>
                     <Input
                       type="number"
-                      value={set.completed ? (set.rpe || "").toString() : ""}
+                      value={(set.rpe || "").toString()}
                       onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
                       className="h-8 text-center"
                       placeholder=""
                       min="1"
                       max="10"
-                      disabled={!set.completed}
                     />
                   </div>
                   
