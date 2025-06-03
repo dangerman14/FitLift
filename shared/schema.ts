@@ -60,6 +60,7 @@ export const users = pgTable("users", {
   previousWorkoutMode: varchar("previous_workout_mode").default("any_workout"), // any_workout or same_routine
   partialRepsEnabled: boolean("partial_reps_enabled").default(false),
   partialRepsVolumeWeight: varchar("partial_reps_volume_weight").default("none"), // 'none', 'half', 'full'
+  progressionDisplayMode: varchar("progression_display_mode").default("previous"), // 'previous' or 'suggestion'
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

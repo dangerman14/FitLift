@@ -78,7 +78,7 @@ export interface IStorage {
   // User operations (mandatory for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  updateUserSettings(id: string, settings: { weightUnit?: string; distanceUnit?: string; bodyMeasurementUnit?: string; previousWorkoutMode?: string; partialRepsEnabled?: boolean; partialRepsVolumeWeight?: string }): Promise<User>;
+  updateUserSettings(id: string, settings: { weightUnit?: string; distanceUnit?: string; bodyMeasurementUnit?: string; previousWorkoutMode?: string; partialRepsEnabled?: boolean; partialRepsVolumeWeight?: string; progressionDisplayMode?: string }): Promise<User>;
   
   // Exercise operations
   getExercises(userId?: string): Promise<Exercise[]>;
