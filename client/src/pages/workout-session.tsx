@@ -1583,19 +1583,27 @@ export default function WorkoutSession() {
               </div>
             </div>
             <div className="p-6">
-              <div className="grid grid-cols-4 gap-3 mb-6">
-                {[6, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((rpeValue) => (
-                  <Button
-                    key={rpeValue}
-                    variant="outline"
-                    className="h-12 text-lg font-medium"
-                    onClick={() => {
-                      updateSetValue(selectedRpeSet.exerciseIndex, selectedRpeSet.setIndex, 'rpe', rpeValue);
-                    }}
-                  >
-                    {rpeValue}
-                  </Button>
-                ))}
+              <div className="flex flex-wrap gap-2 mb-6 justify-center">
+                {[6, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((rpeValue) => {
+                  const currentRpe = workoutExercises[selectedRpeSet.exerciseIndex]?.sets[selectedRpeSet.setIndex]?.rpe;
+                  const isSelected = currentRpe === rpeValue;
+                  return (
+                    <Button
+                      key={rpeValue}
+                      variant={isSelected ? "default" : "outline"}
+                      className={`h-12 min-w-[60px] text-lg font-medium ${
+                        isSelected 
+                          ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                          : 'hover:bg-gray-100'
+                      }`}
+                      onClick={() => {
+                        updateSetValue(selectedRpeSet.exerciseIndex, selectedRpeSet.setIndex, 'rpe', rpeValue);
+                      }}
+                    >
+                      {rpeValue}
+                    </Button>
+                  );
+                })}
               </div>
               <Button
                 className="w-full"
