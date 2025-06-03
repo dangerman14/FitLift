@@ -25,6 +25,7 @@ import WorkoutSession from "@/pages/workout-session";
 import WorkoutComplete from "@/pages/workout-complete";
 import WorkoutSummary from "@/pages/workout-summary";
 import RoutineDetails from "@/pages/routine-details";
+import SwipeTest from "@/pages/swipe-test";
 import NotFound from "@/pages/not-found";
 import Navigation from "@/components/navigation";
 
@@ -70,6 +71,7 @@ function Router() {
                 <Route path="/body-tracking/edit/:date" component={EditBodyEntry} />
                 <Route path="/add-body-entry" component={AddBodyEntry} />
                 <Route path="/settings" component={Settings} />
+                <Route path="/swipe-test" component={SwipeTest} />
                 <Route component={NotFound} />
               </Switch>
             </main>
