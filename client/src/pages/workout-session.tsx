@@ -184,14 +184,20 @@ export default function WorkoutSession() {
     }
   };
 
-  // Fetch progressive overload suggestions
+  // Fetch progressive overload suggestions with weight unit handling
   const fetchProgressionSuggestion = async (exerciseId: number, workoutExercise: WorkoutExercise) => {
     try {
       const templateId = activeWorkout?.templateId;
       const firstSet = workoutExercise.sets[0];
       const minReps = firstSet?.minReps || 8;
       const maxReps = firstSet?.maxReps || 12;
-      const weightTarget = parseFloat(workoutExercise.sets[0]?.weight?.toString() || '0');
+      
+      // Get weight target in storage format (kg) regardless of display unit
+      let weightTarget = 0;
+      if (workoutExercise.sets[0]?.weight) {
+        const displayWeight = parseFloat(workoutExercise.sets[0].weight.toString());
+        weightTarget = getStorageWeight(displayWeight, exerciseId);
+      }
       
       const params = new URLSearchParams({
         ...(templateId && { templateId: templateId.toString() }),
@@ -205,6 +211,7 @@ export default function WorkoutSession() {
       
       if (response.ok) {
         const suggestion = await response.json();
+        console.log(`Progression suggestion for exercise ${exerciseId}:`, suggestion);
         setProgressionSuggestions(prev => ({
           ...prev,
           [exerciseId]: suggestion
