@@ -890,10 +890,7 @@ export default function CreateRoutine() {
     return matchesSearch && matchesMuscleGroup && matchesEquipment;
   });
 
-  // Debug log to see what's happening
-  console.log('Exercise search:', exerciseSearch);
-  console.log('Filtered exercises length:', filteredExercises.length);
-  console.log('Total exercises:', exercises.length);
+
 
   // Calculate estimated duration
   const estimatedDuration = selectedExercises.reduce((total, exercise) => {
@@ -1337,7 +1334,7 @@ export default function CreateRoutine() {
                     <div className="space-y-1 p-2">
                       {filteredExercises.map((exercise: any, index: number) => (
                         <button
-                          key={`${exercise.id}-${exercise.createdBy ? 'custom' : 'system'}-${index}`}
+                          key={exercise.createdBy ? `custom-${exercise.id}` : `system-${exercise.id}`}
                           type="button"
                           onClick={() => setSelectedExerciseId(exercise.id.toString())}
                           className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors hover:bg-blue-50 ${
@@ -2406,7 +2403,7 @@ export default function CreateRoutine() {
               ) : (
                 filteredExercises.map((exercise: any, index: number) => (
                   <button
-                    key={exercise.id}
+                    key={exercise.createdBy ? `mobile-custom-${exercise.id}` : `mobile-system-${exercise.id}`}
                     id={`mobile-exercise-${exercise.id}`}
                     onClick={() => {
                       console.log('Mobile exercise selected:', exercise);
