@@ -22,11 +22,7 @@ export default function WorkoutComplete() {
   
   // Function to go back to edit the workout
   const handleBackToWorkout = () => {
-    if (workout.slug) {
-      setLocation(`/workout-session/${workout.slug}?edit=true`);
-    } else {
-      setLocation(`/workout-session?template=${workout.templateId}`);
-    }
+    setLocation('/routines');
   };
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
