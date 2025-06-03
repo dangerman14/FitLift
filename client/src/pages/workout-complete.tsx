@@ -22,13 +22,8 @@ export default function WorkoutComplete() {
   
   // Function to go back to edit the workout
   const handleBackToWorkout = () => {
-    console.log('Back button clicked, navigating to workout:', `/workout/${workoutId}`);
-    // Temporarily mark as saved to bypass navigation blocking
-    setIsSaved(true);
-    // Use setTimeout to ensure state update completes before navigation
-    setTimeout(() => {
-      setLocation(`/workout/${workoutId}`);
-    }, 0);
+    console.log('Back button clicked, navigating to /routines');
+    setLocation('/routines');
   };
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
@@ -483,12 +478,7 @@ export default function WorkoutComplete() {
               <Button
                 onClick={() => {
                   setShowExitWarning(false);
-                  // Temporarily mark as saved to bypass navigation blocking
-                  setIsSaved(true);
-                  // Use setTimeout to ensure state update completes before navigation
-                  setTimeout(() => {
-                    setLocation(`/workout/${workoutId}`);
-                  }, 0);
+                  handleBackToWorkout();
                 }}
                 variant="outline"
                 className="w-full"

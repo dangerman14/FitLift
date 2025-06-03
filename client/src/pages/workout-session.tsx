@@ -17,7 +17,6 @@ import { OfflineManager } from "@/lib/offline";
 import ExerciseSetInput from "@/components/exercise-set-input";
 import { MiniProgressChart } from "@/components/MiniProgressChart";
 import { ExerciseMiniChart } from "@/components/ExerciseMiniChart";
-import { ProgressiveOverloadSuggestions } from "@/components/progressive-overload-suggestions";
 
 interface WorkoutExercise {
   id: number;
@@ -333,7 +332,7 @@ export default function WorkoutSession() {
                     distance: set.distance || undefined,
                     assistanceWeight: set.assistanceWeight || undefined,
                     rpe: set.rpe || undefined,
-                    completed: set.completed !== undefined ? set.completed : ((set.weight > 0 || set.reps > 0) ? true : false), // Mark as completed if has data or explicitly set
+                    completed: set.completed || false, // Preserve original completion status
                     previousWeight: parseFloat(set.weight) || 0,
                     previousReps: set.reps || 0,
                     previousDuration: set.duration || undefined,
@@ -1166,8 +1165,6 @@ export default function WorkoutSession() {
                 </Button>
               </div>
 
-
-
               {/* Rest Timer */}
               {restTimers[exerciseIndex] > 0 && (
                 <div className="flex items-center space-x-2 mb-4 p-2 bg-blue-50 rounded-lg">
@@ -1314,12 +1311,13 @@ export default function WorkoutSession() {
                   <div>
                     <Input
                       type="number"
-                      value={set.rpe || ""}
+                      value={set.completed ? (set.rpe || "").toString() : ""}
                       onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
                       className="h-8 text-center"
                       placeholder=""
                       min="1"
                       max="10"
+                      disabled={!set.completed}
                     />
                   </div>
                   

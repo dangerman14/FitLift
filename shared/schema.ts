@@ -238,7 +238,6 @@ export const exerciseSets = pgTable("exercise_sets", {
   effectiveWeight: decimal("effective_weight", { precision: 8, scale: 2 }), // calculated total weight including bodyweight
   isWarmup: boolean("is_warmup").default(false),
   isDropset: boolean("is_dropset").default(false),
-  completed: boolean("completed").default(false), // tracks if set was completed by user
   restAfter: integer("rest_after"), // in seconds
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
