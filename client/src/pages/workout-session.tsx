@@ -1440,33 +1440,8 @@ export default function WorkoutSession() {
               </div>
 
               {/* Sets List */}
-              {workoutExercise.sets.map((set, setIndex) => {
-                const swipeKey = `${exerciseIndex}-${setIndex}`;
-                const swipeDistance = swipeStates[swipeKey] || 0;
-                
-                return (
-                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className="relative overflow-hidden">
-                  {/* Delete button revealed by swipe (mobile only) */}
-                  <div 
-                    className="absolute right-0 top-0 bottom-0 w-20 bg-red-500 flex items-center justify-center text-white font-medium z-10 md:hidden"
-                    style={{
-                      transform: `translateX(${100 - (swipeDistance / 100) * 100}%)`,
-                      transition: swipeDistance === 0 ? 'transform 0.3s ease' : 'none'
-                    }}
-                  >
-                    DELETE
-                  </div>
-                  
-                  <div 
-                    className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-6' : 'md:grid-cols-7 grid-cols-5'} gap-2 items-center py-1 bg-white relative z-20`}
-                    style={{
-                      transform: `translateX(-${swipeDistance}px)`,
-                      transition: swipeDistance === 0 ? 'transform 0.3s ease' : 'none'
-                    }}
-                    onTouchStart={(e) => handleTouchStart(e, exerciseIndex, setIndex)}
-                    onTouchMove={(e) => handleTouchMove(e, exerciseIndex, setIndex)}
-                    onTouchEnd={() => handleTouchEnd(exerciseIndex, setIndex)}
-                  >
+              {workoutExercise.sets.map((set, setIndex) => (
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-6' : 'md:grid-cols-7 grid-cols-5'} gap-2 items-center py-1`}>
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1 hidden md:flex">
                     <span>{set.setNumber}</span>
