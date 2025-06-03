@@ -840,10 +840,24 @@ export class DatabaseStorage implements IStorage {
       .from(workouts)
       .where(and(...whereConditions));
 
-    // Calculate total volume (sum of weight * reps for all sets)
+    // Get user settings for partial reps
+    const user = await this.getUser(userId);
+    const partialRepsVolumeWeight = user?.partialRepsVolumeWeight || 'none';
+
+    // Calculate total volume with partial reps consideration
+    let volumeQuery;
+    if (partialRepsVolumeWeight === 'half') {
+      volumeQuery = sql<number>`COALESCE(SUM(
+        ${exerciseSets.weight} * ${exerciseSets.reps} + 
+        COALESCE(${exerciseSets.weight} * ${exerciseSets.partialReps} * 0.5, 0)
+      ), 0)`;
+    } else {
+      volumeQuery = sql<number>`COALESCE(SUM(${exerciseSets.weight} * ${exerciseSets.reps}), 0)`;
+    }
+
     const [volumeStats] = await db
       .select({
-        totalVolume: sql<number>`COALESCE(SUM(${exerciseSets.weight} * ${exerciseSets.reps}), 0)`,
+        totalVolume: volumeQuery,
       })
       .from(exerciseSets)
       .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
@@ -945,10 +959,25 @@ export class DatabaseStorage implements IStorage {
       whereConditions.push(lte(workouts.startTime, endDate));
     }
 
+    // Get user settings for partial reps
+    const user = await this.getUser(userId);
+    const partialRepsVolumeWeight = user?.partialRepsVolumeWeight || 'none';
+
+    // Calculate volume with partial reps consideration
+    let volumeQuery;
+    if (partialRepsVolumeWeight === 'half') {
+      volumeQuery = sql<number>`COALESCE(SUM(
+        ${exerciseSets.weight} * ${exerciseSets.reps} + 
+        COALESCE(${exerciseSets.weight} * ${exerciseSets.partialReps} * 0.5, 0)
+      ), 0)`.as('volume');
+    } else {
+      volumeQuery = sql<number>`COALESCE(SUM(${exerciseSets.weight} * ${exerciseSets.reps}), 0)`.as('volume');
+    }
+
     const results = await db
       .select({
         date: sql<string>`DATE(${workouts.startTime})`.as('date'),
-        volume: sql<number>`COALESCE(SUM(${exerciseSets.weight} * ${exerciseSets.reps}), 0)`.as('volume')
+        volume: volumeQuery
       })
       .from(workouts)
       .leftJoin(workoutExercises, eq(workouts.id, workoutExercises.workoutId))
