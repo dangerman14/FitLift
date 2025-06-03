@@ -40,6 +40,7 @@ const settingsSchema = z.object({
   previousWorkoutMode: z.enum(["any_workout", "same_routine"]),
   partialRepsEnabled: z.boolean(),
   partialRepsVolumeWeight: z.enum(["none", "half", "full"]),
+  progressionDisplayMode: z.enum(["previous", "suggestion"]),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -74,6 +75,7 @@ export default function Settings() {
         previousWorkoutMode: (user as any)?.previousWorkoutMode || "any_workout",
         partialRepsEnabled: (user as any)?.partialRepsEnabled || false,
         partialRepsVolumeWeight: (user as any)?.partialRepsVolumeWeight || "none",
+        progressionDisplayMode: (user as any)?.progressionDisplayMode || "previous",
       });
     }
   }, [user, form]);
@@ -258,34 +260,65 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-6">
-                {/* Previous Workout Mode */}
+                {/* Progression Display Mode */}
                 <FormField
                   control={form.control}
-                  name="previousWorkoutMode"
+                  name="progressionDisplayMode"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center text-base font-medium">
-                        <History className="h-4 w-4 mr-2" />
-                        Previous Workout Visualization
+                        <Zap className="h-4 w-4 mr-2" />
+                        Workout Data Display
                       </FormLabel>
                       <div className="text-sm text-muted-foreground mb-3">
-                        Choose how to display previous exercise data during workouts
+                        Choose what to display in workout input fields
                       </div>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="rounded-xl border-2">
-                            <SelectValue placeholder="Select previous workout mode" />
+                            <SelectValue placeholder="Select display mode" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="any_workout">Any Workout - Last time you did this exercise</SelectItem>
-                          <SelectItem value="same_routine">Same Routine - Last time you did this specific routine</SelectItem>
+                          <SelectItem value="previous">Previous Workout - Show last performed weights/reps</SelectItem>
+                          <SelectItem value="suggestion">Progressive Overload - Show intelligent recommendations</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* Previous Workout Mode - Only show when using previous data display */}
+                {form.watch("progressionDisplayMode") === "previous" && (
+                  <FormField
+                    control={form.control}
+                    name="previousWorkoutMode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center text-base font-medium">
+                          <History className="h-4 w-4 mr-2" />
+                          Previous Workout Source
+                        </FormLabel>
+                        <div className="text-sm text-muted-foreground mb-3">
+                          Choose which previous workout data to reference
+                        </div>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="rounded-xl border-2">
+                              <SelectValue placeholder="Select previous workout mode" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="any_workout">Any Workout - Last time you did this exercise</SelectItem>
+                            <SelectItem value="same_routine">Same Routine - Last time you did this specific routine</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 {/* Partial Reps Settings */}
                 <FormField

@@ -239,7 +239,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUserSettings(id: string, settings: { weightUnit?: string; distanceUnit?: string; bodyMeasurementUnit?: string; partialRepsEnabled?: boolean; partialRepsVolumeWeight?: string }): Promise<User> {
+  async updateUserSettings(id: string, settings: { weightUnit?: string; distanceUnit?: string; bodyMeasurementUnit?: string; previousWorkoutMode?: string; partialRepsEnabled?: boolean; partialRepsVolumeWeight?: string; progressionDisplayMode?: string }): Promise<User> {
     const [user] = await db
       .update(users)
       .set({

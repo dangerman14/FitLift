@@ -877,6 +877,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get progressive overload suggestion
+  app.get('/api/exercises/:exerciseId/progression-suggestion', isAuthenticated, async (req: any, res) => {
+    try {
+      const { ProgressiveOverloadCalculator } = await import('../shared/progressive-overload.js');
+      const userId = getUserId(req);
+      const exerciseId = parseInt(req.params.exerciseId);
+      const templateId = req.query.templateId ? parseInt(req.query.templateId) : undefined;
+      const minReps = req.query.minReps ? parseInt(req.query.minReps) : undefined;
+      const maxReps = req.query.maxReps ? parseInt(req.query.maxReps) : undefined;
+      const weightTarget = req.query.weightTarget ? parseFloat(req.query.weightTarget) : undefined;
+
+      // Get previous exercise data
+      const previousData = await storage.getPreviousExerciseData(userId, exerciseId, templateId);
+      
+      // Get exercise details to determine if it's bodyweight
+      const exercises = await storage.getExercises(userId);
+      const exercise = exercises.find(ex => ex.id === exerciseId);
+      const isBodyweight = exercise?.exerciseType === 'bodyweight' || exercise?.exerciseType === 'bodyweight_plus_weight';
+
+      const targets = { minReps, maxReps, weightTarget };
+      
+      let suggestion;
+      if (isBodyweight && exercise?.exerciseType === 'bodyweight') {
+        suggestion = ProgressiveOverloadCalculator.calculateBodyweightProgression(previousData, targets);
+      } else {
+        const weightIncrement = exercise ? ProgressiveOverloadCalculator.getWeightIncrement(exercise.name, previousData[0]?.weight || 0) : 2.5;
+        suggestion = ProgressiveOverloadCalculator.calculateProgression(previousData, targets, weightIncrement);
+      }
+
+      res.json(suggestion);
+    } catch (error) {
+      console.error("Error calculating progression suggestion:", error);
+      res.status(500).json({ message: "Failed to calculate progression suggestion" });
+    }
+  });
+
   // Check personal records for a set
   app.post('/api/exercises/:exerciseId/check-records', isAuthenticated, async (req: any, res) => {
     try {
