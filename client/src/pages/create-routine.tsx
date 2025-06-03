@@ -1189,7 +1189,7 @@ export default function CreateRoutine() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Routine Details & Add Exercise (Desktop Only) */}
+        {/* Left Column - Routine Details (Desktop Only) */}
         <div className="hidden lg:block lg:col-span-1 space-y-6">
           {/* Routine Details */}
           <Card>
@@ -2250,6 +2250,249 @@ export default function CreateRoutine() {
               )}
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Add Exercises Section */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            Add Exercises
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Select Exercise</Label>
+            
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search by name or description..."
+                value={exerciseSearch}
+                onChange={(e) => setExerciseSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            {/* Filter Controls */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label className="text-sm">Muscle Group</Label>
+                <Select value={muscleGroupFilter} onValueChange={setMuscleGroupFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Any muscle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Muscle Groups</SelectItem>
+                    <SelectItem value="chest">Chest</SelectItem>
+                    <SelectItem value="back">Back</SelectItem>
+                    <SelectItem value="shoulders">Shoulders</SelectItem>
+                    <SelectItem value="biceps">Biceps</SelectItem>
+                    <SelectItem value="triceps">Triceps</SelectItem>
+                    <SelectItem value="legs">Legs</SelectItem>
+                    <SelectItem value="glutes">Glutes</SelectItem>
+                    <SelectItem value="calves">Calves</SelectItem>
+                    <SelectItem value="abs">Abs</SelectItem>
+                    <SelectItem value="forearms">Forearms</SelectItem>
+                    <SelectItem value="cardio">Cardio</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-sm">Equipment</Label>
+                <Select value={equipmentFilter} onValueChange={setEquipmentFilter}>
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="Any equipment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Equipment</SelectItem>
+                    <SelectItem value="barbell">Barbell</SelectItem>
+                    <SelectItem value="dumbbell">Dumbbell</SelectItem>
+                    <SelectItem value="machine">Machine</SelectItem>
+                    <SelectItem value="cable">Cable</SelectItem>
+                    <SelectItem value="bodyweight">Bodyweight</SelectItem>
+                    <SelectItem value="kettlebell">Kettlebell</SelectItem>
+                    <SelectItem value="resistance_band">Resistance Band</SelectItem>
+                    <SelectItem value="cardio">Cardio Equipment</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {/* Exercise List */}
+            <div className="border rounded-lg max-h-48 overflow-y-auto">
+              {filteredExercises.length === 0 ? (
+                <div className="p-4 text-center text-gray-500">
+                  <Search className="mx-auto h-8 w-8 text-gray-300 mb-2" />
+                  <p>No exercises found</p>
+                  <p className="text-sm">Try adjusting your search or filters</p>
+                </div>
+              ) : (
+                <div className="divide-y">
+                  {filteredExercises.map((exercise: any) => (
+                    <div
+                      key={exercise.id}
+                      className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
+                        selectedExerciseId === exercise.id.toString() ? 'bg-blue-50 border-blue-200' : ''
+                      }`}
+                      onClick={() => setSelectedExerciseId(exercise.id.toString())}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-gray-900 truncate">{exercise.name}</h4>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {exercise.muscleGroups?.join(", ")} • {exercise.type}
+                          </p>
+                          {exercise.description && (
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{exercise.description}</p>
+                          )}
+                        </div>
+                        {selectedExerciseId === exercise.id.toString() && (
+                          <Check className="h-5 w-5 text-blue-600 ml-2 flex-shrink-0" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {selectedExerciseId && (() => {
+            const exercise = exercises.find((ex: any) => ex.id === parseInt(selectedExerciseId));
+            if (!exercise) return null;
+
+            return (
+              <div className="space-y-4">
+                <div className="p-3 bg-blue-50 rounded">
+                  <h4 className="font-medium text-blue-900">{exercise.name}</h4>
+                  <p className="text-sm text-blue-700">
+                    {exercise.muscleGroups?.join(", ")} • {exercise.type}
+                  </p>
+                </div>
+
+                {/* Sets Configuration */}
+                <div className="space-y-2">
+                  <Label>Number of Sets</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={sets}
+                    onChange={(e) => setSets(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Reps Configuration */}
+                <div className="space-y-2">
+                  <Label>Reps Configuration</Label>
+                  <Select value={repsType} onValueChange={setRepsType}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="range">Rep Range (e.g., 8-12)</SelectItem>
+                      <SelectItem value="single">Single Rep Count (e.g., 10)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {repsType === "range" ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs">Min Reps</Label>
+                        <Input
+                          type="number"
+                          placeholder="8"
+                          value={minReps}
+                          onChange={(e) => setMinReps(e.target.value)}
+                          min="1"
+                        />
+                        <p className="text-xs text-gray-500">Minimum reps per set</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Max Reps</Label>
+                        <Input
+                          type="number"
+                          placeholder="12"
+                          value={maxReps}
+                          onChange={(e) => setMaxReps(e.target.value)}
+                          min="1"
+                        />
+                        <p className="text-xs text-gray-500">Maximum reps per set</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <Input
+                        type="number"
+                        placeholder="10"
+                        value={singleReps}
+                        onChange={(e) => setSingleReps(e.target.value)}
+                        min="1"
+                      />
+                      <p className="text-xs text-gray-500">Set exact number of reps</p>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+          
+          {/* Rest Time Configuration */}
+          <div className="space-y-2">
+            <Label>Rest Time Between Sets</Label>
+            <Select value={restDuration} onValueChange={setRestDuration}>
+              <SelectTrigger>
+                <SelectValue>
+                  {(() => {
+                    const seconds = parseInt(restDuration || "120");
+                    const mins = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+                  })()}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="max-h-60">
+                {/* 5 second intervals up to 2 minutes */}
+                {Array.from({ length: 24 }, (_, i) => (i + 1) * 5).map(seconds => (
+                  <SelectItem key={seconds} value={seconds.toString()}>
+                    {seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`}
+                  </SelectItem>
+                ))}
+                
+                {/* 15 second intervals from 2m 15s to 5 minutes */}
+                {Array.from({ length: 12 }, (_, i) => 120 + (i + 1) * 15).map(seconds => (
+                  <SelectItem key={seconds} value={seconds.toString()}>
+                    {Math.floor(seconds / 60)}m {seconds % 60}s
+                  </SelectItem>
+                ))}
+                
+                {/* 30 second intervals from 5m 30s to 15 minutes */}
+                {Array.from({ length: 19 }, (_, i) => 300 + (i + 1) * 30).map(seconds => (
+                  <SelectItem key={seconds} value={seconds.toString()}>
+                    {Math.floor(seconds / 60)}m {seconds % 60}s
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-gray-500">
+              Default: 2 minutes rest between sets
+            </p>
+          </div>
+          
+          <Button 
+            onClick={addExerciseToRoutine}
+            className="w-full"
+            variant="outline"
+            disabled={!selectedExerciseId}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add to Routine
+          </Button>
         </CardContent>
       </Card>
 
