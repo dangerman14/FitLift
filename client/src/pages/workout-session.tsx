@@ -1407,6 +1407,7 @@ export default function WorkoutSession() {
                 </div>
                 <div className="flex items-center">
                   <span className="hidden md:inline">WEIGHT</span>
+                  {/* Desktop weight unit selector */}
                   <Select
                     value={(() => {
                       const unit = getWeightUnit(workoutExercise.exercise.id);
@@ -1438,6 +1439,13 @@ export default function WorkoutSession() {
                       localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
                     }}
                   >
+                    {/* Desktop trigger */}
+                    <SelectTrigger className="hidden md:flex h-6 w-auto text-xs px-1 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0">
+                      <span className="text-neutral-500">
+                        ({getWeightUnit(workoutExercise.exercise.id).toUpperCase()})
+                      </span>
+                    </SelectTrigger>
+                    {/* Mobile trigger */}
                     <SelectTrigger className="md:hidden h-6 w-auto text-xs px-0 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 touch-manipulation">
                       <span className="text-neutral-500 flex items-center">
                         {(() => {
