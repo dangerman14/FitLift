@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { X, Plus, Timer, MoreVertical, Check, Edit3, Camera, Image, Trash2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -1406,94 +1407,147 @@ export default function WorkoutSession() {
                   </Select>
                 </div>
                 <div className="flex items-center">
-                  {/* Desktop weight unit selector */}
-                  <Select
-                    value={(() => {
-                      const unit = getWeightUnit(workoutExercise.exercise.id);
-                      const defaultUnit = user?.weightUnit || 'kg';
-                      if (unit === defaultUnit) return 'default';
-                      return unit;
-                    })()}
-                    onValueChange={(value) => {
-                      const defaultUnit = user?.weightUnit || 'kg';
-                      let newUnit;
-                      if (value === 'default') {
-                        newUnit = defaultUnit;
-                      } else {
-                        newUnit = value;
-                      }
-                      
-                      setExerciseWeightUnits(prev => ({
-                        ...prev,
-                        [workoutExercise.exercise.id]: newUnit
-                      }));
-                      
-                      // Save to localStorage
-                      const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
-                      if (value === 'default') {
-                        delete existingPrefs[workoutExercise.exercise.id];
-                      } else {
-                        existingPrefs[workoutExercise.exercise.id] = newUnit;
-                      }
-                      localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
-                    }}
-                  >
-                    {/* Desktop trigger - wraps the WEIGHT text */}
-                    <SelectTrigger className="hidden md:flex h-auto w-auto text-xs p-0 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 cursor-pointer">
-                      <span className="text-neutral-700 font-medium">
-                        WEIGHT ({getWeightUnit(workoutExercise.exercise.id).toUpperCase()})
-                      </span>
-                    </SelectTrigger>
-                    {/* Mobile trigger */}
-                    <SelectTrigger className="md:hidden h-6 w-auto text-xs px-0 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 touch-manipulation">
-                      <span className="text-neutral-500 flex items-center">
-                        {(() => {
-                          const exerciseType = workoutExercise.exercise.exerciseType;
-                          const unit = getWeightUnit(workoutExercise.exercise.id);
-                          
-                          if (exerciseType === 'assisted') {
-                            return (
-                              <span className="flex items-center">
-                                <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
-                                  <rect x="5" y="5" width="15" height="30" rx="3" />
-                                  <rect x="80" y="5" width="15" height="30" rx="3" />
-                                  <rect x="20" y="17" width="60" height="6" rx="2" />
-                                </svg>
-                                -{unit}
-                              </span>
-                            );
-                          } else if (exerciseType === 'bodyweight_plus_weight') {
-                            return (
-                              <span className="flex items-center">
-                                <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
-                                  <rect x="5" y="5" width="15" height="30" rx="3" />
-                                  <rect x="80" y="5" width="15" height="30" rx="3" />
-                                  <rect x="20" y="17" width="60" height="6" rx="2" />
-                                </svg>
-                                +{unit}
-                              </span>
-                            );
-                          } else {
-                            return (
-                              <span className="flex items-center">
-                                <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
-                                  <rect x="5" y="5" width="15" height="30" rx="3" />
-                                  <rect x="80" y="5" width="15" height="30" rx="3" />
-                                  <rect x="20" y="17" width="60" height="6" rx="2" />
-                                </svg>
-                                {unit}
-                              </span>
-                            );
-                          }
-                        })()}
-                      </span>
-                    </SelectTrigger>
-                    <SelectContent align="start" side="bottom" className="min-w-[120px]">
-                      <SelectItem value="default">Default ({user?.weightUnit || 'kg'})</SelectItem>
-                      <SelectItem value="kg">kg</SelectItem>
-                      <SelectItem value="lbs">lbs</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {/* Desktop weight unit selector with Popover */}
+                  <div className="hidden md:block">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="text-xs text-neutral-700 font-medium hover:bg-gray-100 px-1 py-0.5 rounded cursor-pointer">
+                          WEIGHT ({getWeightUnit(workoutExercise.exercise.id).toUpperCase()})
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-32 p-1" align="start" side="bottom">
+                        <div className="space-y-1">
+                          <button
+                            className="w-full text-left px-2 py-1 text-xs hover:bg-gray-100 rounded"
+                            onClick={() => {
+                              const defaultUnit = user?.weightUnit || 'kg';
+                              setExerciseWeightUnits(prev => ({
+                                ...prev,
+                                [workoutExercise.exercise.id]: defaultUnit
+                              }));
+                              const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
+                              delete existingPrefs[workoutExercise.exercise.id];
+                              localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
+                            }}
+                          >
+                            Default ({user?.weightUnit || 'kg'})
+                          </button>
+                          <button
+                            className="w-full text-left px-2 py-1 text-xs hover:bg-gray-100 rounded"
+                            onClick={() => {
+                              setExerciseWeightUnits(prev => ({
+                                ...prev,
+                                [workoutExercise.exercise.id]: 'kg'
+                              }));
+                              const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
+                              existingPrefs[workoutExercise.exercise.id] = 'kg';
+                              localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
+                            }}
+                          >
+                            kg
+                          </button>
+                          <button
+                            className="w-full text-left px-2 py-1 text-xs hover:bg-gray-100 rounded"
+                            onClick={() => {
+                              setExerciseWeightUnits(prev => ({
+                                ...prev,
+                                [workoutExercise.exercise.id]: 'lbs'
+                              }));
+                              const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
+                              existingPrefs[workoutExercise.exercise.id] = 'lbs';
+                              localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
+                            }}
+                          >
+                            lbs
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  
+                  {/* Mobile weight unit selector with Select */}
+                  <div className="md:hidden">
+                    <Select
+                      value={(() => {
+                        const unit = getWeightUnit(workoutExercise.exercise.id);
+                        const defaultUnit = user?.weightUnit || 'kg';
+                        if (unit === defaultUnit) return 'default';
+                        return unit;
+                      })()}
+                      onValueChange={(value) => {
+                        const defaultUnit = user?.weightUnit || 'kg';
+                        let newUnit;
+                        if (value === 'default') {
+                          newUnit = defaultUnit;
+                        } else {
+                          newUnit = value;
+                        }
+                        
+                        setExerciseWeightUnits(prev => ({
+                          ...prev,
+                          [workoutExercise.exercise.id]: newUnit
+                        }));
+                        
+                        // Save to localStorage
+                        const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
+                        if (value === 'default') {
+                          delete existingPrefs[workoutExercise.exercise.id];
+                        } else {
+                          existingPrefs[workoutExercise.exercise.id] = newUnit;
+                        }
+                        localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
+                      }}
+                    >
+                      <SelectTrigger className="h-6 w-auto text-xs px-0 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 touch-manipulation">
+                        <span className="text-neutral-500 flex items-center">
+                          {(() => {
+                            const exerciseType = workoutExercise.exercise.exerciseType;
+                            const unit = getWeightUnit(workoutExercise.exercise.id);
+                            
+                            if (exerciseType === 'assisted') {
+                              return (
+                                <span className="flex items-center">
+                                  <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
+                                    <rect x="5" y="5" width="15" height="30" rx="3" />
+                                    <rect x="80" y="5" width="15" height="30" rx="3" />
+                                    <rect x="20" y="17" width="60" height="6" rx="2" />
+                                  </svg>
+                                  -{unit}
+                                </span>
+                              );
+                            } else if (exerciseType === 'bodyweight_plus_weight') {
+                              return (
+                                <span className="flex items-center">
+                                  <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
+                                    <rect x="5" y="5" width="15" height="30" rx="3" />
+                                    <rect x="80" y="5" width="15" height="30" rx="3" />
+                                    <rect x="20" y="17" width="60" height="6" rx="2" />
+                                  </svg>
+                                  +{unit}
+                                </span>
+                              );
+                            } else {
+                              return (
+                                <span className="flex items-center">
+                                  <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
+                                    <rect x="5" y="5" width="15" height="30" rx="3" />
+                                    <rect x="80" y="5" width="15" height="30" rx="3" />
+                                    <rect x="20" y="17" width="60" height="6" rx="2" />
+                                  </svg>
+                                  {unit}
+                                </span>
+                              );
+                            }
+                          })()}
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Default ({user?.weightUnit || 'kg'})</SelectItem>
+                        <SelectItem value="kg">kg</SelectItem>
+                        <SelectItem value="lbs">lbs</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div>REPS</div>
                 {(user as any)?.partialRepsEnabled && <div>PARTIAL</div>}
