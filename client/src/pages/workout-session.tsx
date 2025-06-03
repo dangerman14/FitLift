@@ -923,9 +923,16 @@ export default function WorkoutSession() {
   };
 
   const getTotalVolume = () => {
+    const partialRepsVolumeWeight = (user as any)?.partialRepsVolumeWeight || 'none';
+    
     return workoutExercises.reduce((sum, ex) => 
-      sum + ex.sets.filter(s => s.completed).reduce((setSum, set) => 
-        setSum + (set.weight * set.reps), 0), 0);
+      sum + ex.sets.filter(s => s.completed).reduce((setSum, set) => {
+        const baseVolume = (set.weight || 0) * (set.reps || 0);
+        const partialVolume = partialRepsVolumeWeight === 'half' 
+          ? ((set.weight || 0) * (set.partialReps || 0)) * 0.5 
+          : 0;
+        return setSum + baseVolume + partialVolume;
+      }, 0), 0);
   };
 
   const getTotalSets = () => {
