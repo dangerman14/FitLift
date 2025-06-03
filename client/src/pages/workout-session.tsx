@@ -78,12 +78,12 @@ export default function WorkoutSession() {
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [showRpeSelector, setShowRpeSelector] = useState(false);
   const [selectedRpeSet, setSelectedRpeSet] = useState<{exerciseIndex: number, setIndex: number} | null>(null);
-  const [swipeStates, setSwipeStates] = useState<{[key: string]: number}>({});
-  const [touchStart, setTouchStart] = useState<{x: number, y: number} | null>(null);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
   const [exerciseWeightUnits, setExerciseWeightUnits] = useState<{[exerciseId: number]: 'kg' | 'lbs'}>({});
+  const [swipeStates, setSwipeStates] = useState<{[key: string]: number}>({});
+  const [touchStart, setTouchStart] = useState<{x: number, y: number} | null>(null);
   const [exerciseProgressionModes, setExerciseProgressionModes] = useState<{[exerciseId: number]: 'previous' | 'suggestion'}>({});
   const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
@@ -1438,11 +1438,12 @@ export default function WorkoutSession() {
                 {(user as any)?.partialRepsEnabled && <div>PARTIAL</div>}
                 <div>RPE</div>
                 <div className="text-center">✓</div>
+                <div className="hidden md:block"></div>
               </div>
 
               {/* Sets List */}
               {workoutExercise.sets.map((set, setIndex) => (
-                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 items-center py-1`}>
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-6' : 'md:grid-cols-7 grid-cols-5'} gap-2 items-center py-1`}>
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1 hidden md:flex">
                     <span>{set.setNumber}</span>
@@ -1574,6 +1575,17 @@ export default function WorkoutSession() {
                     />
                   </div>
                   
+                  {/* Desktop Delete Button */}
+                  <div className="hidden md:flex justify-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeSet(exerciseIndex, setIndex)}
+                      className="w-6 h-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
 
