@@ -18,6 +18,8 @@ import ExerciseSetInput from "@/components/exercise-set-input";
 import { MiniProgressChart } from "@/components/MiniProgressChart";
 import { ExerciseMiniChart } from "@/components/ExerciseMiniChart";
 
+
+
 interface WorkoutExercise {
   id: number;
   exercise: {
