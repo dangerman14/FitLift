@@ -1415,7 +1415,7 @@ export default function WorkoutSession() {
                         const value = parseFloat(e.target.value) || 0;
                         updateSetValue(exerciseIndex, setIndex, 'weight', value);
                       }}
-                      className="h-8 text-center"
+                      className="h-8 text-center border-0 bg-transparent p-0 focus:ring-0 shadow-none"
                       placeholder="0"
                       step="0.25"
                     />
@@ -1427,7 +1427,7 @@ export default function WorkoutSession() {
                       type="number"
                       value={set.reps || ""}
                       onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
-                      className="h-8 text-center"
+                      className="h-8 text-center border-0 bg-transparent p-0 focus:ring-0 shadow-none"
                       placeholder="0"
                       min="1"
                     />
@@ -1440,7 +1440,7 @@ export default function WorkoutSession() {
                         type="number"
                         value={set.partialReps || ""}
                         onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'partialReps', parseInt(e.target.value) || 0)}
-                        className="h-8 text-center"
+                        className="h-8 text-center border-0 bg-transparent p-0 focus:ring-0 shadow-none"
                         placeholder="0"
                         min="0"
                       />
@@ -1453,7 +1453,7 @@ export default function WorkoutSession() {
                       type="number"
                       value={(set.rpe || "").toString()}
                       onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
-                      className="h-8 text-center"
+                      className="h-8 text-center border-0 bg-transparent p-0 focus:ring-0 shadow-none"
                       placeholder=""
                       min="1"
                       max="10"
