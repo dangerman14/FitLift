@@ -78,7 +78,6 @@ export default function WorkoutSession() {
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [showRpeSelector, setShowRpeSelector] = useState(false);
   const [selectedRpeSet, setSelectedRpeSet] = useState<{exerciseIndex: number, setIndex: number} | null>(null);
-  const [swipeStates, setSwipeStates] = useState<{[key: string]: {startX: number, currentX: number, swiping: boolean}}>({});
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
@@ -924,76 +923,6 @@ export default function WorkoutSession() {
     );
   };
 
-  const removeSet = (exerciseIndex: number, setIndex: number) => {
-    setWorkoutExercises(prev => 
-      prev.map((ex, exIndex) => 
-        exIndex === exerciseIndex 
-          ? {
-              ...ex,
-              sets: ex.sets.length > 1 
-                ? ex.sets.filter((_, sIndex) => sIndex !== setIndex)
-                    .map((set, index) => ({ ...set, setNumber: index + 1 }))
-                : ex.sets // Don't remove if it's the only set
-            }
-          : ex
-      )
-    );
-  };
-
-  // Swipe handlers for mobile
-  const handleTouchStart = (e: React.TouchEvent, exerciseIndex: number, setIndex: number) => {
-    const key = `${exerciseIndex}-${setIndex}`;
-    const touch = e.touches[0];
-    setSwipeStates(prev => ({
-      ...prev,
-      [key]: {
-        startX: touch.clientX,
-        currentX: touch.clientX,
-        swiping: false
-      }
-    }));
-  };
-
-  const handleTouchMove = (e: React.TouchEvent, exerciseIndex: number, setIndex: number) => {
-    const key = `${exerciseIndex}-${setIndex}`;
-    const touch = e.touches[0];
-    const swipeState = swipeStates[key];
-    
-    if (!swipeState) return;
-    
-    const deltaX = touch.clientX - swipeState.startX;
-    
-    setSwipeStates(prev => ({
-      ...prev,
-      [key]: {
-        ...swipeState,
-        currentX: touch.clientX,
-        swiping: Math.abs(deltaX) > 10
-      }
-    }));
-  };
-
-  const handleTouchEnd = (exerciseIndex: number, setIndex: number) => {
-    const key = `${exerciseIndex}-${setIndex}`;
-    const swipeState = swipeStates[key];
-    
-    if (!swipeState) return;
-    
-    const deltaX = swipeState.currentX - swipeState.startX;
-    
-    // If swiped left more than 100px, remove the set
-    if (deltaX < -100) {
-      removeSet(exerciseIndex, setIndex);
-    }
-    
-    // Clear swipe state
-    setSwipeStates(prev => {
-      const newState = { ...prev };
-      delete newState[key];
-      return newState;
-    });
-  };
-
   const updateSetValue = (exerciseIndex: number, setIndex: number, field: string, value: number) => {
     setWorkoutExercises(prev => {
       const updated = prev.map((ex, exIndex) => 
@@ -1437,23 +1366,8 @@ export default function WorkoutSession() {
               </div>
 
               {/* Sets List */}
-              {workoutExercise.sets.map((set, setIndex) => {
-                const key = `${exerciseIndex}-${setIndex}`;
-                const swipeState = swipeStates[key];
-                const deltaX = swipeState ? swipeState.currentX - swipeState.startX : 0;
-                const showDeleteIndicator = deltaX < -50;
-                
-                return (
-                <div 
-                  key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} 
-                  className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-6' : 'md:grid-cols-7 grid-cols-5'} gap-2 items-center py-1 transition-transform duration-150 ${showDeleteIndicator ? 'bg-red-50' : ''}`}
-                  style={{
-                    transform: swipeState?.swiping ? `translateX(${Math.max(-150, deltaX)}px)` : 'translateX(0px)'
-                  }}
-                  onTouchStart={(e) => handleTouchStart(e, exerciseIndex, setIndex)}
-                  onTouchMove={(e) => handleTouchMove(e, exerciseIndex, setIndex)}
-                  onTouchEnd={() => handleTouchEnd(exerciseIndex, setIndex)}
-                >
+              {workoutExercise.sets.map((set, setIndex) => (
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 items-center py-1`}>
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1 hidden md:flex">
                     <span>{set.setNumber}</span>
@@ -1584,23 +1498,7 @@ export default function WorkoutSession() {
                       className="w-6 h-6 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                     />
                   </div>
-                  
-                  {/* Delete Button - Desktop Only */}
-                  <div className="hidden md:flex justify-center">
-                    {workoutExercise.sets.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeSet(exerciseIndex, setIndex)}
-                        className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        ×
-                      </Button>
-                    )}
-                  </div>
                 </div>
-                );
-              })}
               ))}
 
               {/* Add Set Button */}
