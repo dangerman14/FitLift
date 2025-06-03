@@ -22,8 +22,8 @@ export default function WorkoutComplete() {
   
   // Function to go back to edit the workout
   const handleBackToWorkout = () => {
-    console.log('Back button clicked, navigating to /routines');
-    setLocation('/routines');
+    console.log('Back button clicked, navigating back to workout session');
+    setLocation(`/workout/${workoutId}`);
   };
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
