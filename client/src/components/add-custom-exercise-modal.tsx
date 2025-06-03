@@ -42,7 +42,6 @@ const customExerciseSchema = z.object({
   exerciseType: z.string().min(1, "Exercise type is required"),
   primaryMuscleGroups: z.array(z.string()).min(1, "At least one primary muscle group is required"),
   secondaryMuscleGroups: z.array(z.string()).optional(),
-  difficultyLevel: z.string().optional(),
 });
 
 type CustomExerciseForm = z.infer<typeof customExerciseSchema>;
@@ -111,7 +110,6 @@ export default function AddCustomExerciseModal({ isOpen, onClose, onExerciseCrea
       exerciseType: "weight_reps",
       primaryMuscleGroups: [],
       secondaryMuscleGroups: [],
-      difficultyLevel: "beginner",
     },
   });
 
@@ -401,28 +399,7 @@ export default function AddCustomExerciseModal({ isOpen, onClose, onExerciseCrea
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="difficultyLevel"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Difficulty Level</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="rounded-xl border-2">
-                          <SelectValue placeholder="Select difficulty" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="beginner">Beginner</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
-                        <SelectItem value="advanced">Advanced</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
             </div>
 
             {/* Muscle Groups */}
