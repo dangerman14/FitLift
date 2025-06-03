@@ -988,6 +988,7 @@ export default function WorkoutSession() {
   };
 
   const handleSetTouchMove = (e: React.TouchEvent, exerciseIndex: number, setIndex: number) => {
+    e.preventDefault(); // Prevent scrolling during swipe
     if (!swipeRef.current) return;
     
     const setKey = `${exerciseIndex}-${setIndex}`;
@@ -1003,16 +1004,19 @@ export default function WorkoutSession() {
       
       swipeRef.current.offset = offset;
       
-      // Use requestAnimationFrame to throttle updates and improve performance
+      // Throttle updates - only update every 16ms (~60fps)
       if (swipeRef.current.animationFrame) {
         cancelAnimationFrame(swipeRef.current.animationFrame);
       }
       
       swipeRef.current.animationFrame = requestAnimationFrame(() => {
-        setSwipeState(prev => prev ? {
-          ...prev,
-          offset
-        } : null);
+        // Only update if offset changed significantly (reduces unnecessary renders)
+        if (Math.abs(offset - (swipeState?.offset || 0)) > 2) {
+          setSwipeState(prev => prev ? {
+            ...prev,
+            offset
+          } : null);
+        }
       });
     }
   };
@@ -1501,7 +1505,8 @@ export default function WorkoutSession() {
                 return (
                 <div
                   key={`${exerciseIndex}-${setIndex}-${set.setNumber}`}
-                  className="relative overflow-hidden"
+                  className="relative overflow-hidden swipe-container"
+                  data-swipeable="true"
                 >
                   {/* Delete background - revealed when swiping */}
                   <div 
@@ -1513,8 +1518,11 @@ export default function WorkoutSession() {
                   
                   {/* Main set content */}
                   <div 
-                    className={`relative bg-white grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-7' : 'md:grid-cols-7 grid-cols-6'} gap-2 items-center py-1 transition-all duration-200 ${showDeleteHint ? 'bg-red-100 border-l-4 border-red-500' : ''}`}
-                    style={{ transform: `translateX(-${offset}px)` }}
+                    className={`relative bg-white grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-7' : 'md:grid-cols-7 grid-cols-6'} gap-2 items-center py-1 swipe-content ${showDeleteHint ? 'bg-red-100 border-l-4 border-red-500' : ''}`}
+                    style={{ 
+                      transform: `translate3d(-${offset}px, 0, 0)`,
+                      willChange: offset > 0 ? 'transform' : 'auto'
+                    }}
                     onTouchStart={(e) => handleSetTouchStart(e, exerciseIndex, setIndex)}
                     onTouchMove={(e) => handleSetTouchMove(e, exerciseIndex, setIndex)}
                     onTouchEnd={() => handleSetTouchEnd(exerciseIndex, setIndex)}
