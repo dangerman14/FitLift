@@ -1297,8 +1297,8 @@ export default function WorkoutSession() {
                       localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
                     }}
                   >
-                    <SelectTrigger className="h-5 w-auto text-xs p-0 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0">
-                      <span className="text-neutral-500">
+                    <SelectTrigger className="h-6 w-12 text-xs px-1 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 min-w-12 touch-manipulation">
+                      <span className="text-neutral-500 text-center w-full">
                         {(() => {
                           const exerciseType = workoutExercise.exercise.exerciseType;
                           const unit = getWeightUnit(workoutExercise.exercise.id);
