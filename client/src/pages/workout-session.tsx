@@ -38,6 +38,7 @@ interface WorkoutSet {
   setNumber: number;
   weight?: number;
   reps?: number;
+  partialReps?: number;
   duration?: number;
   distance?: number;
   assistanceWeight?: number;
@@ -957,6 +958,7 @@ export default function WorkoutSession() {
                 setNumber: set.setNumber,
                 weight: set.weight,
                 reps: set.reps,
+                partialReps: set.partialReps || undefined,
                 rpe: set.rpe || undefined
               })
             });
@@ -1142,7 +1144,7 @@ export default function WorkoutSession() {
               )}
 
               {/* Sets Table Header */}
-              <div className="grid grid-cols-6 gap-2 text-xs text-neutral-500 font-medium mb-2 px-1">
+              <div className={`grid ${(user as any)?.partialRepsEnabled ? 'grid-cols-7' : 'grid-cols-6'} gap-2 text-xs text-neutral-500 font-medium mb-2 px-1`}>
                 <div>SET</div>
                 <div>PREVIOUS</div>
                 <div className="flex items-center space-x-1">
@@ -1202,13 +1204,14 @@ export default function WorkoutSession() {
                   </Select>
                 </div>
                 <div>REPS</div>
+                {(user as any)?.partialRepsEnabled && <div>PARTIAL</div>}
                 <div>RPE</div>
                 <div className="text-center">✓</div>
               </div>
 
               {/* Sets List */}
               {workoutExercise.sets.map((set, setIndex) => (
-                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className="grid grid-cols-6 gap-2 items-center py-2 px-1 border-b border-gray-100">
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'grid-cols-7' : 'grid-cols-6'} gap-2 items-center py-2 px-1 border-b border-gray-100`}>
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1">
                     <span>{set.setNumber}</span>
@@ -1256,6 +1259,20 @@ export default function WorkoutSession() {
                       min="1"
                     />
                   </div>
+                  
+                  {/* Partial Reps Input - Only show when enabled */}
+                  {(user as any)?.partialRepsEnabled && (
+                    <div>
+                      <Input
+                        type="number"
+                        value={set.partialReps || ""}
+                        onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'partialReps', parseInt(e.target.value) || 0)}
+                        className="h-8 text-center"
+                        placeholder="0"
+                        min="0"
+                      />
+                    </div>
+                  )}
                   
                   {/* RPE Input */}
                   <div>
