@@ -1274,49 +1274,8 @@ export default function WorkoutSession() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center">
                   <span className="hidden md:inline">WEIGHT</span>
-                  <span className="md:hidden flex items-center">
-                    {(() => {
-                      const exerciseType = workoutExercise.exercise.exerciseType;
-                      const unit = getWeightUnit(workoutExercise.exercise.id);
-                      
-                      if (exerciseType === 'assisted') {
-                        return (
-                          <span className="flex items-center">
-                            <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
-                              <rect x="5" y="5" width="15" height="30" rx="3" />
-                              <rect x="80" y="5" width="15" height="30" rx="3" />
-                              <rect x="20" y="17" width="60" height="6" rx="2" />
-                            </svg>
-                            -{unit}
-                          </span>
-                        );
-                      } else if (exerciseType === 'bodyweight_plus_weight') {
-                        return (
-                          <span className="flex items-center">
-                            <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
-                              <rect x="5" y="5" width="15" height="30" rx="3" />
-                              <rect x="80" y="5" width="15" height="30" rx="3" />
-                              <rect x="20" y="17" width="60" height="6" rx="2" />
-                            </svg>
-                            +{unit}
-                          </span>
-                        );
-                      } else {
-                        return (
-                          <span className="flex items-center">
-                            <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
-                              <rect x="5" y="5" width="15" height="30" rx="3" />
-                              <rect x="80" y="5" width="15" height="30" rx="3" />
-                              <rect x="20" y="17" width="60" height="6" rx="2" />
-                            </svg>
-                            {unit}
-                          </span>
-                        );
-                      }
-                    })()}
-                  </span>
                   <Select
                     value={(() => {
                       const unit = getWeightUnit(workoutExercise.exercise.id);
@@ -1348,9 +1307,47 @@ export default function WorkoutSession() {
                       localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
                     }}
                   >
-                    <SelectTrigger className="h-6 w-8 text-xs px-1 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 min-w-8 touch-manipulation">
-                      <span className="text-neutral-500 text-center w-full">
-                        ⚙️
+                    <SelectTrigger className="md:hidden h-6 w-auto text-xs px-0 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 touch-manipulation">
+                      <span className="text-neutral-500 flex items-center">
+                        {(() => {
+                          const exerciseType = workoutExercise.exercise.exerciseType;
+                          const unit = getWeightUnit(workoutExercise.exercise.id);
+                          
+                          if (exerciseType === 'assisted') {
+                            return (
+                              <span className="flex items-center">
+                                <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
+                                  <rect x="5" y="5" width="15" height="30" rx="3" />
+                                  <rect x="80" y="5" width="15" height="30" rx="3" />
+                                  <rect x="20" y="17" width="60" height="6" rx="2" />
+                                </svg>
+                                -{unit}
+                              </span>
+                            );
+                          } else if (exerciseType === 'bodyweight_plus_weight') {
+                            return (
+                              <span className="flex items-center">
+                                <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
+                                  <rect x="5" y="5" width="15" height="30" rx="3" />
+                                  <rect x="80" y="5" width="15" height="30" rx="3" />
+                                  <rect x="20" y="17" width="60" height="6" rx="2" />
+                                </svg>
+                                +{unit}
+                              </span>
+                            );
+                          } else {
+                            return (
+                              <span className="flex items-center">
+                                <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
+                                  <rect x="5" y="5" width="15" height="30" rx="3" />
+                                  <rect x="80" y="5" width="15" height="30" rx="3" />
+                                  <rect x="20" y="17" width="60" height="6" rx="2" />
+                                </svg>
+                                {unit}
+                              </span>
+                            );
+                          }
+                        })()}
                       </span>
                     </SelectTrigger>
                     <SelectContent>
