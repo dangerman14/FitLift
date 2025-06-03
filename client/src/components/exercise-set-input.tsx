@@ -9,6 +9,7 @@ interface ExerciseSetInputProps {
   set: {
     weight?: number;
     reps?: number;
+    partialReps?: number;
     duration?: number;
     distance?: number;
     assistanceWeight?: number;
@@ -23,6 +24,10 @@ interface ExerciseSetInputProps {
   };
   userBodyweight?: number;
   isCompleted?: boolean;
+  userSettings?: {
+    partialRepsEnabled?: boolean;
+    partialRepsVolumeWeight?: string;
+  };
 }
 
 export default function ExerciseSetInput({
@@ -31,7 +36,8 @@ export default function ExerciseSetInput({
   onChange,
   previousData,
   userBodyweight,
-  isCompleted = false
+  isCompleted = false,
+  userSettings
 }: ExerciseSetInputProps) {
   const [durationDisplay, setDurationDisplay] = useState("");
 
@@ -68,31 +74,48 @@ export default function ExerciseSetInput({
     switch (exerciseType) {
       case 'weight_reps':
         return (
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs text-muted-foreground">Weight</Label>
-              <div className="relative">
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs text-muted-foreground">Weight</Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    value={set.weight || ''}
+                    onChange={(e) => onChange({ weight: parseFloat(e.target.value) || 0 })}
+                    placeholder={previousData?.weight ? previousData.weight.toString() : "0"}
+                    className="pr-8"
+                    disabled={isCompleted}
+                  />
+                  <span className="absolute right-2 top-2 text-xs text-muted-foreground">lbs</span>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Reps</Label>
                 <Input
                   type="number"
-                  value={set.weight || ''}
-                  onChange={(e) => onChange({ weight: parseFloat(e.target.value) || 0 })}
-                  placeholder={previousData?.weight ? previousData.weight.toString() : "0"}
-                  className="pr-8"
+                  value={set.reps || ''}
+                  onChange={(e) => onChange({ reps: parseInt(e.target.value) || 0 })}
+                  placeholder={previousData?.reps ? previousData.reps.toString() : "0"}
                   disabled={isCompleted}
                 />
-                <span className="absolute right-2 top-2 text-xs text-muted-foreground">lbs</span>
               </div>
             </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Reps</Label>
-              <Input
-                type="number"
-                value={set.reps || ''}
-                onChange={(e) => onChange({ reps: parseInt(e.target.value) || 0 })}
-                placeholder={previousData?.reps ? previousData.reps.toString() : "0"}
-                disabled={isCompleted}
-              />
-            </div>
+            {userSettings?.partialRepsEnabled && (
+              <div>
+                <Label className="text-xs text-muted-foreground">Partial Reps</Label>
+                <Input
+                  type="number"
+                  value={set.partialReps || ''}
+                  onChange={(e) => onChange({ partialReps: parseInt(e.target.value) || 0 })}
+                  placeholder="0"
+                  disabled={isCompleted}
+                />
+                <div className="text-xs text-muted-foreground mt-1">
+                  Display: {set.reps || 0}{set.partialReps ? ` (${set.partialReps})` : ''}
+                </div>
+              </div>
+            )}
           </div>
         );
 
