@@ -37,6 +37,7 @@ import {
   Filter,
   ChevronDown,
   MoreHorizontal,
+  MoreVertical,
   Move,
   Replace,
   Check,
