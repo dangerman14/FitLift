@@ -36,6 +36,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add a basic health check route first
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 (async () => {
   const server = await registerRoutes(app);
 
