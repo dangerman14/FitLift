@@ -207,7 +207,7 @@ function SortableExerciseItem({
               />
             )}
             <div className="flex items-center gap-2">
-              <div className="font-medium text-lg">{exercise.exerciseName}</div>
+              <div className="font-medium text-lg">{exercise.exerciseName || exercise.name || 'Exercise'}</div>
               {exercise.supersetId && (
                 <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                   {exercise.supersetId}
