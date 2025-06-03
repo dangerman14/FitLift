@@ -327,6 +327,7 @@ export default function WorkoutSession() {
                     setNumber: set.setNumber,
                     weight: parseFloat(set.weight) || 0,
                     reps: set.reps || 0,
+                    partialReps: set.partialReps || 0, // Include partial reps from database
                     duration: set.duration || undefined,
                     distance: set.distance || undefined,
                     assistanceWeight: set.assistanceWeight || undefined,
