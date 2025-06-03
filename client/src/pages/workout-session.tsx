@@ -965,18 +965,35 @@ export default function WorkoutSession() {
         // Save completed sets to database
         for (const set of completedSets) {
           try {
-            await fetch(`/api/workout-exercises/${exercise.id}/sets`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({
-                setNumber: set.setNumber,
-                weight: set.weight,
-                reps: set.reps,
-                partialReps: set.partialReps || undefined,
-                rpe: set.rpe || undefined
-              })
-            });
+            // Only create new sets if they don't have a database ID
+            if (!set.id) {
+              await fetch(`/api/workout-exercises/${exercise.id}/sets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                  setNumber: set.setNumber,
+                  weight: set.weight,
+                  reps: set.reps,
+                  partialReps: set.partialReps || undefined,
+                  rpe: set.rpe || undefined
+                })
+              });
+            } else {
+              // Update existing sets if they have an ID
+              await fetch(`/api/exercise-sets/${set.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                  weight: set.weight,
+                  reps: set.reps,
+                  partialReps: set.partialReps || undefined,
+                  rpe: set.rpe || undefined,
+                  completed: set.completed
+                })
+              });
+            }
           } catch (err) {
             console.error('Failed to save completed set:', err);
           }
