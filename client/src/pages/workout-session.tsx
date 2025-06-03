@@ -392,7 +392,14 @@ export default function WorkoutSession() {
               try {
                 const tempExercises = JSON.parse(sessionData);
                 console.log("Loading temporary session data from localStorage");
-                setWorkoutExercises(tempExercises);
+                
+                // Only use localStorage data if it has more recent changes than database
+                // For now, prioritize database data to prevent duplication
+                console.log("Prioritizing database data over localStorage to prevent duplication");
+                setWorkoutExercises(formattedExercises);
+                
+                // Clear the localStorage to prevent future conflicts
+                localStorage.removeItem(`workout_session_${workoutData.id}`);
               } catch (err) {
                 console.error("Failed to parse session data:", err);
                 setWorkoutExercises(formattedExercises);
