@@ -1583,7 +1583,7 @@ export default function WorkoutSession() {
               </div>
             </div>
             <div className="p-6">
-              <div className="flex flex-wrap gap-2 mb-6 justify-center">
+              <div className="flex gap-1 mb-6 justify-center overflow-x-auto">
                 {[6, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((rpeValue) => {
                   const currentRpe = workoutExercises[selectedRpeSet.exerciseIndex]?.sets[selectedRpeSet.setIndex]?.rpe;
                   const isSelected = currentRpe === rpeValue;
@@ -1591,7 +1591,7 @@ export default function WorkoutSession() {
                     <Button
                       key={rpeValue}
                       variant={isSelected ? "default" : "outline"}
-                      className={`h-12 min-w-[60px] text-lg font-medium ${
+                      className={`h-12 w-[40px] flex-shrink-0 text-sm font-medium px-1 ${
                         isSelected 
                           ? 'bg-blue-600 text-white hover:bg-blue-700' 
                           : 'hover:bg-gray-100'
