@@ -1411,8 +1411,8 @@ export default function WorkoutSession() {
                   <div className="hidden md:block">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <button className="text-xs text-neutral-700 font-medium hover:bg-gray-100 px-1 py-0.5 rounded cursor-pointer flex items-center gap-1">
-                          WEIGHT ({getWeightUnit(workoutExercise.exercise.id).toUpperCase()})
+                        <button className="h-6 w-auto text-xs px-1 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 cursor-pointer flex items-center gap-1 text-neutral-500">
+                          <span>WEIGHT ({getWeightUnit(workoutExercise.exercise.id).toUpperCase()})</span>
                           <ChevronDown className="h-3 w-3" />
                         </button>
                       </PopoverTrigger>
