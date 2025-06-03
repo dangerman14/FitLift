@@ -76,6 +76,8 @@ export default function WorkoutSession() {
   const workoutSlug = location.split('/')[2]; // For /workout-session/abc123 format
   const isEditingExisting = workoutSlug && workoutSlug !== 'new'; // If there's a slug and it's not 'new', we're resuming/editing
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
+  const [showRpeSelector, setShowRpeSelector] = useState(false);
+  const [selectedRpeSet, setSelectedRpeSet] = useState<{exerciseIndex: number, setIndex: number} | null>(null);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
@@ -1444,17 +1446,18 @@ export default function WorkoutSession() {
                     </div>
                   )}
                   
-                  {/* RPE Input */}
+                  {/* RPE Selector */}
                   <div>
-                    <Input
-                      type="number"
-                      value={(set.rpe || "").toString()}
-                      onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'rpe', parseInt(e.target.value) || 0)}
-                      className="h-8 text-center border-0 bg-transparent p-0 focus:ring-0 shadow-none"
-                      placeholder=""
-                      min="1"
-                      max="10"
-                    />
+                    <Button
+                      variant="ghost"
+                      className="h-8 w-full text-center p-0 border-0 bg-transparent hover:bg-gray-100"
+                      onClick={() => {
+                        setSelectedRpeSet({exerciseIndex, setIndex});
+                        setShowRpeSelector(true);
+                      }}
+                    >
+                      {set.rpe ? set.rpe : "-"}
+                    </Button>
                   </div>
                   
                   {/* Checkbox */}
@@ -1564,6 +1567,45 @@ export default function WorkoutSession() {
           >
             <X className="h-4 w-4" />
           </Button>
+        </div>
+      )}
+
+      {/* RPE Selector Modal */}
+      {showRpeSelector && selectedRpeSet && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-lg">
+            <div className="p-4 border-b">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium">Select RPE</h3>
+                <Button variant="ghost" onClick={() => setShowRpeSelector(false)}>
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-4 gap-3 mb-6">
+                {[6, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((rpeValue) => (
+                  <Button
+                    key={rpeValue}
+                    variant="outline"
+                    className="h-12 text-lg font-medium"
+                    onClick={() => {
+                      updateSetValue(selectedRpeSet.exerciseIndex, selectedRpeSet.setIndex, 'rpe', rpeValue);
+                    }}
+                  >
+                    {rpeValue}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                className="w-full"
+                onClick={() => setShowRpeSelector(false)}
+                style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
+              >
+                Done
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
