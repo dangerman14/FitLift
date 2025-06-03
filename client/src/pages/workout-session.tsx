@@ -1255,7 +1255,17 @@ export default function WorkoutSession() {
                   >
                     <SelectTrigger className="h-5 w-auto text-xs p-0 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0">
                       <span className="text-neutral-500">
-                        {getProgressionMode(workoutExercise.exercise.id) === 'previous' ? 'PREVIOUS' : 'SUGGESTIONS'}
+                        {getProgressionMode(workoutExercise.exercise.id) === 'previous' ? (
+                          <>
+                            <span className="hidden md:inline">PREVIOUS</span>
+                            <span className="md:hidden">PREV.</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="hidden md:inline">SUGGESTIONS</span>
+                            <span className="md:hidden">SUGG.</span>
+                          </>
+                        )}
                       </span>
                     </SelectTrigger>
                     <SelectContent>
