@@ -86,7 +86,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <WorkoutProvider>
-        <Toaster />
         <OfflineIndicator />
         <Router />
         <WorkoutProgressIndicator />
