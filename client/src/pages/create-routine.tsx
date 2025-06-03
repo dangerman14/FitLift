@@ -533,6 +533,7 @@ export default function CreateRoutine() {
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
   const [sets, setSets] = useState("3");
   const [useRepRange, setUseRepRange] = useState(true);
+  const [repsType, setRepsType] = useState("range");
   const [singleReps, setSingleReps] = useState("10");
   const [minReps, setMinReps] = useState("8");
   const [maxReps, setMaxReps] = useState("12");
@@ -2390,7 +2391,7 @@ export default function CreateRoutine() {
                 {/* Reps Configuration */}
                 <div className="space-y-2">
                   <Label>Reps Configuration</Label>
-                  <Select value={repsType} onValueChange={setRepsType}>
+                  <Select value={useRepRange ? "range" : "single"} onValueChange={(value) => setUseRepRange(value === "range")}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -2400,7 +2401,7 @@ export default function CreateRoutine() {
                     </SelectContent>
                   </Select>
                   
-                  {repsType === "range" ? (
+                  {useRepRange ? (
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label className="text-xs">Min Reps</Label>
