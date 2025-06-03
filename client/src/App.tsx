@@ -29,55 +29,34 @@ import NotFound from "@/pages/not-found";
 import Navigation from "@/components/navigation";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto mb-4"></div>
-          <p className="text-neutral-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Simplified for development - always show authenticated app
   return (
-    <Switch>
-      {!isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <div className="max-w-6xl mx-auto bg-white min-h-screen shadow-material-2">
-            <Navigation />
-            <main className="p-4 pb-20">
-              <Switch>
-                <Route path="/" component={Dashboard} />
-                <Route path="/workout-session" component={WorkoutSession} />
-                <Route path="/workout-session/:slug" component={WorkoutSession} />
-                <Route path="/workout-complete/:workoutId" component={WorkoutComplete} />
-                <Route path="/workout-summary/:workoutId" component={WorkoutSummary} />
-                <Route path="/workouts" component={Workouts} />
-                <Route path="/exercises" component={Exercises} />
-                <Route path="/exercise/:exerciseId" component={ExerciseDetails} />
-                <Route path="/routines" component={Routines} />
-                <Route path="/routine/:slug" component={RoutineDetails} />
-                <Route path="/create-routine" component={CreateRoutine} />
+    <div className="max-w-6xl mx-auto bg-white min-h-screen shadow-material-2">
+      <Navigation />
+      <main className="p-4 pb-20">
+        <Switch>
+          <Route path="/" component={Dashboard} />
+          <Route path="/workout-session" component={WorkoutSession} />
+          <Route path="/workout-session/:slug" component={WorkoutSession} />
+          <Route path="/workout-complete/:workoutId" component={WorkoutComplete} />
+          <Route path="/workout-summary/:workoutId" component={WorkoutSummary} />
+          <Route path="/workouts" component={Workouts} />
+          <Route path="/exercises" component={Exercises} />
+          <Route path="/exercise/:exerciseId" component={ExerciseDetails} />
+          <Route path="/routines" component={Routines} />
+          <Route path="/routine/:slug" component={RoutineDetails} />
+          <Route path="/create-routine" component={CreateRoutine} />
 
-                <Route path="/profile" component={Profile} />
-                <Route path="/body-tracking" component={BodyTracking} />
-                <Route path="/body-tracking/entry/:date" component={ProgressEntry} />
-                <Route path="/body-tracking/edit/:date" component={EditBodyEntry} />
-                <Route path="/add-body-entry" component={AddBodyEntry} />
-                <Route path="/settings" component={Settings} />
-                <Route component={NotFound} />
-              </Switch>
-            </main>
-          </div>
-        </>
-      )}
-      <Route component={NotFound} />
-    </Switch>
+          <Route path="/profile" component={Profile} />
+          <Route path="/body-tracking" component={BodyTracking} />
+          <Route path="/body-tracking/entry/:date" component={ProgressEntry} />
+          <Route path="/body-tracking/edit/:date" component={EditBodyEntry} />
+          <Route path="/add-body-entry" component={AddBodyEntry} />
+          <Route path="/settings" component={Settings} />
+          <Route component={NotFound} />
+        </Switch>
+      </main>
+    </div>
   );
 }
 
