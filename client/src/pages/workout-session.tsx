@@ -1375,7 +1375,7 @@ export default function WorkoutSession() {
               )}
 
               {/* Sets Table Header */}
-              <div className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 text-xs text-neutral-500 font-medium mb-2`}>
+              <div className={`${(user as any)?.partialRepsEnabled ? 'workout-sets-grid-with-partial md:grid md:grid-cols-8' : 'workout-sets-grid md:grid md:grid-cols-7'} gap-2 text-xs text-neutral-500 font-medium mb-2`}>
                 <div className="hidden md:block">SET</div>
                 <div className="flex items-center space-x-1">
                   <Select
@@ -1518,7 +1518,7 @@ export default function WorkoutSession() {
                   
                   {/* Main set content */}
                   <div 
-                    className={`relative bg-white grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-7' : 'md:grid-cols-7 grid-cols-6'} gap-2 items-center py-1 swipe-content ${showDeleteHint ? 'bg-red-100 border-l-4 border-red-500' : ''}`}
+                    className={`relative bg-white ${(user as any)?.partialRepsEnabled ? 'workout-sets-grid-with-partial md:grid md:grid-cols-8' : 'workout-sets-grid md:grid md:grid-cols-7'} gap-2 items-center py-1 swipe-content ${showDeleteHint ? 'bg-red-100 border-l-4 border-red-500' : ''}`}
                     style={{ 
                       transform: `translate3d(-${offset}px, 0, 0)`,
                       willChange: offset > 0 ? 'transform' : 'auto'

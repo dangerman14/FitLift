@@ -407,3 +407,20 @@
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
+
+/* Custom grid layout for workout sets on mobile */
+@media (max-width: 767px) {
+  .workout-sets-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 0.8fr 0.7fr 0.5fr;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .workout-sets-grid-with-partial {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 0.6fr 0.6fr 0.6fr 0.4fr;
+    gap: 0.5rem;
+    align-items: center;
+  }
+}
