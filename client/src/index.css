@@ -360,4 +360,15 @@
   .dark textarea::placeholder {
     color: hsl(214 11% 58% / 0.5) !important;
   }
+
+  /* Hide number input spinner arrows to save space */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
 }
