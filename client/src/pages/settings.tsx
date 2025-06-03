@@ -73,7 +73,13 @@ export default function Settings() {
         bodyMeasurementUnit: (user as any)?.bodyMeasurementUnit || "cm",
         previousWorkoutMode: (user as any)?.previousWorkoutMode || "any_workout",
         partialRepsEnabled: (user as any)?.partialRepsEnabled || false,
-        partialRepsVolumeWeight: (user as any)?.partialRepsVolumeWeight || "none",
+        partialRepsVolumeWeight: (() => {
+          const value = (user as any)?.partialRepsVolumeWeight;
+          // Map any stored values to valid options
+          if (value === "50_percent" || value === "half") return "half";
+          if (value === "100_percent" || value === "full") return "full";
+          return "none";
+        })(),
       });
     }
   }, [user, form]);
