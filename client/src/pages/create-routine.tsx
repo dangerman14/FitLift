@@ -2203,73 +2203,7 @@ export default function CreateRoutine() {
             </DialogContent>
           </Dialog>
 
-          {/* Exercise Library */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Exercise Library</CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Search exercises..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-8 w-64"
-                    />
-                  </div>
-                  <Select value={selectedMuscleGroup} onValueChange={setSelectedMuscleGroup}>
-                    <SelectTrigger className="w-40">
-                      <SelectValue placeholder="Muscle Group" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Groups</SelectItem>
-                      <SelectItem value="chest">Chest</SelectItem>
-                      <SelectItem value="back">Back</SelectItem>
-                      <SelectItem value="shoulders">Shoulders</SelectItem>
-                      <SelectItem value="arms">Arms</SelectItem>
-                      <SelectItem value="legs">Legs</SelectItem>
-                      <SelectItem value="core">Core</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-2 max-h-96 overflow-y-auto">
-                {filteredExercises.map((exercise) => (
-                  <div
-                    key={exercise.id}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('Exercise clicked:', exercise);
-                      if (exercise && exercise.id) {
-                        addExerciseToRoutine(exercise);
-                        setShowMobileExerciseModal(false);
-                      } else {
-                        console.error('Invalid exercise data:', exercise);
-                        toast({
-                          title: "Error",
-                          description: "Exercise data is invalid. Please try again.",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                  >
-                    <div>
-                      <div className="font-medium">{exercise.name}</div>
-                      <div className="text-sm text-gray-600">
-                        {exercise.muscleGroups?.join(', ')} • {exercise.type}
-                      </div>
-                    </div>
-                    <Plus className="h-5 w-5 text-gray-400" />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+
         </div>
       </div>
 
