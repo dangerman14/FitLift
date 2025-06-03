@@ -1248,7 +1248,7 @@ export default function WorkoutSession() {
                   
                   {/* Reps Input */}
                   <div>
-                    {user?.partialRepsEnabled ? (
+                    {(user as any)?.partialRepsEnabled ? (
                       <div className="space-y-1">
                         <div className="grid grid-cols-2 gap-1">
                           <Input
