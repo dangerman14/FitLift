@@ -791,13 +791,13 @@ export default function WorkoutSession() {
         
         toast({
           title: "🏆 Personal Record!",
-          description: `${achievements.join(" + ")} - ${set.weight}kg × ${set.reps}${set.partialReps ? ` (${set.partialReps})` : ''} reps`,
+          description: `${achievements.join(" + ")} - ${set.weight}kg × ${set.reps} reps`,
           duration: 5000
         });
       } else {
         toast({
           title: "Set Completed!",
-          description: `${set.weight}kg × ${set.reps}${set.partialReps ? ` (${set.partialReps})` : ''} reps`
+          description: `${set.weight}kg × ${set.reps} reps`
         });
       }
     } catch (error) {
@@ -1247,7 +1247,7 @@ export default function WorkoutSession() {
                   </div>
                   
                   {/* Reps Input */}
-                  <div className="space-y-1">
+                  <div>
                     <Input
                       type="number"
                       value={set.reps || ""}
@@ -1256,23 +1256,6 @@ export default function WorkoutSession() {
                       placeholder="0"
                       min="1"
                     />
-                    {user?.partialRepsEnabled && (
-                      <div className="flex flex-col items-center space-y-1">
-                        <Input
-                          type="number"
-                          value={set.partialReps || ""}
-                          onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'partialReps', parseInt(e.target.value) || 0)}
-                          className="h-6 text-center text-xs"
-                          placeholder="Partial"
-                          min="0"
-                        />
-                        {(set.reps || set.partialReps) && (
-                          <div className="text-xs text-muted-foreground">
-                            {set.reps || 0}{set.partialReps ? ` (${set.partialReps})` : ''}
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                   
                   {/* RPE Input */}
