@@ -1248,14 +1248,42 @@ export default function WorkoutSession() {
                   
                   {/* Reps Input */}
                   <div>
-                    <Input
-                      type="number"
-                      value={set.reps || ""}
-                      onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
-                      className="h-8 text-center"
-                      placeholder="0"
-                      min="1"
-                    />
+                    {user?.partialRepsEnabled ? (
+                      <div className="space-y-1">
+                        <div className="grid grid-cols-2 gap-1">
+                          <Input
+                            type="number"
+                            value={set.reps || ""}
+                            onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
+                            className="h-8 text-center text-xs"
+                            placeholder="0"
+                            min="0"
+                          />
+                          <Input
+                            type="number"
+                            value={set.partialReps || ""}
+                            onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'partialReps', parseInt(e.target.value) || 0)}
+                            className="h-8 text-center text-xs"
+                            placeholder="0"
+                            min="0"
+                          />
+                        </div>
+                        {(set.reps || set.partialReps) && (
+                          <div className="text-xs text-muted-foreground text-center">
+                            {set.reps || 0}{set.partialReps ? ` (${set.partialReps})` : ''}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Input
+                        type="number"
+                        value={set.reps || ""}
+                        onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
+                        className="h-8 text-center"
+                        placeholder="0"
+                        min="1"
+                      />
+                    )}
                   </div>
                   
                   {/* RPE Input */}
