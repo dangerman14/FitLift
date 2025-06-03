@@ -1348,20 +1348,9 @@ export default function WorkoutSession() {
                       localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
                     }}
                   >
-                    <SelectTrigger className="h-6 w-12 text-xs px-1 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 min-w-12 touch-manipulation">
+                    <SelectTrigger className="h-6 w-8 text-xs px-1 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0 min-w-8 touch-manipulation">
                       <span className="text-neutral-500 text-center w-full">
-                        {(() => {
-                          const exerciseType = workoutExercise.exercise.exerciseType;
-                          const unit = getWeightUnit(workoutExercise.exercise.id);
-                          
-                          if (exerciseType === 'assisted') {
-                            return `-${unit}`;
-                          } else if (exerciseType === 'bodyweight_plus_weight') {
-                            return `+${unit}`;
-                          } else {
-                            return `(${unit.toUpperCase()})`;
-                          }
-                        })()}
+                        ⚙️
                       </span>
                     </SelectTrigger>
                     <SelectContent>
