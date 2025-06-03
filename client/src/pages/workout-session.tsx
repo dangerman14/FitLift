@@ -1284,8 +1284,10 @@ export default function WorkoutSession() {
                       if (exerciseType === 'assisted') {
                         return (
                           <span className="flex items-center">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="mr-1">
-                              <path d="M2 12h4v-2H4V8h2V6H2v6zm18-6h-4v2h2v2h-2v2h4V6zm-8-4h-4v4H6v8h2v4h4v-4h2V6h-2V2z"/>
+                            <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
+                              <rect x="5" y="5" width="15" height="30" rx="3" />
+                              <rect x="80" y="5" width="15" height="30" rx="3" />
+                              <rect x="20" y="17" width="60" height="6" rx="2" />
                             </svg>
                             -{unit}
                           </span>
@@ -1293,8 +1295,10 @@ export default function WorkoutSession() {
                       } else if (exerciseType === 'bodyweight_plus_weight') {
                         return (
                           <span className="flex items-center">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="mr-1">
-                              <path d="M2 12h4v-2H4V8h2V6H2v6zm18-6h-4v2h2v2h-2v2h4V6zm-8-4h-4v4H6v8h2v4h4v-4h2V6h-2V2z"/>
+                            <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
+                              <rect x="5" y="5" width="15" height="30" rx="3" />
+                              <rect x="80" y="5" width="15" height="30" rx="3" />
+                              <rect x="20" y="17" width="60" height="6" rx="2" />
                             </svg>
                             +{unit}
                           </span>
@@ -1302,8 +1306,10 @@ export default function WorkoutSession() {
                       } else {
                         return (
                           <span className="flex items-center">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="mr-1">
-                              <path d="M2 12h4v-2H4V8h2V6H2v6zm18-6h-4v2h2v2h-2v2h4V6zm-8-4h-4v4H6v8h2v4h4v-4h2V6h-2V2z"/>
+                            <svg width="14" height="14" viewBox="0 0 100 40" fill="currentColor" className="mr-1">
+                              <rect x="5" y="5" width="15" height="30" rx="3" />
+                              <rect x="80" y="5" width="15" height="30" rx="3" />
+                              <rect x="20" y="17" width="60" height="6" rx="2" />
                             </svg>
                             {unit}
                           </span>
