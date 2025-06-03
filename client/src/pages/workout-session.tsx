@@ -1110,32 +1110,30 @@ export default function WorkoutSession() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 via-teal-500 to-cyan-600 text-white px-6 py-6 sticky top-0 z-10 shadow-large">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
+      <div className="bg-gradient-to-r from-green-500 via-teal-500 to-cyan-600 text-white px-4 py-4 sticky top-0 z-10 shadow-lg">
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex items-center space-x-3">
             <Button variant="ghost" size="sm" onClick={() => setLocation("/")} className="hover:bg-white hover:bg-opacity-20 rounded-xl text-white">
               <X className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-white drop-shadow-lg">{workoutName || "Loading Workout..."}</h1>
-              {workoutDescription && <p className="text-green-100">{workoutDescription}</p>}
+              <h1 className="text-2xl font-bold text-white drop-shadow-lg">{workoutName || "Loading Workout..."}</h1>
+              {workoutDescription && <p className="text-green-100 text-sm">{workoutDescription}</p>}
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <Button 
-              onClick={finishWorkout}
-              style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
-              size="sm"
-            >
-              Finish
-            </Button>
-          </div>
+          <Button 
+            onClick={finishWorkout}
+            style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
+            size="sm"
+          >
+            Finish
+          </Button>
         </div>
 
         {/* Stats */}
-        <div className="flex space-x-8 mt-3 text-sm">
+        <div className="flex space-x-6 text-sm">
           <div>
             <div className="text-neutral-500">Duration</div>
             <Select value={Math.floor(elapsedTime / 60).toString()} onValueChange={updateWorkoutDuration}>
@@ -1165,19 +1163,19 @@ export default function WorkoutSession() {
       </div>
 
       {/* Exercise List */}
-      <div className="p-4 space-y-4 pb-8">
+      <div className="space-y-3 pb-8">
         {workoutExercises.map((workoutExercise, exerciseIndex) => (
-          <Card key={`exercise-${exerciseIndex}-${workoutExercise.exercise?.id}`} className="shadow-sm">
-            <CardContent className="p-4">
+          <Card key={`exercise-${exerciseIndex}-${workoutExercise.exercise?.id}`} className="border-0 shadow-none bg-white">
+            <CardContent className="p-3">
               {/* Exercise Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center space-x-3 flex-1">
-                  <div className="w-10 h-10 bg-neutral-100 rounded-lg flex items-center justify-center">
-                    <span className="text-xl">💪</span>
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center space-x-2 flex-1">
+                  <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">💪</span>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-blue-600 text-lg">
+                      <h3 className="font-medium text-blue-600 text-base">
                         {workoutExercise.exercise?.name}
                       </h3>
                       <ExerciseMiniChart exerciseId={workoutExercise.exercise?.id} />
@@ -1186,14 +1184,14 @@ export default function WorkoutSession() {
                       placeholder="Add comment for this exercise..."
                       value={workoutExercise.comment || ""}
                       onChange={(e) => updateComment(exerciseIndex, e.target.value)}
-                      className="mt-2 text-sm resize-none min-h-[2rem] h-8"
+                      className="mt-2 text-sm resize-none min-h-[2rem] h-8 border-gray-200"
                       rows={1}
                     />
                     
                     {/* Exercise Rest Timer */}
-                    <div className="flex items-center space-x-2 mt-3 p-2 bg-neutral-50 rounded-lg">
-                      <span className="text-lg">⏱️</span>
-                      <span className="text-sm text-neutral-600">Rest Timer:</span>
+                    <div className="flex items-center space-x-2 mt-2 p-1 bg-neutral-50 rounded">
+                      <span className="text-sm">⏱️</span>
+                      <span className="text-xs text-neutral-600">Rest:</span>
                       <Select 
                         value={(exerciseRestTimes[exerciseIndex] || 180).toString()} 
                         onValueChange={(value) => updateExerciseRestTime(exerciseIndex, parseInt(value))}
@@ -1330,7 +1328,7 @@ export default function WorkoutSession() {
 
               {/* Sets List */}
               {workoutExercise.sets.map((set, setIndex) => (
-                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'grid-cols-7' : 'grid-cols-6'} gap-2 items-center py-2 px-1 border-b border-gray-100`}>
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'grid-cols-7' : 'grid-cols-6'} gap-2 items-center py-1 border-b border-gray-100`}>
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1">
                     <span>{set.setNumber}</span>
@@ -1466,7 +1464,7 @@ export default function WorkoutSession() {
               {/* Add Set Button */}
               <Button
                 variant="outline"
-                className="w-full mt-4 py-3"
+                className="w-full mt-2 py-2"
                 onClick={() => addSet(exerciseIndex)}
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -1477,13 +1475,13 @@ export default function WorkoutSession() {
         ))}
 
         {/* Add Exercise Button */}
-        <div className="p-4">
+        <div className="px-3 pb-4">
           <Button
             onClick={() => setShowExerciseSelector(true)}
-            className="w-full py-4 text-lg"
+            className="w-full py-3"
             style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
           >
-            <Plus className="h-5 w-5 mr-2" />
+            <Plus className="h-4 w-4 mr-2" />
             Add Exercise
           </Button>
         </div>
