@@ -22,4 +22,4 @@ if (!rootElement) {
 }
 
 const root = createRoot(rootElement);
-root.render(React.createElement(App));
+root.render(<App />);
