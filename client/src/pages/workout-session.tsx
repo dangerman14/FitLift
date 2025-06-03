@@ -1598,6 +1598,7 @@ export default function WorkoutSession() {
                       }`}
                       onClick={() => {
                         updateSetValue(selectedRpeSet.exerciseIndex, selectedRpeSet.setIndex, 'rpe', rpeValue);
+                        setShowRpeSelector(false);
                       }}
                     >
                       {rpeValue}
@@ -1605,13 +1606,6 @@ export default function WorkoutSession() {
                   );
                 })}
               </div>
-              <Button
-                className="w-full"
-                onClick={() => setShowRpeSelector(false)}
-                style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
-              >
-                Done
-              </Button>
             </div>
           </div>
         </div>
