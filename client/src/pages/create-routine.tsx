@@ -2218,8 +2218,26 @@ export default function CreateRoutine() {
               </p>
             </div>
             <Button 
-              onClick={handleSaveRoutine}
-              disabled={!formData.name.trim() || selectedExercises.length === 0 || isCreating}
+              onClick={() => {
+                if (!formData.name.trim()) {
+                  toast({
+                    title: "Routine Name Required",
+                    description: "Please enter a name for your routine before saving.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                if (selectedExercises.length === 0) {
+                  toast({
+                    title: "Add Exercises",
+                    description: "Please add at least one exercise to your routine.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                handleSaveRoutine();
+              }}
+              disabled={isCreating}
               className="min-w-[120px]"
             >
               {isCreating ? (
@@ -2238,8 +2256,26 @@ export default function CreateRoutine() {
       {/* Mobile Save Button */}
       <div className="block lg:hidden mt-6">
         <Button 
-          onClick={handleSaveRoutine}
-          disabled={!routineName.trim() || selectedExercises.length === 0 || isCreating}
+          onClick={() => {
+            if (!routineName.trim()) {
+              toast({
+                title: "Routine Name Required",
+                description: "Please enter a name for your routine before saving.",
+                variant: "destructive",
+              });
+              return;
+            }
+            if (selectedExercises.length === 0) {
+              toast({
+                title: "Add Exercises",
+                description: "Please add at least one exercise to your routine.",
+                variant: "destructive",
+              });
+              return;
+            }
+            handleSaveRoutine();
+          }}
+          disabled={isCreating}
           className="w-full"
           size="lg"
         >
