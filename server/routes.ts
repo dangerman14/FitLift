@@ -132,7 +132,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { muscleGroup, equipment } = req.query;
       
-      const userId = (req as any).user?.claims?.sub;
+      const userId = getUserId(req);
       let exercises;
       let customExercises = [];
       
