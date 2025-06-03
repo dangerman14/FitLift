@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { Switch, Route, Link, useLocation } from "wouter"
-import './index.css'
+import './src/index.css'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -192,7 +192,7 @@ function Dashboard() {
   );
 }
 
-// Placeholder Pages
+// Page Components
 function Workouts() {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -238,7 +238,7 @@ function Settings() {
   );
 }
 
-// Main Layout
+// Layout Component
 function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50">

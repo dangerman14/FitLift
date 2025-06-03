@@ -1,5 +1,5 @@
 // Service Worker for offline functionality
-const CACHE_NAME = 'fitness-app-v1';
+const CACHE_NAME = 'fitness-app-v3';
 const urlsToCache = [
   '/',
   '/src/main.tsx',
