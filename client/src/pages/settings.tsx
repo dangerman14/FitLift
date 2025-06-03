@@ -30,13 +30,16 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Settings as SettingsIcon, Save, MapPin, Ruler, History } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Settings as SettingsIcon, Save, MapPin, Ruler, History, Zap } from "lucide-react";
 
 const settingsSchema = z.object({
   weightUnit: z.enum(["kg", "lbs"]),
   distanceUnit: z.enum(["km", "miles"]),
   bodyMeasurementUnit: z.enum(["cm", "inches"]),
   previousWorkoutMode: z.enum(["any_workout", "same_routine"]),
+  partialRepsEnabled: z.boolean(),
+  partialRepsVolumeWeight: z.enum(["none", "half", "full"]),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
@@ -54,6 +57,8 @@ export default function Settings() {
       distanceUnit: "km", 
       bodyMeasurementUnit: "cm",
       previousWorkoutMode: "any_workout",
+      partialRepsEnabled: false,
+      partialRepsVolumeWeight: "none",
     },
   });
 
@@ -67,6 +72,8 @@ export default function Settings() {
         distanceUnit: (user as any)?.distanceUnit || "km",
         bodyMeasurementUnit: (user as any)?.bodyMeasurementUnit || "cm",
         previousWorkoutMode: (user as any)?.previousWorkoutMode || "any_workout",
+        partialRepsEnabled: (user as any)?.partialRepsEnabled || false,
+        partialRepsVolumeWeight: (user as any)?.partialRepsVolumeWeight || "none",
       });
     }
   }, [user, form]);
@@ -279,6 +286,65 @@ export default function Settings() {
                     </FormItem>
                   )}
                 />
+
+                {/* Partial Reps Settings */}
+                <FormField
+                  control={form.control}
+                  name="partialRepsEnabled"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <FormLabel className="flex items-center text-base font-medium">
+                            <Zap className="h-4 w-4 mr-2" />
+                            Partial Reps Logging
+                          </FormLabel>
+                          <div className="text-sm text-muted-foreground">
+                            Enable logging of partial reps after full reps during sets
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Partial Reps Volume Weight - Only show when partial reps is enabled */}
+                {form.watch("partialRepsEnabled") && (
+                  <FormField
+                    control={form.control}
+                    name="partialRepsVolumeWeight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center text-base font-medium">
+                          <Zap className="h-4 w-4 mr-2" />
+                          Partial Reps Volume Calculation
+                        </FormLabel>
+                        <div className="text-sm text-muted-foreground mb-3">
+                          Choose how partial reps should count toward your total training volume
+                        </div>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="rounded-xl border-2">
+                              <SelectValue placeholder="Select volume weight option" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="none">Don't count partial reps toward volume</SelectItem>
+                            <SelectItem value="half">Count partial reps as 50% weight toward volume</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
