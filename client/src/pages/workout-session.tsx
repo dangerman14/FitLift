@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { X, Plus, Timer, MoreVertical, Check, Edit3, Camera, Image } from "lucide-react";
+import { X, Plus, Timer, MoreVertical, Check, Edit3, Camera, Image, Trash2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -1466,14 +1466,26 @@ export default function WorkoutSession() {
                 const showDeleteHint = offset > 60;
                 
                 return (
-                <div 
-                  key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} 
-                  className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-7' : 'md:grid-cols-7 grid-cols-6'} gap-2 items-center py-1 transition-all duration-200 ${showDeleteHint ? 'bg-red-100 border-l-4 border-red-500' : ''}`}
-                  style={{ transform: `translateX(-${offset}px)` }}
-                  onTouchStart={(e) => handleSetTouchStart(e, exerciseIndex, setIndex)}
-                  onTouchMove={(e) => handleSetTouchMove(e, exerciseIndex, setIndex)}
-                  onTouchEnd={() => handleSetTouchEnd(exerciseIndex, setIndex)}
+                <div
+                  key={`${exerciseIndex}-${setIndex}-${set.setNumber}`}
+                  className="relative overflow-hidden"
                 >
+                  {/* Delete background - revealed when swiping */}
+                  <div 
+                    className="absolute inset-0 bg-red-500 flex items-center justify-end pr-4"
+                    style={{ opacity: offset / 100 }}
+                  >
+                    <Trash2 className="h-5 w-5 text-white" />
+                  </div>
+                  
+                  {/* Main set content */}
+                  <div 
+                    className={`relative bg-white grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-7' : 'md:grid-cols-7 grid-cols-6'} gap-2 items-center py-1 transition-all duration-200 ${showDeleteHint ? 'bg-red-100 border-l-4 border-red-500' : ''}`}
+                    style={{ transform: `translateX(-${offset}px)` }}
+                    onTouchStart={(e) => handleSetTouchStart(e, exerciseIndex, setIndex)}
+                    onTouchMove={(e) => handleSetTouchMove(e, exerciseIndex, setIndex)}
+                    onTouchEnd={() => handleSetTouchEnd(exerciseIndex, setIndex)}
+                  >
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1 hidden md:flex">
                     <span>{set.setNumber}</span>
@@ -1615,6 +1627,7 @@ export default function WorkoutSession() {
                     >
                       <X className="h-4 w-4" />
                     </Button>
+                  </div>
                   </div>
                 </div>
                 );
