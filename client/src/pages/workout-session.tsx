@@ -38,6 +38,7 @@ interface WorkoutSet {
   setNumber: number;
   weight?: number;
   reps?: number;
+  partialReps?: number;
   duration?: number;
   distance?: number;
   assistanceWeight?: number;

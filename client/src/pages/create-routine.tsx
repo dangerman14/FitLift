@@ -207,7 +207,7 @@ function SortableExerciseItem({
               />
             )}
             <div className="flex items-center gap-2">
-              <div className="font-medium text-lg">{exercise.exerciseName}</div>
+              <div className="font-medium text-lg">{exercise.exerciseName || exercise.name || 'Exercise'}</div>
               {exercise.supersetId && (
                 <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                   {exercise.supersetId}
@@ -1137,17 +1137,7 @@ export default function CreateRoutine() {
           </Select>
         </div>
 
-        {/* Mobile Add Exercise Button */}
-        <div className="mb-4">
-          <Button 
-            onClick={() => setShowMobileExerciseModal(true)}
-            className="w-full"
-            size="lg"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Add Exercise
-          </Button>
-        </div>
+
       </div>
 
       {/* Desktop Header (lg and above) */}
@@ -2136,6 +2126,18 @@ export default function CreateRoutine() {
                 <p className="text-sm">Select exercises from the list below to build your routine</p>
               </div>
             )}
+
+            {/* Mobile Add Exercise Button - Positioned after exercises */}
+            <div className="mt-6">
+              <Button 
+                onClick={() => setShowMobileExerciseModal(true)}
+                className="w-full"
+                size="lg"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Add Exercise
+              </Button>
+            </div>
           </div>
 
           {/* Superset Creation Modal */}
