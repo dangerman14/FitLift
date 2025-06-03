@@ -830,6 +830,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         setNumber: req.body.setNumber || 1,
         reps: req.body.reps || 0,
         weight: req.body.weight || 0,
+        partialReps: req.body.partialReps || 0,
         duration: req.body.duration || null,
         distance: req.body.distance || null,
         restTime: req.body.restTime || null,
@@ -837,6 +838,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         completed: req.body.completed || false,
         rpe: req.body.rpe || null,
       };
+      
+      console.log('Creating set with data:', setData);
       
       const set = await storage.createExerciseSet(setData);
       res.status(201).json(set);
