@@ -1020,6 +1020,8 @@ export default function WorkoutSession() {
 
 
 
+
+
   const updateSetWeight = (exerciseIndex: number, setIndex: number, displayWeight: string) => {
     const numericWeight = parseFloat(displayWeight) || 0;
     const exerciseId = workoutExercises[exerciseIndex]?.exercise.id || 0;
