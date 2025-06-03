@@ -84,6 +84,7 @@ export default function WorkoutSession() {
   const [exerciseWeightUnits, setExerciseWeightUnits] = useState<{[exerciseId: number]: 'kg' | 'lbs'}>({});
 
 
+
   const [exerciseProgressionModes, setExerciseProgressionModes] = useState<{[exerciseId: number]: 'previous' | 'suggestion'}>({});
   const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
@@ -951,6 +952,8 @@ export default function WorkoutSession() {
 
 
 
+
+
   // Remove set function
   const removeSet = (exerciseIndex: number, setIndex: number) => {
     setWorkoutExercises(prev => {
@@ -1405,10 +1408,20 @@ export default function WorkoutSession() {
               </div>
 
               {/* Sets List */}
-              {workoutExercise.sets.map((set, setIndex) => (
+              {workoutExercise.sets.map((set, setIndex) => {
+                const setKey = `${exerciseIndex}-${setIndex}`;
+                const isCurrentSwipe = swipeState?.setKey === setKey;
+                const offset = isCurrentSwipe ? swipeState.offset : 0;
+                const showDeleteHint = offset > 60;
+                
+                return (
                 <div 
                   key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} 
-                  className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-7' : 'md:grid-cols-7 grid-cols-6'} gap-2 items-center py-1`}
+                  className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-7' : 'md:grid-cols-7 grid-cols-6'} gap-2 items-center py-1 transition-all duration-200 ${showDeleteHint ? 'bg-red-100 border-l-4 border-red-500' : ''}`}
+                  style={{ transform: `translateX(-${offset}px)` }}
+                  onTouchStart={(e) => handleSetTouchStart(e, exerciseIndex, setIndex)}
+                  onTouchMove={(e) => handleSetTouchMove(e, exerciseIndex, setIndex)}
+                  onTouchEnd={() => handleSetTouchEnd(exerciseIndex, setIndex)}
                 >
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1 hidden md:flex">
@@ -1553,7 +1566,7 @@ export default function WorkoutSession() {
                     </Button>
                   </div>
                 </div>
-              ))}
+              ))})
 
               {/* Add Set Button */}
               <Button
