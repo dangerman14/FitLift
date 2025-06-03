@@ -21,6 +21,13 @@ interface ExerciseSetInputProps {
     duration?: number;
     distance?: number;
   };
+  suggestionData?: {
+    weight?: number;
+    reps?: number;
+    reasoning?: string;
+    isProgression?: boolean;
+  };
+  displayMode?: 'previous' | 'suggestion';
   userBodyweight?: number;
   isCompleted?: boolean;
 }
@@ -30,6 +37,8 @@ export default function ExerciseSetInput({
   set,
   onChange,
   previousData,
+  suggestionData,
+  displayMode = 'previous',
   userBodyweight,
   isCompleted = false
 }: ExerciseSetInputProps) {
@@ -64,6 +73,28 @@ export default function ExerciseSetInput({
     onChange({ duration: seconds });
   };
 
+  // Get display values based on mode
+  const getWeightPlaceholder = () => {
+    if (displayMode === 'suggestion' && suggestionData?.weight) {
+      return suggestionData.weight.toString();
+    }
+    return previousData?.weight ? previousData.weight.toString() : "0";
+  };
+
+  const getRepsPlaceholder = () => {
+    if (displayMode === 'suggestion' && suggestionData?.reps) {
+      return suggestionData.reps.toString();
+    }
+    return previousData?.reps ? previousData.reps.toString() : "0";
+  };
+
+  const getPlaceholderSuffix = () => {
+    if (displayMode === 'suggestion' && suggestionData?.isProgression) {
+      return " ⬆️"; // Progression indicator
+    }
+    return "";
+  };
+
   const renderInputFields = () => {
     switch (exerciseType) {
       case 'weight_reps':
@@ -76,12 +107,17 @@ export default function ExerciseSetInput({
                   type="number"
                   value={set.weight || ''}
                   onChange={(e) => onChange({ weight: parseFloat(e.target.value) || 0 })}
-                  placeholder={previousData?.weight ? previousData.weight.toString() : "0"}
+                  placeholder={getWeightPlaceholder() + getPlaceholderSuffix()}
                   className="pr-8"
                   disabled={isCompleted}
                 />
-                <span className="absolute right-2 top-2 text-xs text-muted-foreground">lbs</span>
+                <span className="absolute right-2 top-2 text-xs text-muted-foreground">kg</span>
               </div>
+              {displayMode === 'suggestion' && suggestionData?.reasoning && (
+                <div className="text-xs text-muted-foreground mt-1 truncate" title={suggestionData.reasoning}>
+                  {suggestionData.reasoning}
+                </div>
+              )}
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Reps</Label>
@@ -89,7 +125,7 @@ export default function ExerciseSetInput({
                 type="number"
                 value={set.reps || ''}
                 onChange={(e) => onChange({ reps: parseInt(e.target.value) || 0 })}
-                placeholder={previousData?.reps ? previousData.reps.toString() : "0"}
+                placeholder={getRepsPlaceholder() + getPlaceholderSuffix()}
                 disabled={isCompleted}
               />
             </div>
