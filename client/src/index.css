@@ -371,4 +371,15 @@
   input[type="number"] {
     -moz-appearance: textfield;
   }
+
+  /* Remove all borders and focus rings from inputs */
+  input:focus,
+  input:focus-visible,
+  input[data-focus-visible],
+  input:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+  }
 }
