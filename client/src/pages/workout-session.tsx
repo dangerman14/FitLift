@@ -90,6 +90,12 @@ export default function WorkoutSession() {
 
   const [exerciseProgressionModes, setExerciseProgressionModes] = useState<{[exerciseId: number]: 'previous' | 'suggestion'}>({});
   const [swipeState, setSwipeState] = useState<{setKey: string, offset: number, startX: number} | null>(null);
+  const swipeRef = useRef<{
+    setKey: string;
+    offset: number;
+    startX: number;
+    animationFrame?: number;
+  } | null>(null);
   const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
@@ -958,10 +964,22 @@ export default function WorkoutSession() {
 
 
 
-  // Touch handlers for swipe-to-delete
+  // Touch handlers for swipe-to-delete - optimized for smooth performance
   const handleSetTouchStart = (e: React.TouchEvent, exerciseIndex: number, setIndex: number) => {
     const touch = e.touches[0];
     const setKey = `${exerciseIndex}-${setIndex}`;
+    
+    // Cancel any pending animation frame
+    if (swipeRef.current?.animationFrame) {
+      cancelAnimationFrame(swipeRef.current.animationFrame);
+    }
+    
+    swipeRef.current = {
+      setKey,
+      offset: 0,
+      startX: touch.clientX
+    };
+    
     setSwipeState({
       setKey,
       offset: 0,
@@ -970,38 +988,53 @@ export default function WorkoutSession() {
   };
 
   const handleSetTouchMove = (e: React.TouchEvent, exerciseIndex: number, setIndex: number) => {
-    if (!swipeState) return;
+    if (!swipeRef.current) return;
     
     const setKey = `${exerciseIndex}-${setIndex}`;
-    if (swipeState.setKey !== setKey) return;
+    if (swipeRef.current.setKey !== setKey) return;
     
     const touch = e.touches[0];
-    const deltaX = swipeState.startX - touch.clientX;
+    const deltaX = swipeRef.current.startX - touch.clientX;
     
     // Only allow left swipes (positive deltaX)
     if (deltaX > 0) {
       const maxSwipe = 100;
       const offset = Math.min(deltaX, maxSwipe);
       
-      setSwipeState({
-        ...swipeState,
-        offset
+      swipeRef.current.offset = offset;
+      
+      // Use requestAnimationFrame to throttle updates and improve performance
+      if (swipeRef.current.animationFrame) {
+        cancelAnimationFrame(swipeRef.current.animationFrame);
+      }
+      
+      swipeRef.current.animationFrame = requestAnimationFrame(() => {
+        setSwipeState(prev => prev ? {
+          ...prev,
+          offset
+        } : null);
       });
     }
   };
 
   const handleSetTouchEnd = (exerciseIndex: number, setIndex: number) => {
-    if (!swipeState) return;
+    if (!swipeRef.current) return;
     
     const setKey = `${exerciseIndex}-${setIndex}`;
-    if (swipeState.setKey !== setKey) return;
+    if (swipeRef.current.setKey !== setKey) return;
+    
+    // Cancel any pending animation frame
+    if (swipeRef.current.animationFrame) {
+      cancelAnimationFrame(swipeRef.current.animationFrame);
+    }
     
     // If swiped more than 60px, delete the set
-    if (swipeState.offset > 60) {
+    if (swipeRef.current.offset > 60) {
       removeSet(exerciseIndex, setIndex);
     }
     
     // Reset swipe state
+    swipeRef.current = null;
     setSwipeState(null);
   };
 
