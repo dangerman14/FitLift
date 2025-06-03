@@ -303,6 +303,46 @@ export default function WorkoutComplete() {
         }
       }
 
+      // Save completed sets to database from localStorage
+      const storedExercises = localStorage.getItem(`workout_session_${workoutId}`);
+      if (storedExercises) {
+        try {
+          const exerciseData = JSON.parse(storedExercises);
+          console.log('Saving exercise sets to database:', exerciseData);
+          
+          for (const exercise of exerciseData) {
+            for (const set of exercise.sets) {
+              if (set.completed && (set.weight > 0 || set.reps > 0)) {
+                const setData = {
+                  setNumber: set.setNumber,
+                  reps: set.reps || 0,
+                  weight: set.weight || 0,
+                  partialReps: set.partialReps || 0,
+                  rpe: set.rpe || null,
+                  notes: set.notes || null,
+                  completed: true
+                };
+                
+                console.log('Saving set with partial reps:', setData);
+                
+                await fetch(`/api/workout-exercises/${exercise.id}/sets`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'include',
+                  body: JSON.stringify(setData)
+                });
+              }
+            }
+          }
+          
+          // Clear localStorage after successful save
+          localStorage.removeItem(`workout_session_${workoutId}`);
+          console.log('All sets saved to database and localStorage cleared');
+        } catch (error) {
+          console.error('Error saving sets to database:', error);
+        }
+      }
+
       const response = await fetch(`/api/workouts/${workoutId}/details`, {
         method: "PATCH",
         body: JSON.stringify({
