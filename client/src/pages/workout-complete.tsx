@@ -22,7 +22,6 @@ export default function WorkoutComplete() {
   
   // Function to go back to edit the workout
   const handleBackToWorkout = () => {
-    setIsSaved(true); // Allow navigation back to workout
     if (workout.slug) {
       setLocation(`/workout-session/${workout.slug}?edit=true`);
     } else {
@@ -192,9 +191,15 @@ export default function WorkoutComplete() {
     let totalVolume = 0;
     let exercisesCompleted = exerciseData.length;
 
+    console.log('=== WORKOUT COMPLETE VOLUME CALCULATION ===');
+    console.log('User settings:', user);
+    console.log('Exercise data:', exerciseData);
+    
     exerciseData.forEach((exercise: any) => {
+      console.log('Processing exercise:', exercise.exercise?.name);
       if (exercise.sets && Array.isArray(exercise.sets)) {
         exercise.sets.forEach((set: any) => {
+          console.log('Processing set:', set);
           totalSets++;
           totalReps += set.reps || 0;
           
@@ -204,22 +209,22 @@ export default function WorkoutComplete() {
             ? ((set.weight || 0) * (set.partialReps || 0)) * 0.5 
             : 0;
           
-          // Debug logging
-          if (set.partialReps > 0) {
-            console.log('Set with partial reps:', {
-              weight: set.weight,
-              reps: set.reps,
-              partialReps: set.partialReps,
-              baseVolume,
-              partialVolume,
-              userSetting: user?.partialRepsVolumeWeight
-            });
-          }
+          console.log('Volume calculation:', {
+            weight: set.weight,
+            reps: set.reps,
+            partialReps: set.partialReps,
+            baseVolume,
+            partialVolume,
+            userSetting: user?.partialRepsVolumeWeight,
+            total: baseVolume + partialVolume
+          });
           
           totalVolume += baseVolume + partialVolume;
         });
       }
     });
+    
+    console.log('Final totals:', { totalSets, totalReps, totalVolume });
 
     // Use stored duration from database if available, otherwise calculate from times
     const duration = workoutInfo.duration && workoutInfo.duration > 0
