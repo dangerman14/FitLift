@@ -1282,11 +1282,11 @@ export default function WorkoutSession() {
                       const unit = getWeightUnit(workoutExercise.exercise.id);
                       
                       if (exerciseType === 'assisted') {
-                        return `🏋️-${unit}`;
+                        return `⚖️-${unit}`;
                       } else if (exerciseType === 'bodyweight_plus_weight') {
-                        return `🏋️+${unit}`;
+                        return `⚖️+${unit}`;
                       } else {
-                        return `🏋️${unit}`;
+                        return `⚖️${unit}`;
                       }
                     })()}
                   </span>
