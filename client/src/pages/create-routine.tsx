@@ -2384,45 +2384,66 @@ export default function CreateRoutine() {
 
             {/* Exercise List */}
             <div ref={exerciseListRef} className="space-y-2 flex-1 overflow-y-auto border rounded-lg p-2 bg-gray-50">
-              {filteredExercises.map((exercise: any, index: number) => (
-                <button
-                  key={exercise.id}
-                  id={`mobile-exercise-${exercise.id}`}
-                  onClick={() => {
-                    console.log('Mobile exercise selected:', exercise);
-                    setSelectedExerciseId(exercise.id.toString());
-                    
-                    // Scroll the selected exercise into view
-                    setTimeout(() => {
-                      const selectedElement = document.getElementById(`mobile-exercise-${exercise.id}`);
-                      if (selectedElement && exerciseListRef.current) {
-                        selectedElement.scrollIntoView({
-                          behavior: 'smooth',
-                          block: 'center',
-                          inline: 'nearest'
-                        });
-                      }
-                    }, 100);
-                  }}
-                  className={`w-full text-left p-3 border rounded-lg transition-colors flex items-center justify-between ${
-                    selectedExerciseId === exercise.id.toString() 
-                      ? 'bg-blue-100 border-blue-300' 
-                      : 'bg-white border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  <div>
-                    <div className="font-medium">{exercise.name}</div>
-                    <div className="text-sm text-gray-600">
-                      {exercise.primaryMuscleGroups?.join(', ')} • {exercise.equipmentType}
-                    </div>
+              {filteredExercises.length === 0 ? (
+                <div className="p-4 text-center space-y-3">
+                  <div className="text-gray-500">
+                    No exercises found with current filters
                   </div>
-                  {selectedExerciseId === exercise.id.toString() ? (
-                    <Check className="h-5 w-5 text-blue-600" />
-                  ) : (
-                    <Plus className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
-              ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowCreateExerciseModal(true);
+                      setShowMobileExerciseModal(false);
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create New Exercise
+                  </Button>
+                </div>
+              ) : (
+                filteredExercises.map((exercise: any, index: number) => (
+                  <button
+                    key={exercise.id}
+                    id={`mobile-exercise-${exercise.id}`}
+                    onClick={() => {
+                      console.log('Mobile exercise selected:', exercise);
+                      setSelectedExerciseId(exercise.id.toString());
+                      
+                      // Scroll the selected exercise into view
+                      setTimeout(() => {
+                        const selectedElement = document.getElementById(`mobile-exercise-${exercise.id}`);
+                        if (selectedElement && exerciseListRef.current) {
+                          selectedElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                            inline: 'nearest'
+                          });
+                        }
+                      }, 100);
+                    }}
+                    className={`w-full text-left p-3 border rounded-lg transition-colors flex items-center justify-between ${
+                      selectedExerciseId === exercise.id.toString() 
+                        ? 'bg-blue-100 border-blue-300' 
+                        : 'bg-white border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-medium">{exercise.name}</div>
+                      <div className="text-sm text-gray-600">
+                        {exercise.primaryMuscleGroups?.join(', ')} • {exercise.equipmentType}
+                      </div>
+                    </div>
+                    {selectedExerciseId === exercise.id.toString() ? (
+                      <Check className="h-5 w-5 text-blue-600" />
+                    ) : (
+                      <Plus className="h-5 w-5 text-gray-400" />
+                    )}
+                  </button>
+                ))
+              )}
             </div>
           </div>
 
