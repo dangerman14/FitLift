@@ -80,7 +80,7 @@ export default function WorkoutSession() {
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
   const [exerciseWeightUnits, setExerciseWeightUnits] = useState<{[exerciseId: number]: 'kg' | 'lbs'}>({});
-  const [progressionDisplayMode, setProgressionDisplayMode] = useState<'previous' | 'suggestion'>('previous');
+  const [exerciseProgressionModes, setExerciseProgressionModes] = useState<{[exerciseId: number]: 'previous' | 'suggestion'}>({});
   const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
@@ -116,13 +116,17 @@ export default function WorkoutSession() {
     }
   }, [workoutExercises.length]);
 
-  // Initialize progression display mode from user preference
+  // Initialize progression display modes from user preference
   useEffect(() => {
-    if (user) {
+    if (user && workoutExercises.length > 0) {
       const userProgressionMode = (user as any)?.progressionDisplayMode || 'previous';
-      setProgressionDisplayMode(userProgressionMode);
+      const initialModes: {[exerciseId: number]: 'previous' | 'suggestion'} = {};
+      workoutExercises.forEach(we => {
+        initialModes[we.exercise.id] = userProgressionMode;
+      });
+      setExerciseProgressionModes(initialModes);
     }
-  }, [user]);
+  }, [user, workoutExercises]);
 
   // Weight unit conversion helpers
   const getWeightUnit = (exerciseId: number) => {
@@ -143,10 +147,17 @@ export default function WorkoutSession() {
     localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
   };
 
-  // Toggle between previous workout data and progressive overload suggestions
-  const toggleProgressionDisplay = () => {
-    const newMode = progressionDisplayMode === 'previous' ? 'suggestion' : 'previous';
-    setProgressionDisplayMode(newMode);
+  // Get progression display mode for a specific exercise
+  const getProgressionMode = (exerciseId: number) => {
+    return exerciseProgressionModes[exerciseId] || 'previous';
+  };
+
+  // Toggle progression display mode for a specific exercise
+  const toggleExerciseProgressionMode = (exerciseId: number, mode: 'previous' | 'suggestion') => {
+    setExerciseProgressionModes(prev => ({
+      ...prev,
+      [exerciseId]: mode
+    }));
   };
   
   const getDisplayWeight = (weight: number, exerciseId: number) => {
@@ -1113,14 +1124,6 @@ export default function WorkoutSession() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Button
-              onClick={toggleProgressionDisplay}
-              variant="outline"
-              size="sm"
-              className="bg-white/10 border-white/30 text-white hover:bg-white/20"
-            >
-              {progressionDisplayMode === 'previous' ? 'Previous' : 'Suggestions'}
-            </Button>
             <Button 
               onClick={finishWorkout}
               style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
@@ -1245,7 +1248,24 @@ export default function WorkoutSession() {
               {/* Sets Table Header */}
               <div className={`grid ${(user as any)?.partialRepsEnabled ? 'grid-cols-7' : 'grid-cols-6'} gap-2 text-xs text-neutral-500 font-medium mb-2 px-1`}>
                 <div>SET</div>
-                <div>PREVIOUS</div>
+                <div className="flex items-center space-x-1">
+                  <Select
+                    value={getProgressionMode(workoutExercise.exercise.id)}
+                    onValueChange={(value: 'previous' | 'suggestion') => {
+                      toggleExerciseProgressionMode(workoutExercise.exercise.id, value);
+                    }}
+                  >
+                    <SelectTrigger className="h-5 w-auto text-xs p-0 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0">
+                      <span className="text-neutral-500">
+                        {getProgressionMode(workoutExercise.exercise.id) === 'previous' ? 'PREVIOUS' : 'SUGGESTIONS'}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="previous">Previous Workout</SelectItem>
+                      <SelectItem value="suggestion">AI Suggestions</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex items-center space-x-1">
                   <span>WEIGHT</span>
                   <Select
@@ -1323,8 +1343,9 @@ export default function WorkoutSession() {
                   <div className="text-xs text-neutral-500">
                     {(() => {
                       const exerciseId = workoutExercise.exercise.id;
+                      const mode = getProgressionMode(exerciseId);
                       
-                      if (progressionDisplayMode === 'suggestion') {
+                      if (mode === 'suggestion') {
                         const suggestion = progressionSuggestions[exerciseId];
                         if (suggestion) {
                           const displayWeight = getDisplayWeight(suggestion.weight, exerciseId);
