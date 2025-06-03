@@ -58,6 +58,8 @@ export const users = pgTable("users", {
   distanceUnit: varchar("distance_unit").default("km"), // km or miles
   bodyMeasurementUnit: varchar("body_measurement_unit").default("cm"), // cm or inches
   previousWorkoutMode: varchar("previous_workout_mode").default("any_workout"), // any_workout or same_routine
+  partialRepsEnabled: boolean("partial_reps_enabled").default(false),
+  partialRepsVolumeWeight: varchar("partial_reps_volume_weight").default("none"), // 'none', 'half', 'full'
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -226,6 +228,7 @@ export const exerciseSets = pgTable("exercise_sets", {
   setNumber: integer("set_number").notNull(),
   weight: decimal("weight", { precision: 6, scale: 2 }),
   reps: integer("reps"),
+  partialReps: integer("partial_reps"), // partial reps performed after full reps
   rpe: integer("rpe"), // rate of perceived exertion 1-10
   // New fields for different exercise types
   duration: integer("duration"), // seconds for duration-based exercises
