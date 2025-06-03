@@ -55,6 +55,7 @@ function Router() {
                 <Route path="/" component={Dashboard} />
                 <Route path="/workout-session" component={WorkoutSession} />
                 <Route path="/workout-session/:slug" component={WorkoutSession} />
+                <Route path="/workout/:slug" component={WorkoutSession} />
                 <Route path="/workout-complete/:workoutId" component={WorkoutComplete} />
                 <Route path="/workout-summary/:workoutId" component={WorkoutSummary} />
                 <Route path="/workouts" component={Workouts} />
