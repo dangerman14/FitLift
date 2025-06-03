@@ -203,6 +203,19 @@ export default function WorkoutComplete() {
           const partialVolume = user?.partialRepsVolumeWeight === 'half' 
             ? ((set.weight || 0) * (set.partialReps || 0)) * 0.5 
             : 0;
+          
+          // Debug logging
+          if (set.partialReps > 0) {
+            console.log('Set with partial reps:', {
+              weight: set.weight,
+              reps: set.reps,
+              partialReps: set.partialReps,
+              baseVolume,
+              partialVolume,
+              userSetting: user?.partialRepsVolumeWeight
+            });
+          }
+          
           totalVolume += baseVolume + partialVolume;
         });
       }
