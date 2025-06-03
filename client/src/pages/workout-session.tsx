@@ -82,8 +82,8 @@ export default function WorkoutSession() {
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
   const [exerciseWeightUnits, setExerciseWeightUnits] = useState<{[exerciseId: number]: 'kg' | 'lbs'}>({});
-  const [swipedSet, setSwipedSet] = useState<string | null>(null);
-  const [touchStart, setTouchStart] = useState<{x: number, y: number, key: string} | null>(null);
+  const [swipeState, setSwipeState] = useState<{setKey: string, offset: number} | null>(null);
+
   const [exerciseProgressionModes, setExerciseProgressionModes] = useState<{[exerciseId: number]: 'previous' | 'suggestion'}>({});
   const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
@@ -947,54 +947,7 @@ export default function WorkoutSession() {
     });
   };
 
-  // Touch handlers for swipe-to-delete
-  const handleTouchStart = (e: React.TouchEvent, exerciseIndex: number, setIndex: number) => {
-    const touch = e.touches[0];
-    const setKey = `${exerciseIndex}-${setIndex}`;
-    setTouchStart({
-      x: touch.clientX,
-      y: touch.clientY,
-      key: setKey
-    });
-  };
 
-  const handleTouchMove = (e: React.TouchEvent, exerciseIndex: number, setIndex: number) => {
-    if (!touchStart) return;
-    
-    const touch = e.touches[0];
-    const setKey = `${exerciseIndex}-${setIndex}`;
-    
-    // Only handle if this is the correct set
-    if (touchStart.key !== setKey) return;
-    
-    const deltaX = touchStart.x - touch.clientX;
-    const deltaY = Math.abs(touchStart.y - touch.clientY);
-    
-    // Only process horizontal swipes, ignore vertical scrolling
-    if (deltaY > 30) return;
-    
-    // Show delete state when swiped left enough
-    if (deltaX > 60) {
-      setSwipedSet(setKey);
-    } else {
-      setSwipedSet(null);
-    }
-  };
-
-  const handleTouchEnd = (exerciseIndex: number, setIndex: number) => {
-    if (!touchStart) return;
-    
-    const setKey = `${exerciseIndex}-${setIndex}`;
-    
-    // If this set is in swiped state, delete it
-    if (swipedSet === setKey) {
-      removeSet(exerciseIndex, setIndex);
-    }
-    
-    // Reset states
-    setTouchStart(null);
-    setSwipedSet(null);
-  };
 
   // Remove set function
   const removeSet = (exerciseIndex: number, setIndex: number) => {
@@ -1450,17 +1403,10 @@ export default function WorkoutSession() {
               </div>
 
               {/* Sets List */}
-              {workoutExercise.sets.map((set, setIndex) => {
-                const setKey = `${exerciseIndex}-${setIndex}`;
-                const isSwipedForDelete = swipedSet === setKey;
-                
-                return (
+              {workoutExercise.sets.map((set, setIndex) => (
                 <div 
                   key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} 
-                  className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-7' : 'md:grid-cols-7 grid-cols-6'} gap-2 items-center py-1 transition-all duration-200 ${isSwipedForDelete ? 'bg-red-100 border-l-4 border-red-500' : ''}`}
-                  onTouchStart={(e) => handleTouchStart(e, exerciseIndex, setIndex)}
-                  onTouchMove={(e) => handleTouchMove(e, exerciseIndex, setIndex)}
-                  onTouchEnd={() => handleTouchEnd(exerciseIndex, setIndex)}
+                  className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-7' : 'md:grid-cols-7 grid-cols-6'} gap-2 items-center py-1`}
                 >
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1 hidden md:flex">
