@@ -39,7 +39,7 @@ const settingsSchema = z.object({
   bodyMeasurementUnit: z.enum(["cm", "inches"]),
   previousWorkoutMode: z.enum(["any_workout", "same_routine"]),
   partialRepsEnabled: z.boolean(),
-  partialRepsVolumeWeight: z.enum(["none", "half", "full"]),
+  partialRepsVolumeWeight: z.string().default("none"),
 });
 
 type SettingsForm = z.infer<typeof settingsSchema>;
