@@ -300,7 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/exercises/custom', isAuthenticated, async (req, res) => {
     console.log("🎯 CUSTOM EXERCISE ROUTE HIT!");
     try {
-      const userId = (req as any).user?.claims?.sub;
+      const userId = getUserId(req);
       console.log("Creating custom exercise for user:", userId);
       console.log("Request body:", req.body);
       
