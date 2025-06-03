@@ -215,6 +215,26 @@ export interface IStorage {
   createRoutine(routine: InsertRoutine): Promise<Routine>;
   deleteRoutine(id: number, userId: string): Promise<void>;
   createRoutineExercise(routineExercise: InsertRoutineExercise): Promise<RoutineExercise>;
+
+  // Progressive overload operations
+  getExerciseHistory(userId: string, exerciseId: number, limitWeeks?: number): Promise<{
+    date: Date;
+    sets: {
+      weight: number;
+      reps: number;
+      partialReps: number;
+      rpe: number | null;
+      completed: boolean;
+    }[];
+  }[]>;
+  getProgressiveOverloadSuggestions(userId: string, exerciseId: number): Promise<{
+    exerciseId: number;
+    exerciseName: string;
+    suggestions: any[];
+    readyForProgression: boolean;
+    trend: string;
+    weeksSinceProgress: number;
+  }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1161,6 +1181,132 @@ export class DatabaseStorage implements IStorage {
     
     // Then delete the folder
     await db.delete(routineFolders).where(and(eq(routineFolders.id, id), eq(routineFolders.userId, userId)));
+  }
+
+  // Progressive overload operations
+  async getExerciseHistory(userId: string, exerciseId: number, limitWeeks: number = 12): Promise<{
+    date: Date;
+    sets: {
+      weight: number;
+      reps: number;
+      partialReps: number;
+      rpe: number | null;
+      completed: boolean;
+    }[];
+  }[]> {
+    const weeksAgo = new Date();
+    weeksAgo.setDate(weeksAgo.getDate() - (limitWeeks * 7));
+
+    const workoutHistory = await db
+      .select({
+        workoutId: workouts.id,
+        startTime: workouts.startTime,
+        endTime: workouts.endTime,
+        setId: exerciseSets.id,
+        weight: exerciseSets.weight,
+        reps: exerciseSets.reps,
+        partialReps: exerciseSets.partialReps,
+        rpe: exerciseSets.rpe,
+        completed: exerciseSets.completed,
+      })
+      .from(workouts)
+      .innerJoin(workoutExercises, eq(workouts.id, workoutExercises.workoutId))
+      .innerJoin(exerciseSets, eq(workoutExercises.id, exerciseSets.workoutExerciseId))
+      .where(
+        and(
+          eq(workouts.userId, userId),
+          eq(workoutExercises.exerciseId, exerciseId),
+          gte(workouts.startTime, weeksAgo),
+          isNotNull(workouts.endTime) // Only completed workouts
+        )
+      )
+      .orderBy(desc(workouts.startTime));
+
+    // Group sets by workout
+    const groupedHistory = workoutHistory.reduce((acc, row) => {
+      const workoutDate = row.startTime || row.endTime || new Date();
+      const existingWorkout = acc.find(w => w.workoutId === row.workoutId);
+      
+      const setData = {
+        weight: parseFloat(row.weight || '0'),
+        reps: row.reps || 0,
+        partialReps: row.partialReps || 0,
+        rpe: row.rpe,
+        completed: row.completed || false
+      };
+
+      if (existingWorkout) {
+        existingWorkout.sets.push(setData);
+      } else {
+        acc.push({
+          workoutId: row.workoutId,
+          date: workoutDate,
+          sets: [setData]
+        });
+      }
+      
+      return acc;
+    }, [] as { workoutId: number; date: Date; sets: any[] }[]);
+
+    return groupedHistory.map(workout => ({
+      date: workout.date,
+      sets: workout.sets
+    }));
+  }
+
+  async getProgressiveOverloadSuggestions(userId: string, exerciseId: number): Promise<{
+    exerciseId: number;
+    exerciseName: string;
+    suggestions: any[];
+    readyForProgression: boolean;
+    trend: string;
+    weeksSinceProgress: number;
+  }> {
+    // Import the progressive overload engine
+    const { ProgressiveOverloadEngine } = await import('../shared/progressive-overload');
+    
+    // Get exercise information
+    const exercise = await db
+      .select()
+      .from(exercises)
+      .where(eq(exercises.id, exerciseId))
+      .limit(1);
+
+    if (exercise.length === 0) {
+      throw new Error('Exercise not found');
+    }
+
+    // Get exercise history
+    const history = await this.getExerciseHistory(userId, exerciseId, 16); // 16 weeks of history
+
+    // Convert to format expected by the engine
+    const engineHistory = history.map(session => ({
+      date: session.date,
+      exerciseId: exerciseId,
+      sets: session.sets.map(set => ({
+        weight: set.weight,
+        reps: set.reps,
+        partialReps: set.partialReps || 0,
+        rpe: set.rpe || undefined,
+        completed: set.completed
+      }))
+    }));
+
+    // Analyze progress using the engine
+    const analysis = ProgressiveOverloadEngine.analyzeExerciseProgress(
+      exerciseId,
+      exercise[0].name,
+      engineHistory
+    );
+
+    return {
+      exerciseId: analysis.exerciseId,
+      exerciseName: analysis.exerciseName,
+      suggestions: analysis.suggestions,
+      readyForProgression: analysis.readyForProgression,
+      trend: analysis.trend,
+      weeksSinceProgress: analysis.weeksSinceProgress
+    };
   }
 }
 

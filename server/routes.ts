@@ -902,6 +902,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Progressive overload routes
+  app.get('/api/exercises/:exerciseId/progressive-suggestions', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getUserId(req);
+      const exerciseId = parseInt(req.params.exerciseId);
+
+      if (!exerciseId) {
+        return res.status(400).json({ message: "Exercise ID is required" });
+      }
+
+      const suggestions = await storage.getProgressiveOverloadSuggestions(userId, exerciseId);
+      res.json(suggestions);
+    } catch (error) {
+      console.error("Error getting progressive overload suggestions:", error);
+      res.status(500).json({ message: "Failed to get progressive overload suggestions" });
+    }
+  });
+
+  app.get('/api/exercises/:exerciseId/history', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getUserId(req);
+      const exerciseId = parseInt(req.params.exerciseId);
+      const limitWeeks = req.query.weeks ? parseInt(req.query.weeks as string) : 12;
+
+      if (!exerciseId) {
+        return res.status(400).json({ message: "Exercise ID is required" });
+      }
+
+      const history = await storage.getExerciseHistory(userId, exerciseId, limitWeeks);
+      res.json(history);
+    } catch (error) {
+      console.error("Error getting exercise history:", error);
+      res.status(500).json({ message: "Failed to get exercise history" });
+    }
+  });
+
   // Fitness goal routes
   app.get('/api/fitness-goals', isAuthenticated, async (req: any, res) => {
     try {
