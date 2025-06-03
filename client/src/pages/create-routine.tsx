@@ -187,26 +187,25 @@ function SortableExerciseItem({
       }}
     >
       {/* Exercise Header */}
-      <div className="flex items-center justify-between p-3 border-b bg-gray-50">
-        <div className="flex items-center gap-2">
-          <div 
-            {...attributes} 
-            {...listeners}
-            className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 rounded transition-colors"
-          >
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
-          <div className="flex-1">
+      <div className="p-3 border-b bg-gray-50">
+        {/* First row: Drag bar, Title, Menu */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div 
+              {...attributes} 
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 rounded transition-colors"
+            >
+              <GripVertical className="h-4 w-4 text-gray-400" />
+            </div>
+            {groupingMode && !exercise.supersetId && (
+              <Checkbox
+                checked={selectedForGrouping.includes(exerciseIndex)}
+                onCheckedChange={() => {}}
+                className="mr-2"
+              />
+            )}
             <div className="flex items-center gap-2">
-              {groupingMode && !exercise.supersetId && (
-                <div className="flex items-center">
-                  <Checkbox
-                    checked={selectedForGrouping.includes(exerciseIndex)}
-                    onCheckedChange={() => {}}
-                    className="mr-2"
-                  />
-                </div>
-              )}
               <div className="font-medium text-lg">{exercise.exerciseName}</div>
               {exercise.supersetId && (
                 <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
@@ -214,136 +213,142 @@ function SortableExerciseItem({
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-3 text-sm text-gray-600">
-              <span>{exercise.sets.length} sets</span>
-              <div className="flex items-center gap-1">
-                <span>Rest:</span>
-                <Select
-                  value={exercise.restDuration.toString()}
-                  onValueChange={(value) => {
-                    const newExercises = [...selectedExercises];
-                    newExercises[exerciseIndex].restDuration = parseInt(value);
-                    setSelectedExercises(newExercises);
-                  }}
-                >
-                  <SelectTrigger className="w-20 h-6 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {/* <1m in 5 second increments */}
-                    <SelectItem value="5">5s</SelectItem>
-                    <SelectItem value="10">10s</SelectItem>
-                    <SelectItem value="15">15s</SelectItem>
-                    <SelectItem value="20">20s</SelectItem>
-                    <SelectItem value="25">25s</SelectItem>
-                    <SelectItem value="30">30s</SelectItem>
-                    <SelectItem value="35">35s</SelectItem>
-                    <SelectItem value="40">40s</SelectItem>
-                    <SelectItem value="45">45s</SelectItem>
-                    <SelectItem value="50">50s</SelectItem>
-                    <SelectItem value="55">55s</SelectItem>
-                    
-                    {/* <5min in 15 second intervals */}
-                    <SelectItem value="60">1m</SelectItem>
-                    <SelectItem value="75">1m 15s</SelectItem>
-                    <SelectItem value="90">1m 30s</SelectItem>
-                    <SelectItem value="105">1m 45s</SelectItem>
-                    <SelectItem value="120">2m</SelectItem>
-                    <SelectItem value="135">2m 15s</SelectItem>
-                    <SelectItem value="150">2m 30s</SelectItem>
-                    <SelectItem value="165">2m 45s</SelectItem>
-                    <SelectItem value="180">3m</SelectItem>
-                    <SelectItem value="195">3m 15s</SelectItem>
-                    <SelectItem value="210">3m 30s</SelectItem>
-                    <SelectItem value="225">3m 45s</SelectItem>
-                    <SelectItem value="240">4m</SelectItem>
-                    <SelectItem value="255">4m 15s</SelectItem>
-                    <SelectItem value="270">4m 30s</SelectItem>
-                    <SelectItem value="285">4m 45s</SelectItem>
-                    
-                    {/* Up to 15min in 30 second intervals */}
-                    <SelectItem value="300">5m</SelectItem>
-                    <SelectItem value="330">5m 30s</SelectItem>
-                    <SelectItem value="360">6m</SelectItem>
-                    <SelectItem value="390">6m 30s</SelectItem>
-                    <SelectItem value="420">7m</SelectItem>
-                    <SelectItem value="450">7m 30s</SelectItem>
-                    <SelectItem value="480">8m</SelectItem>
-                    <SelectItem value="510">8m 30s</SelectItem>
-                    <SelectItem value="540">9m</SelectItem>
-                    <SelectItem value="570">9m 30s</SelectItem>
-                    <SelectItem value="600">10m</SelectItem>
-                    <SelectItem value="630">10m 30s</SelectItem>
-                    <SelectItem value="660">11m</SelectItem>
-                    <SelectItem value="690">11m 30s</SelectItem>
-                    <SelectItem value="720">12m</SelectItem>
-                    <SelectItem value="750">12m 30s</SelectItem>
-                    <SelectItem value="780">13m</SelectItem>
-                    <SelectItem value="810">13m 30s</SelectItem>
-                    <SelectItem value="840">14m</SelectItem>
-                    <SelectItem value="870">14m 30s</SelectItem>
-                    <SelectItem value="900">15m</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Superset controls */}
-          {exercise.supersetId ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                removeFromSuperset(exerciseIndex);
-              }}
-              className="text-red-600 hover:text-red-700"
-            >
-              <X className="h-4 w-4" />
-              Remove from {exercise.supersetId}
-            </Button>
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
-                  <Link className="h-4 w-4 mr-1" />
-                  Superset
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => {
-                  console.log('Create New Superset clicked for exercise index:', exerciseIndex);
-                  openSupersetModal(exerciseIndex);
-                }}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create New Superset
-                </DropdownMenuItem>
-                {getSupersetsInUse().map((supersetId) => (
-                  <DropdownMenuItem
-                    key={supersetId}
-                    onClick={() => addToSuperset(exerciseIndex, supersetId)}
-                  >
-                    <Link className="h-4 w-4 mr-2" />
-                    Add to {supersetId}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
           
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              removeExercise(exerciseIndex);
-            }}
-            className="text-red-600 hover:text-red-700"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          {/* 3-dot menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {/* Superset options */}
+              {exercise.supersetId ? (
+                <DropdownMenuItem 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeFromSuperset(exerciseIndex);
+                  }}
+                  className="text-red-600"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Remove from {exercise.supersetId}
+                </DropdownMenuItem>
+              ) : (
+                <>
+                  <DropdownMenuItem onClick={() => {
+                    console.log('Create New Superset clicked for exercise index:', exerciseIndex);
+                    openSupersetModal(exerciseIndex);
+                  }}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create New Superset
+                  </DropdownMenuItem>
+                  {getSupersetsInUse().map((supersetId) => (
+                    <DropdownMenuItem
+                      key={supersetId}
+                      onClick={() => addToSuperset(exerciseIndex, supersetId)}
+                    >
+                      <Link className="h-4 w-4 mr-2" />
+                      Add to {supersetId}
+                    </DropdownMenuItem>
+                  ))}
+                </>
+              )}
+              
+              {/* Separator if superset options exist */}
+              {(exercise.supersetId || getSupersetsInUse().length > 0) && (
+                <div className="border-t my-1"></div>
+              )}
+              
+              {/* Remove exercise */}
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeExercise(exerciseIndex);
+                }}
+                className="text-red-600"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Remove Exercise
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        
+        {/* Second row: Rest Timer */}
+        <div className="flex items-center gap-3 text-sm text-gray-600">
+          <span>{exercise.sets.length} sets</span>
+          <div className="flex items-center gap-1">
+            <span>Rest:</span>
+            <Select
+              value={exercise.restDuration.toString()}
+              onValueChange={(value) => {
+                const newExercises = [...selectedExercises];
+                newExercises[exerciseIndex].restDuration = parseInt(value);
+                setSelectedExercises(newExercises);
+              }}
+            >
+              <SelectTrigger className="w-20 h-6 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {/* <1m in 5 second increments */}
+                <SelectItem value="5">5s</SelectItem>
+                <SelectItem value="10">10s</SelectItem>
+                <SelectItem value="15">15s</SelectItem>
+                <SelectItem value="20">20s</SelectItem>
+                <SelectItem value="25">25s</SelectItem>
+                <SelectItem value="30">30s</SelectItem>
+                <SelectItem value="35">35s</SelectItem>
+                <SelectItem value="40">40s</SelectItem>
+                <SelectItem value="45">45s</SelectItem>
+                <SelectItem value="50">50s</SelectItem>
+                <SelectItem value="55">55s</SelectItem>
+                
+                {/* <5min in 15 second intervals */}
+                <SelectItem value="60">1m</SelectItem>
+                <SelectItem value="75">1m 15s</SelectItem>
+                <SelectItem value="90">1m 30s</SelectItem>
+                <SelectItem value="105">1m 45s</SelectItem>
+                <SelectItem value="120">2m</SelectItem>
+                <SelectItem value="135">2m 15s</SelectItem>
+                <SelectItem value="150">2m 30s</SelectItem>
+                <SelectItem value="165">2m 45s</SelectItem>
+                <SelectItem value="180">3m</SelectItem>
+                <SelectItem value="195">3m 15s</SelectItem>
+                <SelectItem value="210">3m 30s</SelectItem>
+                <SelectItem value="225">3m 45s</SelectItem>
+                <SelectItem value="240">4m</SelectItem>
+                <SelectItem value="255">4m 15s</SelectItem>
+                <SelectItem value="270">4m 30s</SelectItem>
+                <SelectItem value="285">4m 45s</SelectItem>
+                
+                {/* Up to 15min in 30 second intervals */}
+                <SelectItem value="300">5m</SelectItem>
+                <SelectItem value="330">5m 30s</SelectItem>
+                <SelectItem value="360">6m</SelectItem>
+                <SelectItem value="390">6m 30s</SelectItem>
+                <SelectItem value="420">7m</SelectItem>
+                <SelectItem value="450">7m 30s</SelectItem>
+                <SelectItem value="480">8m</SelectItem>
+                <SelectItem value="510">8m 30s</SelectItem>
+                <SelectItem value="540">9m</SelectItem>
+                <SelectItem value="570">9m 30s</SelectItem>
+                <SelectItem value="600">10m</SelectItem>
+                <SelectItem value="630">10m 30s</SelectItem>
+                <SelectItem value="660">11m</SelectItem>
+                <SelectItem value="690">11m 30s</SelectItem>
+                <SelectItem value="720">12m</SelectItem>
+                <SelectItem value="750">12m 30s</SelectItem>
+                <SelectItem value="780">13m</SelectItem>
+                <SelectItem value="810">13m 30s</SelectItem>
+                <SelectItem value="840">14m</SelectItem>
+                <SelectItem value="870">14m 30s</SelectItem>
+                <SelectItem value="900">15m</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
       
