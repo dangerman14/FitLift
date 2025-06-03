@@ -216,7 +216,9 @@ export default function WorkoutSummary() {
                             {set.weight > 0 ? `${getDisplayWeight(set.weight, workoutExercise.exercise.id)} ${getWeightUnitLabel(workoutExercise.exercise.id, workoutExercise.exercise.exerciseType)}` : '—'}
                           </span>
                           <span className="text-neutral-900">
-                            {set.reps > 0 ? set.reps : '—'}
+                            {set.reps > 0 ? (
+                              set.partialReps > 0 ? `${set.reps} (${set.partialReps})` : set.reps
+                            ) : '—'}
                           </span>
                           <span className="text-neutral-900">
                             {set.rpe ? set.rpe : '—'}

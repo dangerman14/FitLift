@@ -48,11 +48,19 @@ export class ExerciseCalculations {
     distance: number = 0,
     duration: number = 0,
     userBodyweight: number = 0,
-    assistanceWeight: number = 0
+    assistanceWeight: number = 0,
+    partialReps: number = 0,
+    partialRepsVolumeWeight: 'none' | 'half' | 'full' = 'none'
   ): number {
+    // Calculate additional volume from partial reps based on user settings
+    let partialRepsVolume = 0;
+    if (partialReps > 0 && partialRepsVolumeWeight === 'half') {
+      partialRepsVolume = (weight * partialReps) * 0.5;
+    }
+
     switch (exerciseType) {
       case 'weight_reps':
-        return weight * reps;
+        return (weight * reps) + partialRepsVolume;
       case 'bodyweight':
       case 'assisted_bodyweight':
       case 'weighted_bodyweight':
@@ -62,7 +70,11 @@ export class ExerciseCalculations {
           weight, 
           assistanceWeight
         );
-        return effectiveWeight * reps;
+        const baseVolume = effectiveWeight * reps;
+        const partialVolume = partialReps > 0 && partialRepsVolumeWeight === 'half' 
+          ? (effectiveWeight * partialReps) * 0.5 
+          : 0;
+        return baseVolume + partialVolume;
       case 'weight_distance':
         return weight * distance;
       case 'duration':
