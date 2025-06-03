@@ -1275,7 +1275,21 @@ export default function WorkoutSession() {
                   </Select>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <span>WEIGHT</span>
+                  <span className="hidden md:inline">WEIGHT</span>
+                  <span className="md:hidden flex items-center">
+                    {(() => {
+                      const exerciseType = workoutExercise.exercise.exerciseType;
+                      const unit = getWeightUnit(workoutExercise.exercise.id);
+                      
+                      if (exerciseType === 'assisted') {
+                        return `🏋️-${unit}`;
+                      } else if (exerciseType === 'bodyweight_plus_weight') {
+                        return `🏋️+${unit}`;
+                      } else {
+                        return `🏋️${unit}`;
+                      }
+                    })()}
+                  </span>
                   <Select
                     value={(() => {
                       const unit = getWeightUnit(workoutExercise.exercise.id);
