@@ -78,6 +78,8 @@ export default function WorkoutSession() {
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
   const [showRpeSelector, setShowRpeSelector] = useState(false);
   const [selectedRpeSet, setSelectedRpeSet] = useState<{exerciseIndex: number, setIndex: number} | null>(null);
+  const [swipeStates, setSwipeStates] = useState<{[key: string]: number}>({});
+  const [touchStart, setTouchStart] = useState<{x: number, y: number} | null>(null);
   const [restTimers, setRestTimers] = useState<{[key: number]: number}>({});
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
@@ -945,6 +947,79 @@ export default function WorkoutSession() {
     });
   };
 
+  const removeSet = (exerciseIndex: number, setIndex: number) => {
+    setWorkoutExercises(prev => {
+      const updated = prev.map((ex, exIndex) => 
+        exIndex === exerciseIndex 
+          ? {
+              ...ex,
+              sets: ex.sets.filter((_, index) => index !== setIndex).map((set, index) => ({
+                ...set,
+                setNumber: index + 1
+              }))
+            }
+          : ex
+      );
+      
+      // Auto-save to localStorage
+      if (activeWorkout) {
+        localStorage.setItem(`workout_session_${activeWorkout.id}`, JSON.stringify(updated));
+      }
+      
+      return updated;
+    });
+    
+    // Reset swipe state for this row
+    const swipeKey = `${exerciseIndex}-${setIndex}`;
+    setSwipeStates(prev => ({
+      ...prev,
+      [swipeKey]: 0
+    }));
+  };
+
+  const handleTouchStart = (e: React.TouchEvent, exerciseIndex: number, setIndex: number) => {
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent, exerciseIndex: number, setIndex: number) => {
+    if (!touchStart) return;
+    
+    const touch = e.touches[0];
+    const deltaX = touchStart.x - touch.clientX;
+    const deltaY = Math.abs(touchStart.y - touch.clientY);
+    
+    // Only handle horizontal swipes, ignore vertical scrolling
+    if (deltaY > 30) return;
+    
+    const swipeKey = `${exerciseIndex}-${setIndex}`;
+    const maxSwipe = 100;
+    const swipeDistance = Math.max(0, Math.min(deltaX, maxSwipe));
+    
+    setSwipeStates(prev => ({
+      ...prev,
+      [swipeKey]: swipeDistance
+    }));
+  };
+
+  const handleTouchEnd = (exerciseIndex: number, setIndex: number) => {
+    const swipeKey = `${exerciseIndex}-${setIndex}`;
+    const swipeDistance = swipeStates[swipeKey] || 0;
+    
+    if (swipeDistance > 50) {
+      // Confirm deletion
+      removeSet(exerciseIndex, setIndex);
+    } else {
+      // Reset swipe state
+      setSwipeStates(prev => ({
+        ...prev,
+        [swipeKey]: 0
+      }));
+    }
+    
+    setTouchStart(null);
+  };
+
   const updateSetWeight = (exerciseIndex: number, setIndex: number, displayWeight: string) => {
     const numericWeight = parseFloat(displayWeight) || 0;
     const exerciseId = workoutExercises[exerciseIndex]?.exercise.id || 0;
@@ -1366,8 +1441,33 @@ export default function WorkoutSession() {
               </div>
 
               {/* Sets List */}
-              {workoutExercise.sets.map((set, setIndex) => (
-                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 items-center py-1`}>
+              {workoutExercise.sets.map((set, setIndex) => {
+                const swipeKey = `${exerciseIndex}-${setIndex}`;
+                const swipeDistance = swipeStates[swipeKey] || 0;
+                
+                return (
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className="relative overflow-hidden">
+                  {/* Delete button revealed by swipe (mobile only) */}
+                  <div 
+                    className="absolute right-0 top-0 bottom-0 w-20 bg-red-500 flex items-center justify-center text-white font-medium z-10 md:hidden"
+                    style={{
+                      transform: `translateX(${100 - (swipeDistance / 100) * 100}%)`,
+                      transition: swipeDistance === 0 ? 'transform 0.3s ease' : 'none'
+                    }}
+                  >
+                    DELETE
+                  </div>
+                  
+                  <div 
+                    className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-8 grid-cols-6' : 'md:grid-cols-7 grid-cols-5'} gap-2 items-center py-1 bg-white relative z-20`}
+                    style={{
+                      transform: `translateX(-${swipeDistance}px)`,
+                      transition: swipeDistance === 0 ? 'transform 0.3s ease' : 'none'
+                    }}
+                    onTouchStart={(e) => handleTouchStart(e, exerciseIndex, setIndex)}
+                    onTouchMove={(e) => handleTouchMove(e, exerciseIndex, setIndex)}
+                    onTouchEnd={() => handleTouchEnd(exerciseIndex, setIndex)}
+                  >
                   {/* Set Number */}
                   <div className="font-medium text-lg flex items-center space-x-1 hidden md:flex">
                     <span>{set.setNumber}</span>
@@ -1498,8 +1598,22 @@ export default function WorkoutSession() {
                       className="w-6 h-6 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                     />
                   </div>
+                  
+                  {/* Desktop Delete Button */}
+                  <div className="hidden md:flex justify-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeSet(exerciseIndex, setIndex)}
+                      className="w-6 h-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  </div>
                 </div>
-              ))}
+              );
+              })}
 
               {/* Add Set Button */}
               <Button
