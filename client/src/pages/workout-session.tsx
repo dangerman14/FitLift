@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { X, Plus, Timer, MoreVertical, Check, Edit3, Camera, Image, Trash2 } from "lucide-react";
+import { X, Plus, Timer, MoreVertical, Check, Edit3, Camera, Image, Trash2, ChevronDown } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -1411,8 +1411,9 @@ export default function WorkoutSession() {
                   <div className="hidden md:block">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <button className="text-xs text-neutral-700 font-medium hover:bg-gray-100 px-1 py-0.5 rounded cursor-pointer">
+                        <button className="text-xs text-neutral-700 font-medium hover:bg-gray-100 px-1 py-0.5 rounded cursor-pointer flex items-center gap-1">
                           WEIGHT ({getWeightUnit(workoutExercise.exercise.id).toUpperCase()})
+                          <ChevronDown className="h-3 w-3" />
                         </button>
                       </PopoverTrigger>
                       <PopoverContent className="w-32 p-1" align="start" side="bottom">
