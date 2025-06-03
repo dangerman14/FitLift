@@ -1455,7 +1455,7 @@ export default function WorkoutSession() {
                 {(user as any)?.partialRepsEnabled && <div>PARTIAL</div>}
                 <div>RPE</div>
                 <div className="text-center">✓</div>
-                <div className="text-center text-red-500">🗑️</div>
+                <div className="hidden md:block text-center text-red-500">🗑️</div>
               </div>
 
               {/* Sets List */}
@@ -1617,8 +1617,8 @@ export default function WorkoutSession() {
                     />
                   </div>
                   
-                  {/* Delete Button - visible on both desktop and mobile */}
-                  <div className="flex justify-center">
+                  {/* Delete Button - visible on desktop only, mobile uses swipe */}
+                  <div className="hidden md:flex justify-center">
                     <Button
                       variant="ghost"
                       size="sm"
