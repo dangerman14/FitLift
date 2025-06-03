@@ -1244,8 +1244,8 @@ export default function WorkoutSession() {
               )}
 
               {/* Sets Table Header */}
-              <div className={`grid ${(user as any)?.partialRepsEnabled ? 'grid-cols-7' : 'grid-cols-6'} gap-2 text-xs text-neutral-500 font-medium mb-2 px-1`}>
-                <div>SET</div>
+              <div className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 text-xs text-neutral-500 font-medium mb-2 px-1`}>
+                <div className="hidden md:block">SET</div>
                 <div className="flex items-center space-x-1">
                   <Select
                     value={getProgressionMode(workoutExercise.exercise.id)}
@@ -1328,9 +1328,9 @@ export default function WorkoutSession() {
 
               {/* Sets List */}
               {workoutExercise.sets.map((set, setIndex) => (
-                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'grid-cols-7' : 'grid-cols-6'} gap-2 items-center py-1 border-b border-gray-100`}>
+                <div key={`${exerciseIndex}-${setIndex}-${set.setNumber}`} className={`grid ${(user as any)?.partialRepsEnabled ? 'md:grid-cols-7 grid-cols-6' : 'md:grid-cols-6 grid-cols-5'} gap-2 items-center py-1 border-b border-gray-100`}>
                   {/* Set Number */}
-                  <div className="font-medium text-lg flex items-center space-x-1">
+                  <div className="font-medium text-lg flex items-center space-x-1 hidden md:flex">
                     <span>{set.setNumber}</span>
                     {set.isPersonalRecord && (
                       <span className="text-yellow-500" title="Personal Record">🏆</span>
