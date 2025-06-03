@@ -1336,7 +1336,13 @@ export default function CreateRoutine() {
                         <button
                           key={exercise.createdBy ? `custom-${exercise.id}` : `system-${exercise.id}`}
                           type="button"
-                          onClick={() => setSelectedExerciseId(exercise.id.toString())}
+                          onClick={() => {
+                            if (selectedExerciseId === exercise.id.toString()) {
+                              setSelectedExerciseId(""); // Deselect if already selected
+                            } else {
+                              setSelectedExerciseId(exercise.id.toString());
+                            }
+                          }}
                           className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors hover:bg-blue-50 ${
                             selectedExerciseId === exercise.id.toString() 
                               ? 'bg-blue-100 border-blue-300' 
@@ -2407,19 +2413,23 @@ export default function CreateRoutine() {
                     id={`mobile-exercise-${exercise.id}`}
                     onClick={() => {
                       console.log('Mobile exercise selected:', exercise);
-                      setSelectedExerciseId(exercise.id.toString());
-                      
-                      // Scroll the selected exercise into view
-                      setTimeout(() => {
-                        const selectedElement = document.getElementById(`mobile-exercise-${exercise.id}`);
-                        if (selectedElement && exerciseListRef.current) {
-                          selectedElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                            inline: 'nearest'
-                          });
-                        }
-                      }, 100);
+                      if (selectedExerciseId === exercise.id.toString()) {
+                        setSelectedExerciseId(""); // Deselect if already selected
+                      } else {
+                        setSelectedExerciseId(exercise.id.toString());
+                        
+                        // Scroll the selected exercise into view
+                        setTimeout(() => {
+                          const selectedElement = document.getElementById(`mobile-exercise-${exercise.id}`);
+                          if (selectedElement && exerciseListRef.current) {
+                            selectedElement.scrollIntoView({
+                              behavior: 'smooth',
+                              block: 'center',
+                              inline: 'nearest'
+                            });
+                          }
+                        }, 100);
+                      }
                     }}
                     className={`w-full text-left p-3 border rounded-lg transition-colors flex items-center justify-between ${
                       selectedExerciseId === exercise.id.toString() 
