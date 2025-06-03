@@ -2371,18 +2371,13 @@ export default function CreateRoutine() {
                     
                     // Scroll the selected exercise into view
                     setTimeout(() => {
-                      try {
-                        const selectedElement = document.getElementById(`mobile-exercise-${exercise.id}`);
-                        if (selectedElement && exerciseListRef?.current) {
-                          selectedElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center',
-                            inline: 'nearest'
-                          });
-                        }
-                      } catch (error) {
-                        // Ignore scroll errors during component unmounting
-                        console.debug('Scroll error (safe to ignore):', error);
+                      const selectedElement = document.getElementById(`mobile-exercise-${exercise.id}`);
+                      if (selectedElement && exerciseListRef.current) {
+                        selectedElement.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'center',
+                          inline: 'nearest'
+                        });
                       }
                     }, 100);
                   }}
