@@ -197,7 +197,13 @@ export default function WorkoutComplete() {
         exercise.sets.forEach((set: any) => {
           totalSets++;
           totalReps += set.reps || 0;
-          totalVolume += (set.weight || 0) * (set.reps || 0);
+          
+          // Calculate volume including partial reps if enabled
+          const baseVolume = (set.weight || 0) * (set.reps || 0);
+          const partialVolume = user?.partialRepsVolumeWeight === 'half' 
+            ? ((set.weight || 0) * (set.partialReps || 0)) * 0.5 
+            : 0;
+          totalVolume += baseVolume + partialVolume;
         });
       }
     });
