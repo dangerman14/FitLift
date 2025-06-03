@@ -9,7 +9,6 @@ interface ExerciseSetInputProps {
   set: {
     weight?: number;
     reps?: number;
-    partialReps?: number;
     duration?: number;
     distance?: number;
     assistanceWeight?: number;
@@ -19,13 +18,11 @@ interface ExerciseSetInputProps {
   previousData?: {
     weight?: number;
     reps?: number;
-    partialReps?: number;
     duration?: number;
     distance?: number;
   };
   userBodyweight?: number;
   isCompleted?: boolean;
-  partialRepsEnabled?: boolean;
 }
 
 export default function ExerciseSetInput({
@@ -34,8 +31,7 @@ export default function ExerciseSetInput({
   onChange,
   previousData,
   userBodyweight,
-  isCompleted = false,
-  partialRepsEnabled = false
+  isCompleted = false
 }: ExerciseSetInputProps) {
   const [durationDisplay, setDurationDisplay] = useState("");
 
@@ -89,40 +85,13 @@ export default function ExerciseSetInput({
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Reps</Label>
-              {partialRepsEnabled ? (
-                <div className="space-y-1">
-                  <div className="grid grid-cols-2 gap-1">
-                    <Input
-                      type="number"
-                      value={set.reps || ''}
-                      onChange={(e) => onChange({ reps: parseInt(e.target.value) || 0 })}
-                      placeholder={previousData?.reps ? previousData.reps.toString() : "0"}
-                      disabled={isCompleted}
-                    />
-                    <Input
-                      type="number"
-                      value={set.partialReps || ''}
-                      onChange={(e) => onChange({ partialReps: parseInt(e.target.value) || 0 })}
-                      placeholder={previousData?.partialReps ? previousData.partialReps.toString() : "0"}
-                      disabled={isCompleted}
-                      className="text-xs"
-                    />
-                  </div>
-                  {(set.reps || set.partialReps) && (
-                    <div className="text-xs text-muted-foreground text-center">
-                      {set.reps || 0}{set.partialReps ? ` (${set.partialReps})` : ''}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <Input
-                  type="number"
-                  value={set.reps || ''}
-                  onChange={(e) => onChange({ reps: parseInt(e.target.value) || 0 })}
-                  placeholder={previousData?.reps ? previousData.reps.toString() : "0"}
-                  disabled={isCompleted}
-                />
-              )}
+              <Input
+                type="number"
+                value={set.reps || ''}
+                onChange={(e) => onChange({ reps: parseInt(e.target.value) || 0 })}
+                placeholder={previousData?.reps ? previousData.reps.toString() : "0"}
+                disabled={isCompleted}
+              />
             </div>
           </div>
         );

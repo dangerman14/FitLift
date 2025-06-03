@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { X, Plus, Timer, MoreVertical, Check, Edit3, Camera, Image } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/useAuth";
 import { useWorkout } from "@/contexts/WorkoutContext";
 import { OfflineManager } from "@/lib/offline";
 import ExerciseSetInput from "@/components/exercise-set-input";
@@ -38,7 +38,6 @@ interface WorkoutSet {
   setNumber: number;
   weight?: number;
   reps?: number;
-  partialReps?: number;
   duration?: number;
   distance?: number;
   assistanceWeight?: number;
@@ -1248,42 +1247,14 @@ export default function WorkoutSession() {
                   
                   {/* Reps Input */}
                   <div>
-                    {(user as any)?.partialRepsEnabled ? (
-                      <div className="space-y-1">
-                        <div className="grid grid-cols-2 gap-1">
-                          <Input
-                            type="number"
-                            value={set.reps || ""}
-                            onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
-                            className="h-8 text-center text-xs"
-                            placeholder="0"
-                            min="0"
-                          />
-                          <Input
-                            type="number"
-                            value={set.partialReps || ""}
-                            onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'partialReps', parseInt(e.target.value) || 0)}
-                            className="h-8 text-center text-xs"
-                            placeholder="0"
-                            min="0"
-                          />
-                        </div>
-                        {(set.reps || set.partialReps) && (
-                          <div className="text-xs text-muted-foreground text-center">
-                            {set.reps || 0}{set.partialReps ? ` (${set.partialReps})` : ''}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <Input
-                        type="number"
-                        value={set.reps || ""}
-                        onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
-                        className="h-8 text-center"
-                        placeholder="0"
-                        min="1"
-                      />
-                    )}
+                    <Input
+                      type="number"
+                      value={set.reps || ""}
+                      onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
+                      className="h-8 text-center"
+                      placeholder="0"
+                      min="1"
+                    />
                   </div>
                   
                   {/* RPE Input */}
