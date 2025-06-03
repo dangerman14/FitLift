@@ -890,6 +890,11 @@ export default function CreateRoutine() {
     return matchesSearch && matchesMuscleGroup && matchesEquipment;
   });
 
+  // Debug log to see what's happening
+  console.log('Exercise search:', exerciseSearch);
+  console.log('Filtered exercises length:', filteredExercises.length);
+  console.log('Total exercises:', exercises.length);
+
   // Calculate estimated duration
   const estimatedDuration = selectedExercises.reduce((total, exercise) => {
     const setsTime = exercise.sets.length * 45; // 45 seconds per set
