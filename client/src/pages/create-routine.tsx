@@ -2385,8 +2385,26 @@ export default function CreateRoutine() {
               </div>
             </div>
 
+            {/* Selected Exercise Indicator */}
+            {selectedExerciseId && (
+              <div className="bg-blue-100 border border-blue-300 rounded-lg p-3 mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium text-blue-900">
+                      {filteredExercises.find((ex: any) => ex.id === parseInt(selectedExerciseId))?.name || "Selected Exercise"}
+                    </div>
+                    <div className="text-sm text-blue-700">
+                      {filteredExercises.find((ex: any) => ex.id === parseInt(selectedExerciseId))?.primaryMuscleGroups?.join(', ') || 
+                       filteredExercises.find((ex: any) => ex.id === parseInt(selectedExerciseId))?.muscleGroups?.join(', ') || ""}
+                    </div>
+                  </div>
+                  <Check className="h-5 w-5 text-blue-600" />
+                </div>
+              </div>
+            )}
+
             {/* Exercise List */}
-            <div ref={exerciseListRef} className="space-y-2 flex-1 overflow-y-auto border rounded-lg p-2 bg-gray-50">
+            <div ref={exerciseListRef} className="space-y-2 flex-1 overflow-y-auto border rounded-lg p-2 bg-gray-50 min-h-[300px] max-h-[400px]">
               {filteredExercises.length === 0 ? (
                 <div className="p-4 text-center space-y-3">
                   <div className="text-gray-500">
