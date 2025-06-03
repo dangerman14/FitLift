@@ -1282,11 +1282,32 @@ export default function WorkoutSession() {
                       const unit = getWeightUnit(workoutExercise.exercise.id);
                       
                       if (exerciseType === 'assisted') {
-                        return `⚖️-${unit}`;
+                        return (
+                          <span className="flex items-center">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="mr-1">
+                              <path d="M2 12h4v-2H4V8h2V6H2v6zm18-6h-4v2h2v2h-2v2h4V6zm-8-4h-4v4H6v8h2v4h4v-4h2V6h-2V2z"/>
+                            </svg>
+                            -{unit}
+                          </span>
+                        );
                       } else if (exerciseType === 'bodyweight_plus_weight') {
-                        return `⚖️+${unit}`;
+                        return (
+                          <span className="flex items-center">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="mr-1">
+                              <path d="M2 12h4v-2H4V8h2V6H2v6zm18-6h-4v2h2v2h-2v2h4V6zm-8-4h-4v4H6v8h2v4h4v-4h2V6h-2V2z"/>
+                            </svg>
+                            +{unit}
+                          </span>
+                        );
                       } else {
-                        return `⚖️${unit}`;
+                        return (
+                          <span className="flex items-center">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="mr-1">
+                              <path d="M2 12h4v-2H4V8h2V6H2v6zm18-6h-4v2h2v2h-2v2h4V6zm-8-4h-4v4H6v8h2v4h4v-4h2V6h-2V2z"/>
+                            </svg>
+                            {unit}
+                          </span>
+                        );
                       }
                     })()}
                   </span>
