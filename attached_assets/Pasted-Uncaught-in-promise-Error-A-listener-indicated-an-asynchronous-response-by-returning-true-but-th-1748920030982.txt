@@ -1,0 +1,812 @@
+Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+19Unchecked runtime.lastError: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+185Error in event handler: Error: invalid arguments to extensionAdapter.sendMessageToTab
+    at e.sendMessageToTab (<URL>)
+    at e.handleMessage (<URL>)
+    at <URL>
+    at <URL>Understand this error
+chrome-extension://caljgklbbfbcjjanaijlacgncafpegll/html/inlineForm.html?abine33391892doNotRemove:13 Unchecked runtime.lastError: You do not have a background page.Understand this error
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'battery'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@vite/client:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@react-refresh:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/lib/queryClient.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/components/ui/toaster.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+tooltip.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+useAuth.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutContext.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutProgressIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+OfflineIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+landing.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+dashboard.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workouts.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercises.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercise-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+create-routine.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routines.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+profile.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+body-tracking.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+edit-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+progress-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+add-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+settings.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-session.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-complete.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-summary.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+not-found.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routine-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+navigation.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@vite/client:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@react-refresh:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/lib/queryClient.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/components/ui/toaster.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+tooltip.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+useAuth.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutContext.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutProgressIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+OfflineIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercise-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-complete.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+landing.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+dashboard.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workouts.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+create-routine.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercises.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routines.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+profile.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+body-tracking.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+edit-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+add-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+progress-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+settings.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-session.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-summary.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routine-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+not-found.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+navigation.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@vite/client:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@react-refresh:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/lib/queryClient.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/components/ui/toaster.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+tooltip.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutProgressIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+useAuth.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutContext.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+OfflineIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+landing.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workouts.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+dashboard.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercises.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercise-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routines.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+create-routine.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+profile.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+body-tracking.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+add-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+edit-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-summary.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+progress-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routine-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+settings.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-session.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-complete.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+navigation.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+not-found.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@vite/client:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/lib/queryClient.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/components/ui/toaster.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+tooltip.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@react-refresh:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+OfflineIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutContext.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+useAuth.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+dashboard.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutProgressIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+landing.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workouts.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercises.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercise-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routines.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+profile.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+create-routine.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+edit-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+body-tracking.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+add-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+progress-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+settings.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-session.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-complete.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-summary.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+not-found.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routine-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+navigation.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+_app-755f54e50b7c75c3.js:26 Uncaught (in promise) Error: Cannot notify while not connected
+    at t.stage (_app-755f54e50b7c75c3.js:26:205654)
+    at _app-755f54e50b7c75c3.js:26:179752
+    at Object.next (main-7c673fc2d4739bfc.js:1:179555)
+    at n (main-7c673fc2d4739bfc.js:1:93980)
+    at u (main-7c673fc2d4739bfc.js:1:94177)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@react-refresh:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/components/ui/toaster.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+useAuth.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@vite/client:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/lib/queryClient.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+tooltip.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutContext.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+OfflineIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutProgressIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+landing.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+dashboard.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workouts.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercises.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+profile.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercise-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routines.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+body-tracking.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+edit-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+add-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+create-routine.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+progress-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+settings.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-session.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routine-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-complete.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-summary.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+not-found.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+navigation.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@vite/client:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@react-refresh:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/lib/queryClient.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/components/ui/toaster.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+tooltip.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+useAuth.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutContext.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutProgressIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+OfflineIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+landing.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+dashboard.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workouts.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercises.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercise-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routines.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+create-routine.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+profile.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+body-tracking.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+add-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+progress-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+edit-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+settings.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-session.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-complete.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-summary.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routine-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+not-found.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+navigation.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@vite/client:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/lib/queryClient.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/src/components/ui/toaster.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/@react-refresh:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+tooltip.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutContext.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+useAuth.ts:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+WorkoutProgressIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+OfflineIndicator.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+landing.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+dashboard.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workouts.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercises.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+exercise-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routines.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+create-routine.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+profile.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+progress-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+body-tracking.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+add-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+edit-body-entry.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+settings.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-session.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-complete.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+workout-summary.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+routine-details.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+not-found.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)Understand this error
+navigation.tsx:1 
+            
+            
+           Failed to load resource: the server responded with a status of 503 (Service Unavailable)
