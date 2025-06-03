@@ -332,7 +332,7 @@ export default function WorkoutSession() {
                     distance: set.distance || undefined,
                     assistanceWeight: set.assistanceWeight || undefined,
                     rpe: set.rpe || undefined,
-                    completed: set.completed || false, // Preserve original completion status
+                    completed: set.completed !== undefined ? set.completed : ((set.weight > 0 || set.reps > 0) ? true : false), // Mark as completed if has data or explicitly set
                     previousWeight: parseFloat(set.weight) || 0,
                     previousReps: set.reps || 0,
                     previousDuration: set.duration || undefined,
