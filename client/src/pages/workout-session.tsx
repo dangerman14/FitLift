@@ -80,11 +80,13 @@ export default function WorkoutSession() {
   const [floatingCountdown, setFloatingCountdown] = useState<{exerciseIndex: number, timeLeft: number} | null>(null);
   const [exerciseRestTimes, setExerciseRestTimes] = useState<{[key: number]: number}>({});
   const [exerciseWeightUnits, setExerciseWeightUnits] = useState<{[exerciseId: number]: 'kg' | 'lbs'}>({});
+  const [progressionDisplayMode, setProgressionDisplayMode] = useState<'previous' | 'suggestion'>('previous');
   const [editWorkoutOpen, setEditWorkoutOpen] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
   const [workoutImageUrl, setWorkoutImageUrl] = useState('');
   const [previousExerciseData, setPreviousExerciseData] = useState<{[exerciseId: number]: {weight: number, reps: number, setNumber: number}[]}>({});
+  const [progressionSuggestions, setProgressionSuggestions] = useState<{[exerciseId: number]: any}>({});
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -104,14 +106,23 @@ export default function WorkoutSession() {
     setExerciseWeightUnits(savedPrefs);
   }, []);
 
-  // Fetch previous exercise data when workout exercises are loaded
+  // Fetch previous exercise data and progression suggestions when workout exercises are loaded
   useEffect(() => {
     if (workoutExercises.length > 0) {
       workoutExercises.forEach(workoutExercise => {
         fetchPreviousExerciseData(workoutExercise.exercise.id);
+        fetchProgressionSuggestion(workoutExercise.exercise.id, workoutExercise);
       });
     }
   }, [workoutExercises.length]);
+
+  // Initialize progression display mode from user preference
+  useEffect(() => {
+    if (user) {
+      const userProgressionMode = (user as any)?.progressionDisplayMode || 'previous';
+      setProgressionDisplayMode(userProgressionMode);
+    }
+  }, [user]);
 
   // Weight unit conversion helpers
   const getWeightUnit = (exerciseId: number) => {
@@ -130,6 +141,12 @@ export default function WorkoutSession() {
     const existingPrefs = JSON.parse(localStorage.getItem('exerciseWeightPreferences') || '{}');
     existingPrefs[exerciseId] = newUnit;
     localStorage.setItem('exerciseWeightPreferences', JSON.stringify(existingPrefs));
+  };
+
+  // Toggle between previous workout data and progressive overload suggestions
+  const toggleProgressionDisplay = () => {
+    const newMode = progressionDisplayMode === 'previous' ? 'suggestion' : 'previous';
+    setProgressionDisplayMode(newMode);
   };
   
   const getDisplayWeight = (weight: number, exerciseId: number) => {
@@ -164,6 +181,40 @@ export default function WorkoutSession() {
     } catch (error) {
       console.error('Error fetching previous exercise data:', error);
       return [];
+    }
+  };
+
+  // Fetch progressive overload suggestions
+  const fetchProgressionSuggestion = async (exerciseId: number, workoutExercise: WorkoutExercise) => {
+    try {
+      const templateId = activeWorkout?.templateId;
+      const firstSet = workoutExercise.sets[0];
+      const minReps = firstSet?.minReps || 8;
+      const maxReps = firstSet?.maxReps || 12;
+      const weightTarget = parseFloat(workoutExercise.sets[0]?.weight?.toString() || '0');
+      
+      const params = new URLSearchParams({
+        ...(templateId && { templateId: templateId.toString() }),
+        minReps: minReps.toString(),
+        maxReps: maxReps.toString(),
+        ...(weightTarget > 0 && { weightTarget: weightTarget.toString() })
+      });
+      
+      const url = `/api/exercises/${exerciseId}/progression-suggestion?${params}`;
+      const response = await fetch(url, { credentials: 'include' });
+      
+      if (response.ok) {
+        const suggestion = await response.json();
+        setProgressionSuggestions(prev => ({
+          ...prev,
+          [exerciseId]: suggestion
+        }));
+        return suggestion;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching progression suggestion:', error);
+      return null;
     }
   };
 
@@ -1055,6 +1106,14 @@ export default function WorkoutSession() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            <Button
+              onClick={toggleProgressionDisplay}
+              variant="outline"
+              size="sm"
+              className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+            >
+              {progressionDisplayMode === 'previous' ? 'Previous' : 'Suggestions'}
+            </Button>
             <Button 
               onClick={finishWorkout}
               style={{ backgroundColor: '#1976D2', color: '#FFFFFF' }}
@@ -1253,16 +1312,31 @@ export default function WorkoutSession() {
                     )}
                   </div>
                   
-                  {/* Previous Data */}
+                  {/* Previous Data or Progression Suggestion */}
                   <div className="text-xs text-neutral-500">
                     {(() => {
                       const exerciseId = workoutExercise.exercise.id;
-                      const previousData = previousExerciseData[exerciseId];
-                      if (previousData && previousData[setIndex]) {
-                        const prevSet = previousData[setIndex];
-                        return `${getDisplayWeight(prevSet.weight)}${getWeightUnit()} × ${prevSet.reps}`;
+                      
+                      if (progressionDisplayMode === 'suggestion') {
+                        const suggestion = progressionSuggestions[exerciseId];
+                        if (suggestion) {
+                          const displayWeight = getDisplayWeight(suggestion.weight, exerciseId);
+                          const weightUnit = getWeightUnit(exerciseId);
+                          return (
+                            <span className="text-green-600 font-medium">
+                              {suggestion.isProgression && "↗ "}{displayWeight}{weightUnit} × {suggestion.reps}
+                            </span>
+                          );
+                        }
+                        return "No suggestion";
+                      } else {
+                        const previousData = previousExerciseData[exerciseId];
+                        if (previousData && previousData[setIndex]) {
+                          const prevSet = previousData[setIndex];
+                          return `${getDisplayWeight(prevSet.weight, exerciseId)}${getWeightUnit(exerciseId)} × ${prevSet.reps}`;
+                        }
+                        return `${getDisplayWeight(set.previousWeight || 0, exerciseId)}${getWeightUnit(exerciseId)} × ${set.previousReps || 0}`;
                       }
-                      return `${getDisplayWeight(set.previousWeight || 0)}${getWeightUnit()} × ${set.previousReps || 0}`;
                     })()}
                   </div>
                   
