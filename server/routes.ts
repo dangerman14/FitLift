@@ -922,6 +922,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get best set for an exercise
+  app.get('/api/exercises/:exerciseId/best-set', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getUserId(req);
+      const exerciseId = parseInt(req.params.exerciseId);
+
+      const previousData = await storage.getPreviousExerciseData(userId, exerciseId);
+      
+      if (!previousData || previousData.length === 0) {
+        return res.json({ weight: null, reps: null });
+      }
+
+      // Filter out unrealistic data
+      const validSets = previousData.filter(set => 
+        set.reps > 0 && set.weight > 0 && set.reps <= 50 && set.weight <= 300 && set.reps !== set.weight
+      );
+
+      if (validSets.length === 0) {
+        return res.json({ weight: null, reps: null });
+      }
+
+      // Find best set (highest weight, or highest reps if same weight)
+      const bestSet = validSets.reduce((best, current) => {
+        if (current.weight > best.weight) return current;
+        if (current.weight === best.weight && current.reps > best.reps) return current;
+        return best;
+      });
+
+      res.json({
+        weight: bestSet.weight,
+        reps: bestSet.reps
+      });
+    } catch (error) {
+      console.error("Error fetching best set:", error);
+      res.status(500).json({ message: "Failed to fetch best set" });
+    }
+  });
+
   // Check personal records for a set
   app.post('/api/exercises/:exerciseId/check-records', isAuthenticated, async (req: any, res) => {
     try {

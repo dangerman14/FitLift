@@ -104,6 +104,7 @@ export default function WorkoutSession() {
   const [workoutImageUrl, setWorkoutImageUrl] = useState('');
   const [previousExerciseData, setPreviousExerciseData] = useState<{[exerciseId: number]: {weight: number, reps: number, setNumber: number}[]}>({});
   const [progressionSuggestions, setProgressionSuggestions] = useState<{[exerciseId: number]: any}>({});
+  const [bestSets, setBestSets] = useState<{[exerciseId: number]: {weight: number, reps: number} | null}>({});
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -129,6 +130,7 @@ export default function WorkoutSession() {
       workoutExercises.forEach(workoutExercise => {
         fetchPreviousExerciseData(workoutExercise.exercise.id);
         fetchProgressionSuggestion(workoutExercise.exercise.id, workoutExercise);
+        fetchBestSet(workoutExercise.exercise.id);
       });
     }
   }, [workoutExercises.length]);
@@ -260,6 +262,24 @@ export default function WorkoutSession() {
     } catch (error) {
       console.error('Error fetching progression suggestion:', error);
       return null;
+    }
+  };
+
+  const fetchBestSet = async (exerciseId: number) => {
+    try {
+      const response = await fetch(`/api/exercises/${exerciseId}/best-set`, {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const bestSet = await response.json();
+        setBestSets(prev => ({
+          ...prev,
+          [exerciseId]: bestSet.weight && bestSet.reps ? bestSet : null
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch best set:', error);
     }
   };
 
@@ -1527,16 +1547,28 @@ export default function WorkoutSession() {
                 </Button>
               </div>
 
-              {/* Rest Timer */}
-              {restTimers[exerciseIndex] > 0 && (
-                <div className="flex items-center space-x-2 mb-4 p-2 bg-blue-50 rounded-lg">
-                  <Timer className="h-4 w-4 text-blue-600" />
-                  <span className="text-blue-600 font-medium">
-                    Rest Timer: {formatRestTime(restTimers[exerciseIndex])}
-                  </span>
-                  <span className="text-yellow-500">⚠️</span>
-                </div>
-              )}
+              {/* Rest Timer and Best Set Display */}
+              <div className="mb-4 space-y-2">
+                {restTimers[exerciseIndex] > 0 && (
+                  <div className="flex items-center space-x-2 p-2 bg-blue-50 rounded-lg">
+                    <Timer className="h-4 w-4 text-blue-600" />
+                    <span className="text-blue-600 font-medium">
+                      Rest Timer: {formatRestTime(restTimers[exerciseIndex])}
+                    </span>
+                    <span className="text-yellow-500">⚠️</span>
+                  </div>
+                )}
+                
+                {/* Best Set Display */}
+                {bestSets[workoutExercise.exercise.id] && (
+                  <div className="flex items-center space-x-2 p-2 bg-green-50 rounded-lg">
+                    <span className="text-green-600 font-medium text-sm">🏆</span>
+                    <span className="text-green-600 font-medium text-sm">
+                      Best: {getDisplayWeight(bestSets[workoutExercise.exercise.id]!.weight, workoutExercise.exercise.id)}{getWeightUnit(workoutExercise.exercise.id)} × {bestSets[workoutExercise.exercise.id]!.reps}
+                    </span>
+                  </div>
+                )}
+              </div>
 
               {/* Sets Table Header */}
               <div className={`${(user as any)?.partialRepsEnabled ? 'workout-sets-grid-with-partial md:grid md:grid-cols-8' : 'workout-sets-grid md:grid md:grid-cols-7'} gap-2 text-xs text-neutral-500 font-medium mb-2`}>
