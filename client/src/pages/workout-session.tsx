@@ -427,34 +427,71 @@ export default function WorkoutSession() {
                     maxReps: set.maxReps || undefined
                   }))
                 };
-              } else if (workoutData.templateId) {
-                // No sets but created from template, get template data
+              } else if (workoutData.templateId || workoutData.routineId) {
+                // No sets but created from template or routine, get template/routine data
                 try {
-                  const templateResponse = await fetch(`/api/workout-templates/${workoutData.templateId}`, {
-                    credentials: 'include'
-                  });
-                  const template = await templateResponse.json();
-                  const templateEx = template.exercises?.find((te: any) => te.exerciseId === ex.exerciseId);
+                  let template;
+                  
+                  if (workoutData.templateId) {
+                    const templateResponse = await fetch(`/api/workout-templates/${workoutData.templateId}`, {
+                      credentials: 'include'
+                    });
+                    template = await templateResponse.json();
+                  } else if (workoutData.routineId) {
+                    const routineResponse = await fetch(`/api/routines/${workoutData.routineId}`, {
+                      credentials: 'include'
+                    });
+                    template = await routineResponse.json();
+                  }
+                  
+                  const templateEx = template?.exercises?.find((te: any) => te.exerciseId === ex.exerciseId);
                   
                   if (templateEx) {
-                    // Use setsTarget from template to create correct number of empty sets
-                    const numSets = templateEx.setsTarget || 3;
-                    const templateSets = Array.from({ length: numSets }, (_, setIndex) => ({
-                      setNumber: setIndex + 1,
-                      weight: 0,
-                      reps: 0,
-                      rpe: null,
-                      minReps: templateEx.repsTarget || undefined,
-                      maxReps: templateEx.repsTarget || undefined,
-                      completed: false,
-                      previousWeight: 75,
-                      previousReps: 10
-                    }));
+                    // Parse the notes JSON to get sets data for routines
+                    let setsData = [];
+                    try {
+                      const notesData = JSON.parse(templateEx.notes || '{}');
+                      setsData = notesData.setsData || [];
+                    } catch (error) {
+                      console.log('Could not parse notes data:', templateEx.notes);
+                    }
+                    
+                    // Create sets based on the template/routine data
+                    const numSets = templateEx.setsTarget || setsData.length || 3;
+                    const templateSets = Array.from({ length: numSets }, (_, setIndex) => {
+                      const setData = setsData[setIndex] || {};
+                      
+                      // Parse reps - could be single number or range like "8-12"
+                      let minReps = templateEx.repsTarget || undefined;
+                      let maxReps = templateEx.repsTarget || undefined;
+                      if (setData.reps) {
+                        if (setData.reps.includes('-')) {
+                          const [min, max] = setData.reps.split('-').map(Number);
+                          minReps = min;
+                          maxReps = max;
+                        } else {
+                          minReps = maxReps = parseInt(setData.reps);
+                        }
+                      }
+                      
+                      return {
+                        setNumber: setIndex + 1,
+                        weight: setData.weight || 0,
+                        reps: 0, // Start empty for user input
+                        rpe: null, // Always start empty - RPE values are for placeholder display only
+                        minReps,
+                        maxReps,
+                        targetReps: setData.reps, // Store the original rep range (e.g., "10-15")
+                        completed: false,
+                        previousWeight: 75,
+                        previousReps: 10
+                      };
+                    });
                     
                     return { ...ex, sets: templateSets };
                   }
                 } catch (error) {
-                  console.error('Failed to load template data for existing workout:', error);
+                  console.error('Failed to load template/routine data for existing workout:', error);
                 }
               }
               
