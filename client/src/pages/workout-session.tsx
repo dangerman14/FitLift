@@ -529,6 +529,7 @@ export default function WorkoutSession() {
               credentials: 'include'
             });
             const routine = await response.json();
+            console.log('RPE Flow Debug - full routine data:', routine);
             
             // Convert routine to template format
             template = {
