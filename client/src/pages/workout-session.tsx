@@ -1774,16 +1774,16 @@ export default function WorkoutSession() {
                         setShowRpeSelector(true);
                       }}
                     >
-                      {set.rpe ? (
-                        <span className="font-medium text-gray-900">{set.rpe}</span>
+{set.rpe ? (
+                        <span style={{ fontWeight: '500', color: '#111827' }}>{set.rpe}</span>
                       ) : (() => {
                         // Get template exercise data for RPE placeholder
                         const templateEx = activeWorkout?.templateExercises?.find((ex: any) => ex.exerciseId === workoutExercise.exercise.id);
 
                         if (templateEx?.targetRpe) {
-                          return <span style={{ fontWeight: '300', color: '#9CA3AF', fontStyle: 'italic' }}>{templateEx.targetRpe}</span>;
+                          return <span style={{ fontWeight: '300', color: '#9CA3AF', fontStyle: 'italic', opacity: '0.7' }}>{templateEx.targetRpe}</span>;
                         }
-                        return <span style={{ color: '#9CA3AF' }}>-</span>;
+                        return <span style={{ color: '#9CA3AF', opacity: '0.6' }}>-</span>;
                       })()}
                     </Button>
                   </div>
