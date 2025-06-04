@@ -40,6 +40,10 @@ export default function Workouts() {
     queryKey: ["/api/workout-templates"],
   });
 
+  const { data: workoutHistory, isLoading: historyLoading } = useQuery({
+    queryKey: ["/api/workouts"],
+  });
+
   const deleteTemplateMutation = useMutation({
     mutationFn: async (id: number) => {
       await apiRequest("DELETE", `/api/workout-templates/${id}`);
@@ -62,10 +66,10 @@ export default function Workouts() {
 
   const categories = ["All", "Push", "Pull", "Legs", "Full Body"];
 
-  const filteredTemplates = workoutTemplates?.filter((template: any) => {
+  const filteredTemplates = (workoutTemplates || []).filter((template: any) => {
     if (selectedCategory === "All") return true;
     return template.targetMuscleGroups?.includes(selectedCategory.toLowerCase());
-  }) || [];
+  });
 
   const handleStartWorkout = (template: any) => {
     console.log('Workouts page - Checking for active workout:', activeWorkout);
@@ -103,7 +107,7 @@ export default function Workouts() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || historyLoading) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
@@ -144,8 +148,74 @@ export default function Workouts() {
         ))}
       </div>
 
-      {/* Workout Templates Grid */}
-      {filteredTemplates.length > 0 ? (
+      {/* Recent Workouts Section */}
+      {workoutHistory && workoutHistory.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-neutral-900">Recent Workouts</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {workoutHistory.slice(0, 6).map((workout: any) => (
+              <Card 
+                key={workout.id} 
+                className="shadow-material-1 border border-neutral-200 hover:shadow-material-2 transition-shadow"
+              >
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-lg font-medium text-neutral-900 mb-1">
+                        {workout.name}
+                      </h4>
+                      <p className="text-sm text-neutral-600">
+                        {new Date(workout.startTime).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {workout.templateName ? 'Template' : 'Custom'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4 text-sm text-neutral-600 mb-4">
+                    {workout.duration && (
+                      <span className="flex items-center">
+                        <Clock className="h-4 w-4 mr-1" />
+                        {Math.round(workout.duration / 60)} min
+                      </span>
+                    )}
+                    <span className="flex items-center">
+                      <Dumbbell className="h-4 w-4 mr-1" />
+                      {workout.exerciseCount || 0} exercises
+                    </span>
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    <Button 
+                      onClick={() => window.location.href = `/workout-summary/${workout.id}`}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Button>
+                    {!workout.endTime && (
+                      <Button 
+                        onClick={() => window.location.href = `/workout-session/${workout.slug}`}
+                        className="flex-1 bg-primary-500 hover:bg-primary-600"
+                      >
+                        <Play className="h-4 w-4 mr-1" />
+                        Resume
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Workout Templates Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-neutral-900">Workout Templates</h3>
+        {filteredTemplates.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredTemplates.map((template: any) => (
             <Card 
@@ -243,6 +313,7 @@ export default function Workouts() {
           </CardContent>
         </Card>
       )}
+      </div>
 
       {/* Workout In Progress Modal */}
       <Dialog open={showWorkoutInProgressModal} onOpenChange={setShowWorkoutInProgressModal}>
