@@ -1385,7 +1385,7 @@ export default function WorkoutSession() {
                       toggleExerciseProgressionMode(workoutExercise.exercise.id, value);
                     }}
                   >
-                    <SelectTrigger className="h-5 w-auto text-xs p-0 border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0">
+                    <SelectTrigger className="h-5 w-auto text-xs p-0 border-0 bg-transparent shadow-none hover:bg-gray-100 focus:ring-0">
                       <span className="text-neutral-500">
                         {getProgressionMode(workoutExercise.exercise.id) === 'previous' ? (
                           <>
