@@ -1190,18 +1190,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const routineData = {
         userId,
         name: req.body.name,
+        slug: req.body.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now(),
         description: req.body.description || '',
         folderId: req.body.folderId || null,
         goal: req.body.goal || 'general',
         experience: req.body.experience || 'intermediate',
-        duration: req.body.duration || 60,
+        estimatedDuration: req.body.duration || 60,
         daysPerWeek: req.body.daysPerWeek || 3,
         equipment: req.body.equipment || 'gym',
-        totalExercises: req.body.exercises?.length || 0
+        totalExercises: req.body.exercises?.length || 0,
+        isSystemTemplate: false
       };
       
       console.log('Routine data:', routineData);
-      const routine = await storage.createRoutine(routineData);
+      const routine = await storage.createWorkoutTemplate(routineData);
       console.log('Created routine:', routine);
       
       // Add exercises to routine if provided
@@ -1210,20 +1212,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const exerciseInput = req.body.exercises[i];
           console.log('Creating routine exercise:', exerciseInput);
           
-          const routineExerciseData = {
-            routineId: routine.id,
+          // Parse rep ranges from the notes field or use defaults
+          let minReps = 8, maxReps = 12;
+          if (exerciseInput.notes) {
+            try {
+              const notesData = JSON.parse(exerciseInput.notes);
+              if (notesData.setsData && notesData.setsData[0] && notesData.setsData[0].reps) {
+                const repsRange = notesData.setsData[0].reps;
+                if (repsRange.includes('-')) {
+                  const [min, max] = repsRange.split('-').map(Number);
+                  minReps = min || 8;
+                  maxReps = max || 12;
+                } else {
+                  const reps = parseInt(repsRange);
+                  minReps = maxReps = reps || 10;
+                }
+              }
+            } catch (e) {
+              console.log('Could not parse notes for rep ranges, using defaults');
+            }
+          }
+
+          const templateExerciseData = {
+            templateId: routine.id,
             exerciseId: exerciseInput.exerciseId,
-            dayOfWeek: 1, // Default to day 1 for now
-            sets: exerciseInput.setsTarget || 3,
-            reps: exerciseInput.repsTarget?.toString() || '10',
-            weight: exerciseInput.weightTarget?.toString() || null,
-            restTime: exerciseInput.restDuration || 120,
-            notes: exerciseInput.notes || null,
-            orderIndex: i
+            orderIndex: i,
+            dayOfWeek: null,
+            setsTarget: exerciseInput.setsTarget || 3,
+            minReps: minReps,
+            maxReps: maxReps,
+            defaultRpe: null,
+            weightTarget: exerciseInput.weightTarget?.toString() || null,
+            restDuration: exerciseInput.restDuration || 120,
+            supersetId: null,
+            notes: exerciseInput.notes || null
           };
           
-          console.log('Routine exercise data:', routineExerciseData);
-          await storage.createRoutineExercise(routineExerciseData);
+          console.log('Template exercise data:', templateExerciseData);
+          await storage.createTemplateExercise(templateExerciseData);
         }
       }
       
