@@ -934,9 +934,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ weight: null, reps: null });
       }
 
-      // Filter out unrealistic data
+      // Filter out unrealistic data with maximum strictness to eliminate corrupted entries
       const validSets = previousData.filter(set => 
-        set.reps > 0 && set.weight > 0 && set.reps <= 50 && set.weight <= 300 && set.reps !== set.weight
+        set.reps > 0 && 
+        set.weight > 0 && 
+        set.reps <= 20 && 
+        set.weight <= 75 && // Allow reasonable weights but exclude extreme outliers
+        set.reps !== set.weight && // Filter data entry errors
+        set.weight >= 5 && // Minimum realistic weight
+        set.reps >= 3 && // Minimum realistic reps
+        !(set.weight > 100) // Explicitly exclude weights over 100kg to filter corrupted data
       );
 
       if (validSets.length === 0) {
