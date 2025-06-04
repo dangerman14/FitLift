@@ -686,9 +686,16 @@ export default function WorkoutSession() {
                 setWorkoutExercises(validExercises);
                 
                 // Store template exercises data in activeWorkout for rep range display
+                const templateExercises = template.exercises?.map((ex: any) => ({
+                  exerciseId: ex.exerciseId,
+                  minReps: ex.minReps,
+                  maxReps: ex.maxReps,
+                  targetRpe: ex.targetRpe
+                })) || [];
+                
                 setActiveWorkoutState(prev => ({
                   ...prev,
-                  templateExercises: template.exercises || []
+                  templateExercises: templateExercises
                 }));
               }
             });
