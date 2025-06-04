@@ -1708,8 +1708,15 @@ export default function WorkoutSession() {
                       className="h-8 text-center border-0 bg-transparent p-0 focus:ring-0 shadow-none"
                       min="1"
                       placeholder={(() => {
+                        // Debug: Log the activeWorkout structure
+                        console.log('DEBUG: activeWorkout:', activeWorkout);
+                        console.log('DEBUG: templateExercises:', activeWorkout?.templateExercises);
+                        console.log('DEBUG: workoutExercise.exercise.id:', workoutExercise.exercise.id);
+                        
                         // Get template exercise data for this exercise
                         const templateEx = activeWorkout?.templateExercises?.find((ex: any) => ex.exerciseId === workoutExercise.exercise.id);
+                        console.log('DEBUG: Found templateEx:', templateEx);
+                        
                         if (templateEx && templateEx.minReps && templateEx.maxReps) {
                           if (templateEx.minReps === templateEx.maxReps) {
                             return templateEx.minReps.toString();
