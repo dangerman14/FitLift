@@ -149,7 +149,7 @@ export default function Workouts() {
       </div>
 
       {/* Recent Workouts Section */}
-      {workoutHistory && workoutHistory.length > 0 && (
+      {workoutHistory && Array.isArray(workoutHistory) && workoutHistory.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-neutral-900">Recent Workouts</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
