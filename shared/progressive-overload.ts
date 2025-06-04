@@ -50,8 +50,11 @@ export class ProgressiveOverloadCalculator {
     const minReps = targets?.minReps || 6;
     const maxReps = targets?.maxReps || 12;
 
+    // Override template targets if they're unreasonably high for strength training
+    const effectiveMaxReps = Math.min(maxReps, 15); // Cap at 15 reps for strength progression
+
     // Progressive overload logic
-    if (lastReps >= maxReps) {
+    if (lastReps >= effectiveMaxReps) {
       // At upper limit of rep range - increase weight, drop reps to lower range
       const newWeight = lastWeight + weightIncrement;
       const newReps = Math.max(minReps, lastReps - 3);
@@ -59,13 +62,13 @@ export class ProgressiveOverloadCalculator {
       return {
         weight: newWeight,
         reps: newReps,
-        reasoning: `Hit upper rep range (${lastReps}/${maxReps}) - increase weight`,
+        reasoning: `Hit upper rep range (${lastReps}/${effectiveMaxReps}) - increase weight`,
         isProgression: true
       };
-    } else if (lastReps >= minReps && lastReps < maxReps) {
+    } else if (lastReps >= minReps && lastReps < effectiveMaxReps) {
       // Within rep range - conservative increase of 1 rep
       const repsIncrease = 1;
-      const newReps = Math.min(maxReps, lastReps + repsIncrease);
+      const newReps = Math.min(effectiveMaxReps, lastReps + repsIncrease);
       
       return {
         weight: lastWeight,
