@@ -939,11 +939,63 @@ export default function WorkoutSession() {
         timeLeft: restTime
       });
 
-      // Set is marked as completed in frontend state only
-      // Database save will happen when workout is finished
-      console.log("Set completed - stored in session only");
+      // Save the set completion to database immediately
+      try {
+        if (set.id) {
+          // Set already exists in database, update it
+          await fetch(`/api/exercise-sets/${set.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              completed: true,
+              weight: getStorageWeight(set.weight || 0, exercise.exercise.id),
+              reps: set.reps,
+              partialReps: set.partialReps || 0,
+              rpe: set.rpe || null
+            })
+          });
+          console.log('Updated existing set in database:', set.id);
+        } else {
+          // Set doesn't exist in database yet, create it
+          const createResponse = await fetch(`/api/workout-exercises/${exercise.id}/sets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              setNumber: set.setNumber,
+              weight: getStorageWeight(set.weight || 0, exercise.exercise.id),
+              reps: set.reps,
+              partialReps: set.partialReps || 0,
+              rpe: set.rpe || null,
+              completed: true
+            })
+          });
+          
+          if (createResponse.ok) {
+            const newSet = await createResponse.json();
+            console.log('Created new set in database:', newSet.id);
+            
+            // Update the set ID in state so future updates work correctly
+            setWorkoutExercises(prev => 
+              prev.map((ex, exIndex) => 
+                exIndex === exerciseIndex 
+                  ? {
+                      ...ex,
+                      sets: ex.sets.map((s, sIndex) => 
+                        sIndex === setIndex ? { ...s, id: newSet.id } : s
+                      )
+                    }
+                  : ex
+              )
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Failed to save set completion to database:', error);
+      }
       
-      // Save the updated state to localStorage to persist checkbox states
+      // Save the updated state to localStorage as backup
       const updatedExercises = workoutExercises.map((ex, exIndex) => 
         exIndex === exerciseIndex 
           ? {
@@ -966,7 +1018,7 @@ export default function WorkoutSession() {
       
       if (activeWorkout) {
         localStorage.setItem(`workout_session_${activeWorkout.id}`, JSON.stringify(updatedExercises));
-        console.log('Saved to localStorage:', `workout_session_${activeWorkout.id}`, updatedExercises);
+        console.log('Saved to localStorage as backup:', `workout_session_${activeWorkout.id}`);
       }
 
       // Show achievement notification
