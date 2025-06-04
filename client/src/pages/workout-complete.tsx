@@ -23,11 +23,16 @@ export default function WorkoutComplete() {
   // Function to go back to edit the workout
   const handleBackToWorkout = () => {
     console.log('Back button clicked, navigating back to workout session');
-    if (workoutId) {
-      setLocation(`/workout/${workoutId}`);
-    } else {
-      setLocation('/workouts');
-    }
+    // Disable navigation blocking before navigating
+    setShowExitWarning(false);
+    // Small delay to ensure state is updated
+    setTimeout(() => {
+      if (workoutId) {
+        setLocation(`/workout/${workoutId}`);
+      } else {
+        setLocation('/workouts');
+      }
+    }, 50);
   };
   const [workoutName, setWorkoutName] = useState('');
   const [workoutDescription, setWorkoutDescription] = useState('');
@@ -59,78 +64,19 @@ export default function WorkoutComplete() {
     setActiveWorkout(null);
   }, [setActiveWorkout]);
 
-  // Navigation guard - prevent leaving without saving, discarding, or going back to workout
+  // Simple page unload warning - only when user closes/refreshes browser
   useEffect(() => {
-    if (!isSaved) {
-      // Override window navigation functions
-      const originalPushState = window.history.pushState;
-      const originalReplaceState = window.history.replaceState;
-      const originalBack = window.history.back;
-      const originalForward = window.history.forward;
-      const originalGo = window.history.go;
-
-      // Block history navigation
-      window.history.pushState = function() {
-        setShowExitWarning(true);
-        return false as any;
-      };
-      
-      window.history.replaceState = function() {
-        setShowExitWarning(true);
-        return false as any;
-      };
-      
-      window.history.back = function() {
-        setShowExitWarning(true);
-      };
-      
-      window.history.forward = function() {
-        setShowExitWarning(true);
-      };
-      
-      window.history.go = function() {
-        setShowExitWarning(true);
-      };
-
-      // Block all clicks on links and navigation
-      const handleAllClicks = (e: Event) => {
-        const target = e.target as HTMLElement;
-        const link = target.closest('a[href]');
-        
-        if (link) {
-          const href = link.getAttribute('href') || '';
-          // Allow same-page anchors but block everything else
-          if (href && !href.startsWith('#') && href !== window.location.pathname) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            setShowExitWarning(true);
-          }
-        }
-      };
-
-      // Block beforeunload
-      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (!isSaved) {
         e.preventDefault();
-        e.returnValue = 'You have unsaved workout data. Please save your workout, discard it, or go back to edit it.';
+        e.returnValue = 'You have unsaved workout data.';
         return e.returnValue;
-      };
+      }
+    };
 
-      document.addEventListener('click', handleAllClicks, true);
-      window.addEventListener('beforeunload', handleBeforeUnload);
-
-      return () => {
-        // Restore original functions
-        window.history.pushState = originalPushState;
-        window.history.replaceState = originalReplaceState;
-        window.history.back = originalBack;
-        window.history.forward = originalForward;
-        window.history.go = originalGo;
-        
-        document.removeEventListener('click', handleAllClicks, true);
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-      };
-    }
-  }, [isSaved, setShowExitWarning]);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isSaved]);
 
   // Initialize form with workout data
   useEffect(() => {
