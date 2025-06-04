@@ -1163,6 +1163,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/routines', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getUserId(req);
+      console.log('Creating routine with request body:', req.body);
+      
+      // Create the routine
+      const routineData = {
+        userId,
+        name: req.body.name,
+        description: req.body.description || '',
+        folderId: req.body.folderId || null,
+        goal: req.body.goal || 'general',
+        experience: req.body.experience || 'intermediate',
+        duration: req.body.duration || 60,
+        daysPerWeek: req.body.daysPerWeek || 3,
+        equipment: req.body.equipment || 'gym',
+        totalExercises: req.body.exercises?.length || 0
+      };
+      
+      console.log('Routine data:', routineData);
+      const routine = await storage.createRoutine(routineData);
+      console.log('Created routine:', routine);
+      
+      // Add exercises to routine if provided
+      if (req.body.exercises && Array.isArray(req.body.exercises)) {
+        for (let i = 0; i < req.body.exercises.length; i++) {
+          const exerciseInput = req.body.exercises[i];
+          console.log('Creating routine exercise:', exerciseInput);
+          
+          const routineExerciseData = {
+            routineId: routine.id,
+            exerciseId: exerciseInput.exerciseId,
+            dayOfWeek: 1, // Default to day 1 for now
+            sets: exerciseInput.setsTarget || 3,
+            reps: exerciseInput.repsTarget?.toString() || '10',
+            weight: exerciseInput.weightTarget?.toString() || null,
+            restTime: exerciseInput.restDuration || 120,
+            notes: exerciseInput.notes || null,
+            orderIndex: i
+          };
+          
+          console.log('Routine exercise data:', routineExerciseData);
+          await storage.createRoutineExercise(routineExerciseData);
+        }
+      }
+      
+      res.status(201).json(routine);
+    } catch (error) {
+      console.error("Error creating routine:", error);
+      res.status(500).json({ message: "Failed to create routine" });
+    }
+  });
+
   app.post('/api/routines/generate', isAuthenticated, async (req: any, res) => {
     try {
       const userId = getUserId(req);

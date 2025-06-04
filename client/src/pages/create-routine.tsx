@@ -619,7 +619,7 @@ export default function CreateRoutine() {
 
   // Fetch existing routine data when in edit mode
   const { data: existingRoutine } = useQuery({
-    queryKey: [`/api/workout-templates/${editId}`],
+    queryKey: [`/api/routines/${editId}`],
     enabled: isEditMode && !!editId,
   });
 
@@ -904,10 +904,10 @@ export default function CreateRoutine() {
     mutationFn: async (routineData: any) => {
       try {
         if (isEditMode && editId) {
-          const response = await apiRequest("PUT", `/api/workout-templates/${editId}`, routineData);
+          const response = await apiRequest("PUT", `/api/routines/${editId}`, routineData);
           return response;
         } else {
-          const response = await apiRequest("POST", "/api/workout-templates", routineData);
+          const response = await apiRequest("POST", "/api/routines", routineData);
           return response;
         }
       } catch (error) {
@@ -917,8 +917,8 @@ export default function CreateRoutine() {
     },
     onSuccess: () => {
       // Invalidate all related queries to ensure fresh data
-      queryClient.invalidateQueries({ queryKey: ["/api/workout-templates"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/workout-templates", editId] });
+      queryClient.invalidateQueries({ queryKey: ["/api/routines"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/routines", editId] });
       queryClient.invalidateQueries({ queryKey: ["/api/routine-folders"] });
       
       toast({
