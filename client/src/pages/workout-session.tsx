@@ -529,8 +529,6 @@ export default function WorkoutSession() {
               credentials: 'include'
             });
             const routine = await response.json();
-            console.log('Loaded routine data:', routine);
-            console.log('Routine exercises:', routine.exercises);
             
             // Convert routine to template format
             template = {
@@ -564,6 +562,12 @@ export default function WorkoutSession() {
                   }));
                 }
                 
+                // Extract targetRpe from setsData if available
+                let targetRpe = null;
+                if (setsData.length > 0 && setsData[0].rpe) {
+                  targetRpe = setsData[0].rpe;
+                }
+                
                 return {
                   exercise: routineEx.exercise,
                   exerciseId: routineEx.exerciseId,
@@ -573,7 +577,7 @@ export default function WorkoutSession() {
                   notes: JSON.stringify({ setsData }),
                   minReps: routineEx.minReps,
                   maxReps: routineEx.maxReps,
-                  targetRpe: routineEx.targetRpe
+                  targetRpe: targetRpe
                 };
               }) || []
             };
@@ -1766,11 +1770,8 @@ export default function WorkoutSession() {
                       {set.rpe ? set.rpe : (() => {
                         // Get template exercise data for RPE placeholder
                         const templateEx = activeWorkout?.templateExercises?.find((ex: any) => ex.exerciseId === workoutExercise.exercise.id);
-                        console.log('RPE Debug - activeWorkout.templateExercises:', activeWorkout?.templateExercises);
-                        console.log('RPE Debug - looking for exerciseId:', workoutExercise.exercise.id);
-                        console.log('RPE Debug - found templateEx:', templateEx);
+
                         if (templateEx?.targetRpe) {
-                          console.log('RPE Debug - returning targetRpe:', templateEx.targetRpe);
                           return templateEx.targetRpe;
                         }
                         return "-";
