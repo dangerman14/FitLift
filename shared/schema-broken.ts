@@ -51,16 +51,16 @@ export const users = pgTable("users", {
   gender: varchar("gender"),
   height: integer("height"), // in cm
   weight: decimal("weight", { precision: 5, scale: 2 }), // in kg
-  currentBodyweight: decimal("current_bodyweight", { precision: 6, scale: 2 }),
+  currentBodyweight: decimal("current_bodyweight", { precision: 6, scale: 2 }), // current bodyweight for calculations
   experienceLevel: varchar("experience_level").default("beginner"),
-  preferredUnits: varchar("preferred_units").default("metric"),
-  weightUnit: varchar("weight_unit").default("kg"),
-  distanceUnit: varchar("distance_unit").default("km"),
-  bodyMeasurementUnit: varchar("body_measurement_unit").default("cm"),
-  previousWorkoutMode: varchar("previous_workout_mode").default("any_workout"),
+  preferredUnits: varchar("preferred_units").default("metric"), // metric or imperial
+  weightUnit: varchar("weight_unit").default("kg"), // kg or lbs
+  distanceUnit: varchar("distance_unit").default("km"), // km or miles
+  bodyMeasurementUnit: varchar("body_measurement_unit").default("cm"), // cm or inches
+  previousWorkoutMode: varchar("previous_workout_mode").default("any_workout"), // any_workout or same_routine
   partialRepsEnabled: boolean("partial_reps_enabled").default(false),
-  partialRepsVolumeWeight: varchar("partial_reps_volume_weight").default("none"),
-  progressionDisplayMode: varchar("progression_display_mode").default("previous"),
+  partialRepsVolumeWeight: varchar("partial_reps_volume_weight").default("none"), // 'none', 'half', 'full'
+  progressionDisplayMode: varchar("progression_display_mode").default("previous"), // 'previous' or 'suggestion'
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -112,8 +112,8 @@ export const workoutTemplates = pgTable("workout_templates", {
   slug: varchar("slug").notNull().unique(),
   description: text("description"),
   imageUrl: varchar("image_url"),
-  targetMuscleGroups: jsonb("target_muscle_groups"),
-  difficulty: varchar("difficulty"),
+  targetMuscleGroups: jsonb("target_muscle_groups"), // Array of muscle groups
+  difficulty: varchar("difficulty"), // beginner, intermediate, advanced
   estimatedDuration: integer("estimated_duration"), // in minutes
   isPublic: boolean("is_public").default(false),
   // Additional fields for custom templates (user routines)
@@ -123,7 +123,7 @@ export const workoutTemplates = pgTable("workout_templates", {
   equipment: varchar("equipment"),
   totalExercises: integer("total_exercises").default(0),
   folderId: integer("folder_id"), // will reference templateFolders
-  isSystemTemplate: boolean("is_system_template").default(false),
+  isSystemTemplate: boolean("is_system_template").default(false), // true for built-in templates
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -134,12 +134,12 @@ export const templateFolders = pgTable("template_folders", {
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   name: varchar("name").notNull(),
   description: text("description"),
-  color: varchar("color").default("#3b82f6"),
+  color: varchar("color").default("#3b82f6"), // Default blue color
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Exercises within templates - unified structure with separate rep range fields
+// Exercises within templates - unified structure
 export const templateExercises = pgTable("template_exercises", {
   id: serial("id").primaryKey(),
   templateId: integer("template_id").notNull().references(() => workoutTemplates.id, { onDelete: "cascade" }),
@@ -147,9 +147,7 @@ export const templateExercises = pgTable("template_exercises", {
   orderIndex: integer("order_index").notNull(),
   dayOfWeek: integer("day_of_week"), // for multi-day templates, null for single workout templates
   setsTarget: integer("sets_target"),
-  minReps: integer("min_reps"), // minimum reps in range
-  maxReps: integer("max_reps"), // maximum reps in range
-  defaultRpe: integer("default_rpe"), // default RPE for this exercise
+  repsTarget: text("reps_target"), // Store as JSON string for complex rep ranges and RPE
   weightTarget: varchar("weight_target"), // "bodyweight", "moderate", "heavy", or specific weight
   restDuration: integer("rest_duration"), // in seconds
   supersetId: varchar("superset_id"), // groups exercises in supersets
@@ -194,14 +192,14 @@ export const exerciseSets = pgTable("exercise_sets", {
   setNumber: integer("set_number").notNull(),
   weight: decimal("weight", { precision: 6, scale: 2 }),
   reps: integer("reps"),
-  partialReps: integer("partial_reps"),
+  partialReps: integer("partial_reps"), // partial reps performed after full reps
   rpe: integer("rpe"), // rate of perceived exertion 1-10
   // Fields for different exercise types
   duration: integer("duration"), // seconds for duration-based exercises
-  distance: decimal("distance", { precision: 8, scale: 2 }),
-  assistanceWeight: decimal("assistance_weight", { precision: 6, scale: 2 }),
-  pace: decimal("pace", { precision: 6, scale: 2 }),
-  effectiveWeight: decimal("effective_weight", { precision: 8, scale: 2 }),
+  distance: decimal("distance", { precision: 8, scale: 2 }), // miles/km for distance exercises
+  assistanceWeight: decimal("assistance_weight", { precision: 6, scale: 2 }), // for assisted bodyweight exercises
+  pace: decimal("pace", { precision: 6, scale: 2 }), // calculated pace (minutes per mile/km)
+  effectiveWeight: decimal("effective_weight", { precision: 8, scale: 2 }), // calculated total weight including bodyweight
   isWarmup: boolean("is_warmup").default(false),
   isDropset: boolean("is_dropset").default(false),
   restAfter: integer("rest_after"), // in seconds
@@ -210,7 +208,7 @@ export const exerciseSets = pgTable("exercise_sets", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Other supporting tables
+// Other tables remain the same
 export const bodyMeasurements = pgTable("body_measurements", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -235,19 +233,19 @@ export const userBodyweight = pgTable("user_bodyweight", {
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   weight: decimal("weight", { precision: 6, scale: 2 }).notNull(),
   measurementDate: date("measurement_date").notNull(),
-  source: varchar("source").default("manual"),
+  source: varchar("source").default("manual"), // manual, device_sync, etc.
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const fitnessGoals = pgTable("fitness_goals", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  type: varchar("type").notNull(),
+  type: varchar("type").notNull(), // weight_loss, muscle_gain, strength, endurance
   targetValue: decimal("target_value", { precision: 8, scale: 2 }),
   currentValue: decimal("current_value", { precision: 8, scale: 2 }),
-  unit: varchar("unit"),
+  unit: varchar("unit"), // kg, lbs, %
   targetDate: date("target_date"),
-  status: varchar("status").default("active"),
+  status: varchar("status").default("active"), // active, paused, completed, abandoned
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -346,7 +344,6 @@ export const insertCustomExerciseSchema = createInsertSchema(customExercises);
 export const insertBodyMeasurementSchema = createInsertSchema(bodyMeasurements);
 export const insertUserBodyweightSchema = createInsertSchema(userBodyweight);
 export const insertFitnessGoalSchema = createInsertSchema(fitnessGoals);
-export const insertExerciseSchema = createInsertSchema(exercises);
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -364,6 +361,7 @@ export type InsertWorkoutExercise = z.infer<typeof insertWorkoutExerciseSchema>;
 export type ExerciseSet = typeof exerciseSets.$inferSelect;
 export type InsertExerciseSet = z.infer<typeof insertExerciseSetSchema>;
 export type Exercise = typeof exercises.$inferSelect;
+export const insertExerciseSchema = createInsertSchema(exercises);
 export type InsertExercise = z.infer<typeof insertExerciseSchema>;
 export type CustomExercise = typeof customExercises.$inferSelect;
 export type InsertCustomExercise = z.infer<typeof insertCustomExerciseSchema>;
