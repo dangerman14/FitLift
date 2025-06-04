@@ -1163,6 +1163,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/routines/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = getUserId(req);
+      const routineId = parseInt(req.params.id);
+      const routine = await storage.getRoutineById(routineId, userId);
+      
+      if (!routine) {
+        return res.status(404).json({ message: "Routine not found" });
+      }
+      
+      res.json(routine);
+    } catch (error) {
+      console.error("Error fetching routine:", error);
+      res.status(500).json({ message: "Failed to fetch routine" });
+    }
+  });
+
   app.post('/api/routines', isAuthenticated, async (req: any, res) => {
     try {
       const userId = getUserId(req);

@@ -76,6 +76,7 @@ export default function WorkoutSession() {
   // Parse URL to determine if we're editing existing workout or starting new one
   const urlParams = new URLSearchParams(window.location.search);
   const templateId = urlParams.get('template');
+  const routineId = urlParams.get('routine');
   const editMode = urlParams.get('edit');
   const workoutSlug = location.split('/')[2]; // For /workout-session/abc123 format
   const isEditingExisting = workoutSlug && workoutSlug !== 'new'; // If there's a slug and it's not 'new', we're resuming/editing
@@ -502,13 +503,14 @@ export default function WorkoutSession() {
     }
   }, [isEditingExisting, workoutSlug, activeWorkout]);
 
-  // Load template from URL parameter (only for new workouts, never when resuming existing ones)
+  // Load template or routine from URL parameter (only for new workouts, never when resuming existing ones)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
+    const routineId = urlParams.get('routine');
     
-    // IMPORTANT: Never load template if we have a workout slug (resuming existing workout)
-    if (templateId && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current && !isEditingExisting && !workoutSlug) {
+    // IMPORTANT: Never load template/routine if we have a workout slug (resuming existing workout)
+    if ((templateId || routineId) && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current && !isEditingExisting && !workoutSlug) {
       // Fetch template and load it
       const loadTemplate = async () => {
         isCreatingWorkoutRef.current = true;

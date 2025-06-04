@@ -163,7 +163,14 @@ export default function Routines() {
       setShowWorkoutInProgressModal(true);
     } else {
       console.log('No active workout, proceeding with navigation');
-      window.location.href = `/workout-session?template=${routine.id}`;
+      // Handle different URL structures for templates vs custom routines
+      if (routine.type === 'routine') {
+        // Custom routines use ID-based URLs
+        window.location.href = `/workout-session?routine=${routine.id}`;
+      } else {
+        // Workout templates use template parameter
+        window.location.href = `/workout-session?template=${routine.id}`;
+      }
     }
   };
 
