@@ -37,7 +37,7 @@ import {
   type CustomExercise,
   type InsertCustomExercise,
 } from "@shared/schema";
-import { eq, desc, sql, and, inArray, count, max } from "drizzle-orm";
+import { eq, desc, sql, and, inArray, count, max, isNotNull } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -442,6 +442,113 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(workoutTemplates)
       .where(eq(workoutTemplates.userId, userId));
+  }
+
+  async getPreviousExerciseData(userId: string, exerciseId: number, templateId?: number): Promise<{ weight: number; reps: number; setNumber: number }[]> {
+    const query = db
+      .select({
+        weight: sql<number>`CAST(${exerciseSets.weight} AS DECIMAL)`,
+        reps: exerciseSets.reps,
+        setNumber: exerciseSets.setNumber
+      })
+      .from(exerciseSets)
+      .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
+      .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
+      .where(
+        and(
+          eq(workouts.userId, userId),
+          eq(workoutExercises.exerciseId, exerciseId),
+          isNotNull(exerciseSets.weight),
+          isNotNull(exerciseSets.reps)
+        )
+      )
+      .orderBy(desc(workouts.createdAt), desc(exerciseSets.setNumber))
+      .limit(10);
+
+    return await query;
+  }
+
+  async getStrengthProgress(userId: string, exerciseId: number): Promise<{ date: Date; maxWeight: number }[]> {
+    const result = await db
+      .select({
+        date: workouts.createdAt,
+        maxWeight: sql<number>`MAX(CAST(${exerciseSets.weight} AS DECIMAL))`
+      })
+      .from(exerciseSets)
+      .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
+      .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
+      .where(
+        and(
+          eq(workouts.userId, userId),
+          eq(workoutExercises.exerciseId, exerciseId),
+          isNotNull(exerciseSets.weight)
+        )
+      )
+      .groupBy(workouts.createdAt)
+      .orderBy(workouts.createdAt)
+      .limit(20);
+
+    return result.map(row => ({
+      date: row.date!,
+      maxWeight: row.maxWeight
+    }));
+  }
+
+  async checkPersonalRecords(userId: string, exerciseId: number, weight: number, reps: number): Promise<{
+    isHeaviestWeight: boolean;
+    isBest1RM: boolean;
+    isVolumeRecord: boolean;
+    previousRecords: {
+      heaviestWeight?: number;
+      best1RM?: number;
+      bestVolume?: number;
+    };
+  }> {
+    // Get previous records for this exercise
+    const previousSets = await db
+      .select({
+        weight: sql<number>`CAST(${exerciseSets.weight} AS DECIMAL)`,
+        reps: exerciseSets.reps
+      })
+      .from(exerciseSets)
+      .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
+      .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
+      .where(
+        and(
+          eq(workouts.userId, userId),
+          eq(workoutExercises.exerciseId, exerciseId),
+          isNotNull(exerciseSets.weight),
+          isNotNull(exerciseSets.reps)
+        )
+      );
+
+    let heaviestWeight = 0;
+    let best1RM = 0;
+    let bestVolume = 0;
+
+    previousSets.forEach(set => {
+      if (set.weight && set.reps) {
+        heaviestWeight = Math.max(heaviestWeight, set.weight);
+        // Calculate 1RM using Brzycki formula: weight / (1.0278 - 0.0278 * reps)
+        const estimated1RM = set.weight / (1.0278 - 0.0278 * set.reps);
+        best1RM = Math.max(best1RM, estimated1RM);
+        bestVolume = Math.max(bestVolume, set.weight * set.reps);
+      }
+    });
+
+    const current1RM = weight / (1.0278 - 0.0278 * reps);
+    const currentVolume = weight * reps;
+
+    return {
+      isHeaviestWeight: weight > heaviestWeight,
+      isBest1RM: current1RM > best1RM,
+      isVolumeRecord: currentVolume > bestVolume,
+      previousRecords: {
+        heaviestWeight: heaviestWeight || undefined,
+        best1RM: best1RM || undefined,
+        bestVolume: bestVolume || undefined
+      }
+    };
   }
 }
 
