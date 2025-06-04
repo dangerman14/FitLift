@@ -1076,17 +1076,20 @@ export default function CreateRoutine() {
       }));
       
       const firstSet = exercise.sets[0];
-      return {
+      const exerciseData = {
         exerciseId: exercise.exerciseId,
         setsTarget: exercise.sets.length,
-        repsTarget: parseInt(firstSet.reps) || 10,
-        weightTarget: firstSet.weight ? parseFloat(firstSet.weight) : null,
+        repsTarget: parseInt(firstSet?.reps) || 10,
+        weightTarget: firstSet?.weight ? parseFloat(firstSet.weight) : null,
         restDuration: exercise.restDuration,
         notes: JSON.stringify({
           userNotes: exercise.notes || null,
           setsData: setsData
         }),
       };
+      
+      console.log('Exercise data for backend:', exerciseData);
+      return exerciseData;
     });
 
     const routineData = {
