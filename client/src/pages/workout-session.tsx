@@ -1709,7 +1709,7 @@ export default function WorkoutSession() {
                       min="1"
                       placeholder={(() => {
                         // Get template exercise data for this exercise
-                        const templateEx = activeWorkoutState?.templateExercises?.find((ex: any) => ex.exerciseId === exercise.exercise.id);
+                        const templateEx = activeWorkout?.templateExercises?.find((ex: any) => ex.exerciseId === workoutExercise.exercise.id);
                         if (templateEx && templateEx.minReps && templateEx.maxReps) {
                           if (templateEx.minReps === templateEx.maxReps) {
                             return templateEx.minReps.toString();
@@ -1721,7 +1721,7 @@ export default function WorkoutSession() {
                     />
                     {(() => {
                       // Get template exercise data for this exercise
-                      const templateEx = activeWorkoutState?.templateExercises?.find((ex: any) => ex.exerciseId === exercise.exercise.id);
+                      const templateEx = activeWorkout?.templateExercises?.find((ex: any) => ex.exerciseId === workoutExercise.exercise.id);
                       if (templateEx && templateEx.minReps && templateEx.maxReps) {
                         const repRange = templateEx.minReps === templateEx.maxReps 
                           ? templateEx.minReps.toString() 
@@ -1762,7 +1762,7 @@ export default function WorkoutSession() {
                     >
                       {set.rpe ? set.rpe : (() => {
                         // Get template exercise data for RPE placeholder
-                        const templateEx = activeWorkoutState?.templateExercises?.find((ex: any) => ex.exerciseId === exercise.exercise.id);
+                        const templateEx = activeWorkout?.templateExercises?.find((ex: any) => ex.exerciseId === workoutExercise.exercise.id);
                         if (templateEx?.targetRpe) {
                           return templateEx.targetRpe;
                         }
