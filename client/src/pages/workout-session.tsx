@@ -820,13 +820,15 @@ export default function WorkoutSession() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const templateId = urlParams.get('template');
+    const routineId = urlParams.get('routine');
     
     // Only create a new workout if:
     // 1. No active workout exists
-    // 2. No template is being loaded
+    // 2. No template OR routine is being loaded
     // 3. We're not editing/resuming an existing workout
     // 4. We don't have a workout slug (meaning this is truly a new session)
-    if (!activeWorkout && !templateId && !isEditingExisting && !workoutSlug) {
+    // 5. No workout creation is already in progress
+    if (!activeWorkout && !templateId && !routineId && !isEditingExisting && !workoutSlug && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current) {
       const workoutData = {
         name: "Workout Session",
         startTime: new Date().toISOString(),
