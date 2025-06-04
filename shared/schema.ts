@@ -61,6 +61,14 @@ export const users = pgTable("users", {
   partialRepsEnabled: boolean("partial_reps_enabled").default(false),
   partialRepsVolumeWeight: varchar("partial_reps_volume_weight").default("none"),
   progressionDisplayMode: varchar("progression_display_mode").default("previous"),
+  // Progressive overload increment settings
+  barbellIncrement: decimal("barbell_increment", { precision: 4, scale: 2 }).default("2.5"),
+  dumbbellIncrement: decimal("dumbbell_increment", { precision: 4, scale: 2 }).default("2.5"),
+  machineIncrement: decimal("machine_increment", { precision: 4, scale: 2 }).default("2.5"),
+  cableIncrement: decimal("cable_increment", { precision: 4, scale: 2 }).default("2.5"),
+  kettlebellIncrement: decimal("kettlebell_increment", { precision: 4, scale: 2 }).default("4.0"),
+  plateLoadedIncrement: decimal("plate_loaded_increment", { precision: 4, scale: 2 }).default("2.5"),
+  defaultIncrement: decimal("default_increment", { precision: 4, scale: 2 }).default("2.5"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

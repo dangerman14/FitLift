@@ -215,29 +215,29 @@ export class ProgressiveOverloadCalculator {
   }
 
   /**
-   * Get weight increment based on exercise type and current weight
+   * Get weight increment based on equipment type and user settings
    */
-  static getWeightIncrement(exerciseType: string, currentWeight: number): number {
-    // Smaller increments for isolation exercises and upper body
-    const smallIncrementExercises = [
-      'bicep curl', 'tricep', 'lateral raise', 'rear delt',
-      'calf raise', 'wrist curl', 'face pull', 'curl', 'fly'
-    ];
+  static getWeightIncrement(equipmentType: string | null, userIncrements: any = {}): number {
+    // Map equipment types to user increment settings
+    const equipmentTypeMap: { [key: string]: string } = {
+      'barbell': 'barbellIncrement',
+      'dumbbell': 'dumbbellIncrement', 
+      'dumbbells': 'dumbbellIncrement',
+      'machine': 'machineIncrement',
+      'cable': 'cableIncrement',
+      'kettlebell': 'kettlebellIncrement',
+      'plate_loaded': 'plateLoadedIncrement',
+      'smith_machine': 'barbellIncrement', // Treat smith machine like barbell
+    };
 
-    const isSmallIncrement = smallIncrementExercises.some(type => 
-      exerciseType.toLowerCase().includes(type)
-    );
-
-    // More conservative increments across the board
-    if (isSmallIncrement || currentWeight < 30) {
-      return 1.25; // Very small increments for isolation and light weights
-    } else if (currentWeight < 60) {
-      return 2.5; // Standard increment for moderate weights
-    } else if (currentWeight < 100) {
-      return 2.5; // Keep standard increment for most weights
-    } else {
-      return 5; // Only use larger increments for very heavy weights
-    }
+    // Get the appropriate increment setting
+    const incrementKey = equipmentType ? equipmentTypeMap[equipmentType.toLowerCase()] : null;
+    const increment = incrementKey ? userIncrements[incrementKey] : userIncrements.defaultIncrement;
+    
+    // Parse the increment value and provide fallback defaults
+    const parsedIncrement = parseFloat(increment) || 2.5;
+    
+    return parsedIncrement;
   }
 
   /**

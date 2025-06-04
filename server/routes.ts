@@ -895,10 +895,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const maxReps = req.query.maxReps ? parseInt(req.query.maxReps) : undefined;
       const weightTarget = req.query.weightTarget ? parseFloat(req.query.weightTarget) : undefined;
 
+      // Get user settings for increment preferences
+      const user = await storage.getUser(userId);
+      const userIncrements = {
+        barbellIncrement: user?.barbellIncrement || 2.5,
+        dumbbellIncrement: user?.dumbbellIncrement || 2.5,
+        machineIncrement: user?.machineIncrement || 2.5,
+        cableIncrement: user?.cableIncrement || 2.5,
+        kettlebellIncrement: user?.kettlebellIncrement || 4.0,
+        plateLoadedIncrement: user?.plateLoadedIncrement || 2.5,
+        defaultIncrement: user?.defaultIncrement || 2.5,
+      };
+
       // Get previous exercise data
       const previousData = await storage.getPreviousExerciseData(userId, exerciseId, templateId);
       
-      // Get exercise details to determine if it's bodyweight
+      // Get exercise details to determine equipment type and if it's bodyweight
       const exercises = await storage.getExercises(userId);
       const exercise = exercises.find(ex => ex.id === exerciseId);
       const isBodyweight = exercise?.exerciseType === 'bodyweight' || exercise?.exerciseType === 'bodyweight_plus_weight';
@@ -909,7 +921,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isBodyweight && exercise?.exerciseType === 'bodyweight') {
         suggestion = ProgressiveOverloadCalculator.calculateBodyweightProgression(previousData, targets);
       } else {
-        const weightIncrement = exercise ? ProgressiveOverloadCalculator.getWeightIncrement(exercise.name, previousData[0]?.weight || 0) : 2.5;
+        const weightIncrement = exercise ? ProgressiveOverloadCalculator.getWeightIncrement(exercise.equipmentType, userIncrements) : 2.5;
         const muscleGroups = exercise?.primaryMuscleGroups || [];
         const muscleGroupsArray = Array.isArray(muscleGroups) ? muscleGroups : [];
         suggestion = ProgressiveOverloadCalculator.calculateProgression(previousData, targets, weightIncrement, muscleGroupsArray);
