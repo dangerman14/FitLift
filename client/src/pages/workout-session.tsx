@@ -855,6 +855,12 @@ export default function WorkoutSession() {
     const exercise = workoutExercises[exerciseIndex];
     const set = exercise.sets[setIndex];
     
+    // Prevent duplicate completion
+    if (set.completed) {
+      console.log("Set already completed, ignoring duplicate request");
+      return;
+    }
+    
     if (!set.weight || !set.reps) {
       toast({
         title: "Please enter weight and reps",
