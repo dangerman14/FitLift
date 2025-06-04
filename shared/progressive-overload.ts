@@ -83,7 +83,9 @@ export class ProgressiveOverloadCalculator {
       return best;
     });
 
-    const { weight: lastWeight, reps: lastReps } = bestSet;
+    // Ensure weight and reps are treated as numbers (handle potential string data from DB)
+    const lastWeight = Number(bestSet.weight) || 0;
+    const lastReps = Number(bestSet.reps) || 0;
     
     // Use muscle group-specific rep ranges if no targets provided or if targets are unrealistic
     const muscleGroupRange = this.getMuscleGroupRepRange(exerciseMuscleGroups);
@@ -93,7 +95,7 @@ export class ProgressiveOverloadCalculator {
     // Progressive overload logic
     if (lastReps >= maxReps) {
       // At upper limit of rep range - increase weight, drop reps to lower range
-      const newWeight = lastWeight + weightIncrement;
+      const newWeight = Math.round((lastWeight + weightIncrement) * 4) / 4; // Round to nearest 0.25
       const newReps = Math.max(minReps, Math.min(minReps + 2, lastReps - 2));
       
       return {
