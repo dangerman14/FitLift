@@ -63,19 +63,19 @@ export class ProgressiveOverloadCalculator {
         isProgression: true
       };
     } else if (lastReps >= minReps && lastReps < maxReps) {
-      // Within rep range - increase reps by 1-2
-      const repsIncrease = lastReps >= (minReps + maxReps) / 2 ? 1 : 2;
+      // Within rep range - conservative increase of 1 rep
+      const repsIncrease = 1;
       const newReps = Math.min(maxReps, lastReps + repsIncrease);
       
       return {
         weight: lastWeight,
         reps: newReps,
-        reasoning: `Add ${repsIncrease} rep${repsIncrease > 1 ? 's' : ''} within range`,
+        reasoning: `Add ${repsIncrease} rep within range`,
         isProgression: true
       };
     } else {
-      // Below rep range - focus on reaching minimum reps
-      const newReps = Math.min(minReps, lastReps + 2);
+      // Below rep range - conservative build up to minimum reps
+      const newReps = Math.min(minReps, lastReps + 1);
       
       return {
         weight: lastWeight,
@@ -119,14 +119,14 @@ export class ProgressiveOverloadCalculator {
         isProgression: true
       };
     } else {
-      // Add 1-3 reps based on current performance
-      const repsIncrease = lastReps < 8 ? 2 : 1;
+      // Conservative bodyweight progression - add 1 rep
+      const repsIncrease = 1;
       const newReps = Math.min(maxReps, lastReps + repsIncrease);
       
       return {
         weight: 0,
         reps: newReps,
-        reasoning: `Add ${repsIncrease} rep${repsIncrease > 1 ? 's' : ''} for bodyweight progression`,
+        reasoning: `Add ${repsIncrease} rep for bodyweight progression`,
         isProgression: true
       };
     }
