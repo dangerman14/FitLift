@@ -76,8 +76,46 @@ export class ProgressiveOverloadCalculator {
       };
     }
 
-    // Find the best performing set (highest weight, or highest reps if same weight)
-    const bestSet = previousSets.reduce((best, current) => {
+    // Filter and validate data with conservative approach
+    const validSets = previousSets.filter(set => {
+      // Basic validation
+      if (set.reps <= 0 || set.weight <= 0 || set.reps > 30 || set.weight > 200) {
+        return false;
+      }
+      
+      // Filter out data entry errors where reps equals weight
+      if (set.reps === set.weight) {
+        return false;
+      }
+      
+      // Conservative weight/rep validation for typical gym exercises
+      if (set.weight > 80 && set.reps < 3) {
+        return false; // Very heavy weights with very low reps are suspicious
+      }
+      
+      if (set.weight < 5 && set.reps < 5) {
+        return false; // Very light weights with very low reps are suspicious
+      }
+      
+      return true;
+    });
+
+    // If no valid data, use typical starting values
+    if (validSets.length === 0) {
+      const startWeight = targets?.weightTarget || 20; // Conservative starting weight
+      return {
+        weight: startWeight,
+        reps: targets?.minReps || 8,
+        reasoning: "Starting with conservative baseline values",
+        isProgression: false
+      };
+    }
+
+    // Use only the most recent valid sets (last 5) for progression calculation
+    const recentSets = validSets.slice(0, 5);
+
+    // Find the best performing set from recent data (highest weight, or highest reps if same weight)
+    const bestSet = recentSets.reduce((best, current) => {
       if (current.weight > best.weight) return current;
       if (current.weight === best.weight && current.reps > best.reps) return current;
       return best;
