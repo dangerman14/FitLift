@@ -1768,7 +1768,7 @@ export default function WorkoutSession() {
                   <div>
                     <Button
                       variant="ghost"
-                      className="h-8 w-full text-center p-0 border-0 bg-transparent hover:bg-gray-100"
+                      className="h-8 w-full text-center p-0 border-0 bg-transparent hover:bg-gray-100 text-black"
                       onClick={() => {
                         setSelectedRpeSet({exerciseIndex, setIndex});
                         setShowRpeSelector(true);
@@ -1781,9 +1781,9 @@ export default function WorkoutSession() {
                         const templateEx = activeWorkout?.templateExercises?.find((ex: any) => ex.exerciseId === workoutExercise.exercise.id);
 
                         if (templateEx?.targetRpe) {
-                          return <span className="font-light text-gray-400 italic">{templateEx.targetRpe}</span>;
+                          return <span style={{ fontWeight: '300', color: '#9CA3AF', fontStyle: 'italic' }}>{templateEx.targetRpe}</span>;
                         }
-                        return <span className="text-gray-400">-</span>;
+                        return <span style={{ color: '#9CA3AF' }}>-</span>;
                       })()}
                     </Button>
                   </div>
