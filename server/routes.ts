@@ -1156,7 +1156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/routines', isAuthenticated, async (req: any, res) => {
     try {
       const userId = getUserId(req);
-      const routines = await storage.getRoutines(userId);
+      const routines = await storage.getUserWorkoutTemplates(userId);
       res.json(routines);
     } catch (error) {
       console.error("Error fetching routines:", error);
