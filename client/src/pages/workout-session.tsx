@@ -511,21 +511,50 @@ export default function WorkoutSession() {
     
     // IMPORTANT: Never load template/routine if we have a workout slug (resuming existing workout)
     if ((templateId || routineId) && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current && !isEditingExisting && !workoutSlug) {
-      // Fetch template and load it
-      const loadTemplate = async () => {
+      // Fetch template or routine and load it
+      const loadTemplateOrRoutine = async () => {
         isCreatingWorkoutRef.current = true;
         try {
-          const response = await fetch(`/api/workout-templates/${templateId}`, {
-            credentials: 'include'
-          });
-          const template = await response.json();
+          let template;
+          if (templateId) {
+            const response = await fetch(`/api/workout-templates/${templateId}`, {
+              credentials: 'include'
+            });
+            template = await response.json();
+          } else if (routineId) {
+            const response = await fetch(`/api/routines/${routineId}`, {
+              credentials: 'include'
+            });
+            const routine = await response.json();
+            
+            // Convert routine to template format
+            template = {
+              id: routine.id,
+              name: routine.name,
+              description: routine.description,
+              exercises: routine.exercises?.map((routineEx: any) => ({
+                exercise: routineEx.exercise,
+                exerciseId: routineEx.exerciseId,
+                setsTarget: routineEx.sets || 3,
+                repsTarget: routineEx.reps,
+                notes: JSON.stringify({
+                  setsData: Array.from({ length: routineEx.sets || 3 }, (_, i) => ({
+                    reps: routineEx.reps?.toString() || "8-12",
+                    weight: 0,
+                    rpe: routineEx.rpe || null
+                  }))
+                })
+              })) || []
+            };
+          }
           
           if (template && template.exercises) {
             // Create workout using the mutation to ensure proper state management
             createWorkoutMutation.mutate({
               name: template.name,
               description: template.description,
-              templateId: parseInt(templateId),
+              templateId: templateId ? parseInt(templateId) : null,
+              routineId: routineId ? parseInt(routineId) : null,
               startTime: new Date().toISOString(),
             }, {
               onSuccess: async (workout) => {
@@ -636,7 +665,7 @@ export default function WorkoutSession() {
         }
       };
       
-      loadTemplate();
+      loadTemplateOrRoutine();
     }
   }, []);
 
