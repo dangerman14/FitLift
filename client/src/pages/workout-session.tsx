@@ -636,10 +636,11 @@ export default function WorkoutSession() {
                           return {
                             setNumber: setIndex + 1,
                             weight: setData.weight || 0,
-                            reps: minReps > 0 ? minReps : 0, // Use the configured rep value as default
+                            reps: 0, // Start empty for user input
                             rpe: setData.rpe || null, // Use RPE from template or leave blank
                             minReps,
                             maxReps,
+                            targetReps: setData.reps, // Store the original rep range (e.g., "10-15")
                             completed: false,
                             previousWeight: 75,
                             previousReps: 10
@@ -1699,7 +1700,7 @@ export default function WorkoutSession() {
                   </div>
                   
                   {/* Reps Input */}
-                  <div>
+                  <div className="relative">
                     <Input
                       type="number"
                       value={set.reps || ""}
@@ -1708,6 +1709,11 @@ export default function WorkoutSession() {
                       placeholder="0"
                       min="1"
                     />
+                    {set.targetReps && (
+                      <div className="absolute -bottom-4 left-0 right-0 text-xs text-blue-600 text-center font-medium">
+                        {set.targetReps}
+                      </div>
+                    )}
                   </div>
                   
                   {/* Partial Reps Input - Only show when enabled */}
