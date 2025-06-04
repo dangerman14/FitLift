@@ -1275,7 +1275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/routine-folders', isAuthenticated, async (req: any, res) => {
     try {
       const userId = getUserId(req);
-      const folders = await storage.getRoutineFolders(userId);
+      const folders = await storage.getTemplateFolders(userId);
       res.json(folders);
     } catch (error) {
       console.error("Error fetching routine folders:", error);
@@ -1286,13 +1286,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/routine-folders', isAuthenticated, async (req: any, res) => {
     console.log("Creating folder with data:", req.body);
     try {
-      const folderData = insertRoutineFolderSchema.parse({
+      const folderData = insertTemplateFolderSchema.parse({
         ...req.body,
         userId: getUserId(req),
       });
       
       console.log("Parsed folder data:", folderData);
-      const folder = await storage.createRoutineFolder(folderData);
+      const folder = await storage.createTemplateFolder(folderData);
       console.log("Created folder:", folder);
       
       res.setHeader('Content-Type', 'application/json');
