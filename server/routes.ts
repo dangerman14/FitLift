@@ -903,7 +903,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         suggestion = ProgressiveOverloadCalculator.calculateBodyweightProgression(previousData, targets);
       } else {
         const weightIncrement = exercise ? ProgressiveOverloadCalculator.getWeightIncrement(exercise.name, previousData[0]?.weight || 0) : 2.5;
-        suggestion = ProgressiveOverloadCalculator.calculateProgression(previousData, targets, weightIncrement);
+        const muscleGroups = exercise?.primaryMuscleGroups || [];
+        suggestion = ProgressiveOverloadCalculator.calculateProgression(previousData, targets, weightIncrement, muscleGroups);
       }
 
       res.json(suggestion);

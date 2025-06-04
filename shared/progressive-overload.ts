@@ -23,12 +23,49 @@ export interface ExerciseTargets {
 
 export class ProgressiveOverloadCalculator {
   /**
+   * Get muscle group specific rep ranges for optimal strength training
+   */
+  static getMuscleGroupRepRange(muscleGroups: string[]): { minReps: number; maxReps: number } {
+    const primaryMuscle = muscleGroups[0]?.toLowerCase() || '';
+    
+    // Strength-focused rep ranges by muscle group
+    const repRanges = {
+      // Large compound movements - lower reps for strength
+      'quadriceps': { minReps: 6, maxReps: 10 },
+      'glutes': { minReps: 6, maxReps: 12 },
+      'hamstrings': { minReps: 6, maxReps: 12 },
+      
+      // Upper body compound - moderate reps
+      'chest': { minReps: 6, maxReps: 12 },
+      'back': { minReps: 6, maxReps: 12 },
+      'lats': { minReps: 6, maxReps: 12 },
+      'shoulders': { minReps: 6, maxReps: 12 },
+      
+      // Smaller muscle groups - slightly higher reps
+      'biceps': { minReps: 8, maxReps: 15 },
+      'triceps': { minReps: 8, maxReps: 15 },
+      'calves': { minReps: 10, maxReps: 15 },
+      'forearms': { minReps: 10, maxReps: 15 },
+      
+      // Core and stabilizers - higher reps
+      'abs': { minReps: 10, maxReps: 20 },
+      'core': { minReps: 10, maxReps: 20 },
+      
+      // Default for unknown muscle groups
+      'default': { minReps: 6, maxReps: 12 }
+    };
+    
+    return (repRanges as any)[primaryMuscle] || repRanges['default'];
+  }
+
+  /**
    * Calculate progressive overload suggestion based on previous performance
    */
   static calculateProgression(
     previousSets: PreviousSetData[],
     targets?: ExerciseTargets,
-    weightIncrement: number = 2.5
+    weightIncrement: number = 2.5,
+    exerciseMuscleGroups: string[] = []
   ): ProgressionSuggestion {
     if (!previousSets || previousSets.length === 0) {
       return {
@@ -47,28 +84,28 @@ export class ProgressiveOverloadCalculator {
     });
 
     const { weight: lastWeight, reps: lastReps } = bestSet;
-    const minReps = targets?.minReps || 6;
-    const maxReps = targets?.maxReps || 12;
-
-    // Override template targets if they're unreasonably high for strength training
-    const effectiveMaxReps = Math.min(maxReps, 15); // Cap at 15 reps for strength progression
+    
+    // Use muscle group-specific rep ranges if no targets provided or if targets are unrealistic
+    const muscleGroupRange = this.getMuscleGroupRepRange(exerciseMuscleGroups);
+    const minReps = targets?.minReps && targets.minReps <= muscleGroupRange.maxReps ? targets.minReps : muscleGroupRange.minReps;
+    const maxReps = targets?.maxReps && targets.maxReps <= muscleGroupRange.maxReps ? targets.maxReps : muscleGroupRange.maxReps;
 
     // Progressive overload logic
-    if (lastReps >= effectiveMaxReps) {
+    if (lastReps >= maxReps) {
       // At upper limit of rep range - increase weight, drop reps to lower range
       const newWeight = lastWeight + weightIncrement;
-      const newReps = Math.max(minReps, lastReps - 3);
+      const newReps = Math.max(minReps, Math.min(minReps + 2, lastReps - 2));
       
       return {
         weight: newWeight,
         reps: newReps,
-        reasoning: `Hit upper rep range (${lastReps}/${effectiveMaxReps}) - increase weight`,
+        reasoning: `Hit upper rep range (${lastReps}/${maxReps}) - increase weight`,
         isProgression: true
       };
-    } else if (lastReps >= minReps && lastReps < effectiveMaxReps) {
+    } else if (lastReps >= minReps && lastReps < maxReps) {
       // Within rep range - conservative increase of 1 rep
       const repsIncrease = 1;
-      const newReps = Math.min(effectiveMaxReps, lastReps + repsIncrease);
+      const newReps = Math.min(maxReps, lastReps + repsIncrease);
       
       return {
         weight: lastWeight,
