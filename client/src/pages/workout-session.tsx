@@ -1706,14 +1706,34 @@ export default function WorkoutSession() {
                       value={set.reps || ""}
                       onChange={(e) => updateSetValue(exerciseIndex, setIndex, 'reps', parseInt(e.target.value) || 0)}
                       className="h-8 text-center border-0 bg-transparent p-0 focus:ring-0 shadow-none"
-                      placeholder="0"
                       min="1"
+                      placeholder={(() => {
+                        // Get template exercise data for this exercise
+                        const templateEx = activeWorkoutState?.templateExercises?.find((ex: any) => ex.exerciseId === exercise.exercise.id);
+                        if (templateEx && templateEx.minReps && templateEx.maxReps) {
+                          if (templateEx.minReps === templateEx.maxReps) {
+                            return templateEx.minReps.toString();
+                          }
+                          return `${templateEx.minReps}-${templateEx.maxReps}`;
+                        }
+                        return "0";
+                      })()}
                     />
-                    {set.targetReps && (
-                      <div className="absolute -bottom-4 left-0 right-0 text-xs text-blue-600 text-center font-medium">
-                        {set.targetReps}
-                      </div>
-                    )}
+                    {(() => {
+                      // Get template exercise data for this exercise
+                      const templateEx = activeWorkoutState?.templateExercises?.find((ex: any) => ex.exerciseId === exercise.exercise.id);
+                      if (templateEx && templateEx.minReps && templateEx.maxReps) {
+                        const repRange = templateEx.minReps === templateEx.maxReps 
+                          ? templateEx.minReps.toString() 
+                          : `${templateEx.minReps}-${templateEx.maxReps}`;
+                        return (
+                          <div className="absolute -bottom-4 left-0 right-0 text-xs text-blue-600 text-center font-medium">
+                            {repRange}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                   
                   {/* Partial Reps Input - Only show when enabled */}
@@ -1740,7 +1760,14 @@ export default function WorkoutSession() {
                         setShowRpeSelector(true);
                       }}
                     >
-                      {set.rpe ? set.rpe : "-"}
+                      {set.rpe ? set.rpe : (() => {
+                        // Get template exercise data for RPE placeholder
+                        const templateEx = activeWorkoutState?.templateExercises?.find((ex: any) => ex.exerciseId === exercise.exercise.id);
+                        if (templateEx?.targetRpe) {
+                          return templateEx.targetRpe;
+                        }
+                        return "-";
+                      })()}
                     </Button>
                   </div>
                   
