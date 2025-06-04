@@ -975,6 +975,12 @@ export default function CreateRoutine() {
       ? (minReps === maxReps ? minReps : `${minReps}-${maxReps}`)
       : singleReps;
     
+    console.log('Adding exercise to routine:', { 
+      exerciseId: exercise.id, 
+      exerciseName: exercise.name,
+      fullExercise: exercise 
+    });
+
     const routineExercise: RoutineExercise = {
       exerciseId: exercise.id,
       exerciseName: exercise.name,
@@ -989,6 +995,8 @@ export default function CreateRoutine() {
       restDuration: parseInt(restDuration),
       notes: "",
     };
+
+    console.log('Created routine exercise:', routineExercise);
 
     setSelectedExercises([...selectedExercises, routineExercise]);
     setSelectedExerciseId("");
