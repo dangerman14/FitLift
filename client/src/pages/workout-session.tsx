@@ -568,7 +568,10 @@ export default function WorkoutSession() {
                   setsTarget: routineEx.sets || 3,
                   repsTarget: routineEx.reps,
                   restDuration: routineEx.restDuration || 120,
-                  notes: JSON.stringify({ setsData })
+                  notes: JSON.stringify({ setsData }),
+                  minReps: routineEx.minReps,
+                  maxReps: routineEx.maxReps,
+                  targetRpe: routineEx.targetRpe
                 };
               }) || []
             };
@@ -679,6 +682,12 @@ export default function WorkoutSession() {
                 const validExercises = exercises.filter(ex => ex !== null);
                 console.log('Setting workout exercises with', validExercises.length, 'exercises');
                 setWorkoutExercises(validExercises);
+                
+                // Store template exercises data in activeWorkout for rep range display
+                setActiveWorkoutState(prev => ({
+                  ...prev,
+                  templateExercises: template.exercises || []
+                }));
               }
             });
           }
