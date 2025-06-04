@@ -93,7 +93,7 @@ export class ProgressiveOverloadCalculator {
     // Progressive overload logic
     if (lastReps >= maxReps) {
       // At upper limit of rep range - increase weight, drop reps to lower range
-      const newWeight = lastWeight + weightIncrement;
+      const newWeight = this.formatWeight(lastWeight + weightIncrement);
       const newReps = Math.max(minReps, Math.min(minReps + 2, lastReps - 2));
       
       return {
@@ -108,7 +108,7 @@ export class ProgressiveOverloadCalculator {
       const newReps = Math.min(maxReps, lastReps + repsIncrease);
       
       return {
-        weight: lastWeight,
+        weight: this.formatWeight(lastWeight),
         reps: newReps,
         reasoning: `Add ${repsIncrease} rep within range`,
         isProgression: true
@@ -118,7 +118,7 @@ export class ProgressiveOverloadCalculator {
       const newReps = Math.min(minReps, lastReps + 1);
       
       return {
-        weight: lastWeight,
+        weight: this.formatWeight(lastWeight),
         reps: newReps,
         reasoning: `Build up to minimum rep range (${minReps})`,
         isProgression: true
@@ -179,20 +179,33 @@ export class ProgressiveOverloadCalculator {
     // Smaller increments for isolation exercises and upper body
     const smallIncrementExercises = [
       'bicep curl', 'tricep', 'lateral raise', 'rear delt',
-      'calf raise', 'wrist curl', 'face pull'
+      'calf raise', 'wrist curl', 'face pull', 'curl', 'fly'
     ];
 
     const isSmallIncrement = smallIncrementExercises.some(type => 
       exerciseType.toLowerCase().includes(type)
     );
 
-    if (isSmallIncrement || currentWeight < 20) {
-      return 1.25; // Smaller increments for light weights and isolation
-    } else if (currentWeight < 50) {
+    // More conservative increments across the board
+    if (isSmallIncrement || currentWeight < 30) {
+      return 1.25; // Very small increments for isolation and light weights
+    } else if (currentWeight < 60) {
       return 2.5; // Standard increment for moderate weights
+    } else if (currentWeight < 100) {
+      return 2.5; // Keep standard increment for most weights
     } else {
-      return 5; // Larger increments for heavy compound movements
+      return 5; // Only use larger increments for very heavy weights
     }
+  }
+
+  /**
+   * Format weight to remove unnecessary decimal places
+   */
+  static formatWeight(weight: number): number {
+    // Round to nearest 0.25 for practical gym weights
+    const rounded = Math.round(weight * 4) / 4;
+    // Return clean number without unnecessary decimals
+    return parseFloat(rounded.toFixed(2));
   }
 
   /**
@@ -200,7 +213,8 @@ export class ProgressiveOverloadCalculator {
    */
   static formatSuggestion(suggestion: ProgressionSuggestion, weightUnit: string = 'kg'): string {
     if (suggestion.weight > 0) {
-      return `${suggestion.weight}${weightUnit} × ${suggestion.reps}`;
+      const cleanWeight = this.formatWeight(suggestion.weight);
+      return `${cleanWeight}${weightUnit} × ${suggestion.reps}`;
     } else {
       return `${suggestion.reps} reps`;
     }

@@ -178,10 +178,20 @@ export default function WorkoutSession() {
   };
   
   const getDisplayWeight = (weight: number, exerciseId: number) => {
+    let displayWeight = weight;
+    
     if (getWeightUnit(exerciseId) === 'lbs' && weight > 0) {
-      return Math.round(weight * 2.20462 * 10) / 10; // Convert kg to lbs
+      displayWeight = weight * 2.20462; // Convert kg to lbs
     }
-    return weight;
+    
+    // Format to remove unnecessary decimal places
+    if (displayWeight % 1 === 0) {
+      return Math.round(displayWeight); // Return integer if whole number
+    } else if (Math.abs(displayWeight - Math.round(displayWeight * 4) / 4) < 0.01) {
+      return Math.round(displayWeight * 4) / 4; // Round to nearest 0.25
+    } else {
+      return Math.round(displayWeight * 10) / 10; // Round to 1 decimal place
+    }
   };
   
   const getStorageWeight = (displayWeight: number, exerciseId: number) => {
