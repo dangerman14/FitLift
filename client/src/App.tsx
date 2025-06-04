@@ -21,6 +21,7 @@ import AddBodyEntry from "@/pages/add-body-entry";
 import EditBodyEntry from "@/pages/edit-body-entry";
 import ProgressEntry from "@/pages/progress-entry";
 import Settings from "@/pages/settings";
+import ProgressiveOverloadSettings from "@/pages/progressive-overload-settings";
 import WorkoutSession from "@/pages/workout-session";
 import WorkoutComplete from "@/pages/workout-complete";
 import WorkoutSummary from "@/pages/workout-summary";
@@ -72,6 +73,7 @@ function Router() {
                 <Route path="/body-tracking/edit/:date" component={EditBodyEntry} />
                 <Route path="/add-body-entry" component={AddBodyEntry} />
                 <Route path="/settings" component={Settings} />
+                <Route path="/progressive-overload-settings" component={ProgressiveOverloadSettings} />
                 <Route path="/swipe-test" component={SwipeTest} />
                 <Route component={NotFound} />
               </Switch>

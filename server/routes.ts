@@ -59,16 +59,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/user/settings', isAuthenticated, async (req: any, res) => {
     try {
       const userId = getUserId(req);
-      const { weightUnit, distanceUnit, bodyMeasurementUnit, partialRepsEnabled, partialRepsVolumeWeight } = req.body;
+      const updates = req.body;
       
-      const updatedUser = await storage.updateUserSettings(userId, {
-        weightUnit,
-        distanceUnit,
-        bodyMeasurementUnit,
-        partialRepsEnabled,
-        partialRepsVolumeWeight,
-      });
-      
+      const updatedUser = await storage.updateUser(userId, updates);
       res.json(updatedUser);
     } catch (error) {
       console.error("Error updating user settings:", error);
