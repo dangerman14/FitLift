@@ -529,6 +529,8 @@ export default function WorkoutSession() {
               credentials: 'include'
             });
             const routine = await response.json();
+            console.log('Loaded routine data:', routine);
+            console.log('Routine exercises:', routine.exercises);
             
             // Convert routine to template format
             template = {
