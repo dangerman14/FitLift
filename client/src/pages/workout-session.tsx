@@ -562,7 +562,7 @@ export default function WorkoutSession() {
                   }));
                 }
                 
-                // Extract targetRpe from setsData if available
+                // Extract targetRpe from setsData for placeholder display only
                 let targetRpe = null;
                 if (setsData.length > 0) {
                   // Look for the first non-empty RPE value in setsData
@@ -584,7 +584,7 @@ export default function WorkoutSession() {
                   notes: JSON.stringify({ setsData }),
                   minReps: routineEx.minReps,
                   maxReps: routineEx.maxReps,
-                  targetRpe: targetRpe
+                  targetRpe: targetRpe // Only for placeholder display, not for pre-filling
                 };
               }) || []
             };
@@ -653,7 +653,7 @@ export default function WorkoutSession() {
                             setNumber: setIndex + 1,
                             weight: setData.weight || 0,
                             reps: 0, // Start empty for user input
-                            rpe: setData.rpe || null, // Use RPE from template or leave blank
+                            rpe: null, // Always start empty - RPE values are for placeholder display only
                             minReps,
                             maxReps,
                             targetReps: setData.reps, // Store the original rep range (e.g., "10-15")
