@@ -440,7 +440,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("Data with slug:", dataWithSlug);
       
-      const templateData = insertWorkoutTemplateSchema.parse(dataWithSlug);
+      const templateData = insertWorkoutTemplateSchema.extend({ slug: z.string() }).parse(dataWithSlug);
       console.log("Parsed template data:", templateData);
       
       const template = await storage.createWorkoutTemplate(templateData);
@@ -448,10 +448,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add exercises to template if provided
       if (req.body.exercises && Array.isArray(req.body.exercises)) {
         for (let i = 0; i < req.body.exercises.length; i++) {
+          const exerciseInput = req.body.exercises[i];
           const exerciseData = insertTemplateExerciseSchema.parse({
-            ...req.body.exercises[i],
             templateId: template.id,
+            exerciseId: exerciseInput.exerciseId,
             orderIndex: i,
+            setsTarget: exerciseInput.setsTarget,
+            repsTarget: exerciseInput.repsTarget,
+            weightTarget: exerciseInput.weightTarget,
+            restDuration: exerciseInput.restDuration,
+            notes: exerciseInput.notes,
           });
           await storage.createTemplateExercise(exerciseData);
         }
@@ -904,7 +910,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         const weightIncrement = exercise ? ProgressiveOverloadCalculator.getWeightIncrement(exercise.name, previousData[0]?.weight || 0) : 2.5;
         const muscleGroups = exercise?.primaryMuscleGroups || [];
-        suggestion = ProgressiveOverloadCalculator.calculateProgression(previousData, targets, weightIncrement, muscleGroups);
+        const muscleGroupsArray = Array.isArray(muscleGroups) ? muscleGroups : [];
+        suggestion = ProgressiveOverloadCalculator.calculateProgression(previousData, targets, weightIncrement, muscleGroupsArray);
       }
 
       res.json(suggestion);
