@@ -195,7 +195,7 @@ export const exerciseSets = pgTable("exercise_sets", {
   weight: decimal("weight", { precision: 6, scale: 2 }),
   reps: integer("reps"),
   partialReps: integer("partial_reps"),
-  rpe: integer("rpe"), // rate of perceived exertion 1-10
+  rpe: decimal("rpe", { precision: 3, scale: 1 }), // rate of perceived exertion 1-10 (supports 0.5 increments)
   // Fields for different exercise types
   duration: integer("duration"), // seconds for duration-based exercises
   distance: decimal("distance", { precision: 8, scale: 2 }),
