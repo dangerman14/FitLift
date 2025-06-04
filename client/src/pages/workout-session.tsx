@@ -1759,7 +1759,11 @@ export default function WorkoutSession() {
                       {set.rpe ? set.rpe : (() => {
                         // Get template exercise data for RPE placeholder
                         const templateEx = activeWorkout?.templateExercises?.find((ex: any) => ex.exerciseId === workoutExercise.exercise.id);
+                        console.log('RPE Debug - activeWorkout.templateExercises:', activeWorkout?.templateExercises);
+                        console.log('RPE Debug - looking for exerciseId:', workoutExercise.exercise.id);
+                        console.log('RPE Debug - found templateEx:', templateEx);
                         if (templateEx?.targetRpe) {
+                          console.log('RPE Debug - returning targetRpe:', templateEx.targetRpe);
                           return templateEx.targetRpe;
                         }
                         return "-";
