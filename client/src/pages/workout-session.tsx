@@ -513,15 +513,18 @@ export default function WorkoutSession() {
     if ((templateId || routineId) && !activeWorkout && workoutExercises.length === 0 && !createWorkoutMutation.isPending && !isCreatingWorkoutRef.current && !isEditingExisting && !workoutSlug) {
       // Fetch template or routine and load it
       const loadTemplateOrRoutine = async () => {
+        console.log("Loading template or routine with templateId:", templateId, "routineId:", routineId);
         isCreatingWorkoutRef.current = true;
         try {
           let template;
           if (templateId) {
+            console.log("Fetching template with ID:", templateId);
             const response = await fetch(`/api/workout-templates/${templateId}`, {
               credentials: 'include'
             });
             template = await response.json();
           } else if (routineId) {
+            console.log("Fetching routine with ID:", routineId);
             const response = await fetch(`/api/routines/${routineId}`, {
               credentials: 'include'
             });
