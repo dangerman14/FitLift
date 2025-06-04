@@ -529,7 +529,6 @@ export default function WorkoutSession() {
               credentials: 'include'
             });
             const routine = await response.json();
-            console.log('RPE Flow Debug - full routine data:', routine);
             
             // Convert routine to template format
             template = {
@@ -537,7 +536,7 @@ export default function WorkoutSession() {
               name: routine.name,
               description: routine.description,
               exercises: routine.exercises?.map((routineEx: any) => {
-                console.log('Processing routine exercise:', routineEx);
+
                 
                 // Parse sets data from routine exercise notes
                 let setsData = [];
@@ -574,7 +573,7 @@ export default function WorkoutSession() {
                     }
                   }
                 }
-                console.log('RPE Debug - exercise:', routineEx.exercise.name, 'targetRpe:', targetRpe, 'setsData:', setsData);
+
                 
                 return {
                   exercise: routineEx.exercise,
@@ -1775,14 +1774,16 @@ export default function WorkoutSession() {
                         setShowRpeSelector(true);
                       }}
                     >
-                      {set.rpe ? set.rpe : (() => {
+                      {set.rpe ? (
+                        <span className="font-medium text-gray-900">{set.rpe}</span>
+                      ) : (() => {
                         // Get template exercise data for RPE placeholder
                         const templateEx = activeWorkout?.templateExercises?.find((ex: any) => ex.exerciseId === workoutExercise.exercise.id);
 
                         if (templateEx?.targetRpe) {
-                          return templateEx.targetRpe;
+                          return <span className="font-light text-gray-400 italic">{templateEx.targetRpe}</span>;
                         }
-                        return "-";
+                        return <span className="text-gray-400">-</span>;
                       })()}
                     </Button>
                   </div>
