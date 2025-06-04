@@ -535,19 +535,42 @@ export default function WorkoutSession() {
               id: routine.id,
               name: routine.name,
               description: routine.description,
-              exercises: routine.exercises?.map((routineEx: any) => ({
-                exercise: routineEx.exercise,
-                exerciseId: routineEx.exerciseId,
-                setsTarget: routineEx.sets || 3,
-                repsTarget: routineEx.reps,
-                notes: JSON.stringify({
-                  setsData: Array.from({ length: routineEx.sets || 3 }, (_, i) => ({
-                    reps: routineEx.reps?.toString() || "8-12",
-                    weight: 0,
-                    rpe: routineEx.rpe || null
-                  }))
-                })
-              })) || []
+              exercises: routine.exercises?.map((routineEx: any) => {
+                console.log('Processing routine exercise:', routineEx);
+                
+                // Parse sets data from routine exercise
+                let setsData = [];
+                try {
+                  if (routineEx.reps && typeof routineEx.reps === 'string') {
+                    const parsed = JSON.parse(routineEx.reps);
+                    if (parsed.setsData && Array.isArray(parsed.setsData)) {
+                      setsData = parsed.setsData;
+                    }
+                  }
+                } catch (e) {
+                  console.log('Failed to parse routine exercise reps data:', e);
+                }
+                
+                // If no valid setsData found, create default structure
+                if (setsData.length === 0) {
+                  const numSets = routineEx.sets || 3;
+                  const defaultReps = routineEx.reps || "8-12";
+                  setsData = Array.from({ length: numSets }, (_, i) => ({
+                    reps: defaultReps,
+                    weight: "",
+                    rpe: ""
+                  }));
+                }
+                
+                return {
+                  exercise: routineEx.exercise,
+                  exerciseId: routineEx.exerciseId,
+                  setsTarget: routineEx.sets || 3,
+                  repsTarget: routineEx.reps,
+                  restDuration: routineEx.restDuration || 120,
+                  notes: JSON.stringify({ setsData })
+                };
+              }) || []
             };
           }
           
