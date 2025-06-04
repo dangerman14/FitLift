@@ -86,8 +86,8 @@ export default function Routines() {
   };
 
   const getExerciseCount = (routine: any) => {
-    // Use the exerciseCount from the backend API response
-    return routine.exerciseCount || 0;
+    // Use the totalExercises from the backend API response
+    return routine.totalExercises || routine.exerciseCount || 0;
   };
 
   // Create folder mutation

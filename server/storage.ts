@@ -1101,14 +1101,48 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRoutines(userId: string): Promise<Routine[]> {
-    return await db.select().from(routines).where(eq(routines.userId, userId));
+    const results = await db
+      .select({
+        routine: routines,
+        exerciseCount: sql<number>`count(${routineExercises.id})::int`
+      })
+      .from(routines)
+      .leftJoin(routineExercises, eq(routines.id, routineExercises.routineId))
+      .where(eq(routines.userId, userId))
+      .groupBy(routines.id)
+      .orderBy(desc(routines.createdAt));
+
+    return results.map(result => ({
+      ...result.routine,
+      exerciseCount: result.exerciseCount
+    }));
   }
 
   async getRoutineById(id: number, userId: string): Promise<Routine | undefined> {
     const [routine] = await db.select().from(routines).where(
       and(eq(routines.id, id), eq(routines.userId, userId))
     );
-    return routine;
+    
+    if (!routine) return undefined;
+    
+    // Get routine exercises with exercise details
+    const routineExercisesWithDetails = await db
+      .select({
+        routineExercise: routineExercises,
+        exercise: exercises
+      })
+      .from(routineExercises)
+      .leftJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
+      .where(eq(routineExercises.routineId, id))
+      .orderBy(routineExercises.orderIndex);
+    
+    return {
+      ...routine,
+      exercises: routineExercisesWithDetails.map(item => ({
+        ...item.routineExercise,
+        exercise: item.exercise
+      }))
+    } as any;
   }
 
   async createRoutine(routine: InsertRoutine): Promise<Routine> {
