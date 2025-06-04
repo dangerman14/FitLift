@@ -344,7 +344,7 @@ export class DatabaseStorage implements IStorage {
   async getPreviousExerciseData(userId: string, exerciseId: number, templateId?: number): Promise<{ weight: number; reps: number; setNumber: number }[]> {
     const results = await db
       .select({
-        weight: sql<number>`CAST(${exerciseSets.weight} AS DECIMAL)`,
+        weight: exerciseSets.weight,
         reps: exerciseSets.reps,
         setNumber: exerciseSets.setNumber,
       })
@@ -361,8 +361,9 @@ export class DatabaseStorage implements IStorage {
       .limit(20);
 
     return results.filter(r => r.reps !== null).map(r => ({
-      ...r,
-      reps: r.reps!
+      weight: Number(r.weight) || 0,
+      reps: r.reps!,
+      setNumber: r.setNumber
     }));
   }
 
