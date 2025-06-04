@@ -79,7 +79,7 @@ export class ProgressiveOverloadCalculator {
     // Filter and validate data with conservative approach
     const validSets = previousSets.filter(set => {
       // Basic validation
-      if (set.reps <= 0 || set.weight <= 0 || set.reps > 30 || set.weight > 200) {
+      if (set.reps <= 0 || set.weight <= 0 || set.reps > 30 || set.weight > 150) {
         return false;
       }
       
@@ -88,9 +88,9 @@ export class ProgressiveOverloadCalculator {
         return false;
       }
       
-      // Conservative weight/rep validation for typical gym exercises
-      if (set.weight > 80 && set.reps < 3) {
-        return false; // Very heavy weights with very low reps are suspicious
+      // Conservative weight/rep validation - filter out extreme outliers
+      if (set.weight > 80) {
+        return false; // Most isolation exercises shouldn't exceed 80kg for typical users
       }
       
       if (set.weight < 5 && set.reps < 5) {
