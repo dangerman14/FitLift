@@ -44,10 +44,22 @@ export default function Routines() {
   const [showWorkoutInProgressModal, setShowWorkoutInProgressModal] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
-  // Fetch routines from the correct API endpoint
-  const { data: routines = [], isLoading } = useQuery({
+  // Fetch both workout templates and custom routines
+  const { data: workoutTemplates = [], isLoading: templatesLoading } = useQuery({
+    queryKey: ["/api/workout-templates"],
+  });
+  
+  const { data: customRoutines = [], isLoading: routinesLoading } = useQuery({
     queryKey: ["/api/routines"],
   });
+
+  // Combine both data sources for display
+  const allRoutines = [
+    ...workoutTemplates.map((template: any) => ({ ...template, type: 'template' })),
+    ...customRoutines.map((routine: any) => ({ ...routine, type: 'routine' }))
+  ];
+  
+  const isLoading = templatesLoading || routinesLoading;
 
   // Fetch folders
   const { data: folders = [] } = useQuery({
@@ -66,11 +78,11 @@ export default function Routines() {
   };
 
   const getRoutinesInFolder = (folderId: number) => {
-    return routines.filter((routine: any) => routine.folderId === folderId);
+    return allRoutines.filter((routine: any) => routine.folderId === folderId);
   };
 
   const getRoutinesWithoutFolder = () => {
-    return routines.filter((routine: any) => !routine.folderId);
+    return allRoutines.filter((routine: any) => !routine.folderId);
   };
 
   const getExerciseCount = (routine: any) => {
@@ -461,7 +473,7 @@ export default function Routines() {
       </div>
 
       {/* Empty state when no routines and no folders exist */}
-      {routines.length === 0 && folders.length === 0 && (
+      {allRoutines.length === 0 && folders.length === 0 && (
         <Card className="text-center py-12">
           <CardContent>
             <div className="mx-auto w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mb-4">
