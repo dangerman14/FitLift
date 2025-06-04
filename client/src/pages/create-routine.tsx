@@ -1051,6 +1051,10 @@ export default function CreateRoutine() {
   const handleCreateRoutine = () => {
     console.log('=== STARTING ROUTINE CREATION ===');
     console.log('selectedExercises:', selectedExercises);
+    console.log('selectedExercises with exerciseId check:', selectedExercises.map(ex => ({ 
+      exerciseId: ex.exerciseId, 
+      exerciseName: ex.exerciseName 
+    })));
     
     if (!routineName.trim()) {
       toast({
