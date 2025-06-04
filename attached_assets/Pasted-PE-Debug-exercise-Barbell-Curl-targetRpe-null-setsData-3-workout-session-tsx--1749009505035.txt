@@ -1,0 +1,20 @@
+PE Debug - exercise: Barbell Curl targetRpe: null setsData: (3) [{…}, {…}, {…}]
+workout-session.tsx:540 Processing routine exercise: {id: 94, templateId: 28, exerciseId: 45, orderIndex: 1, dayOfWeek: null, …}
+workout-session.tsx:571 RPE Debug - exercise: Barbell Back Squat targetRpe: null setsData: (3) [{…}, {…}, {…}]0: {reps: '8-12', weight: '', rpe: ''}1: {reps: '8-12', weight: '', rpe: ''}2: {reps: '8-12', weight: '', rpe: ''}length: 3[[Prototype]]: Array(0)
+workout-session.tsx:355 Workout created successfully with ID: 337
+WorkoutContext.tsx:30 Setting active workout: {id: '337', name: 'Workout Session', startTime: '2025-06-04T03:57:56.105Z', slug: 'crif8nwo'}
+workout-session.tsx:355 Workout created successfully with ID: 338
+WorkoutContext.tsx:30 Setting active workout: {id: '338', name: 'BB1', startTime: '2025-06-04T03:57:56.594Z', slug: 'vhd6318y'}
+workout-session.tsx:598 Processing workout with ID: 338
+2workout-session.tsx:612 Creating exercise for workout ID: 338
+workout-session.tsx:625 Parsed sets data for exercise: Barbell Curl (3) [{…}, {…}, {…}]
+workout-session.tsx:631 About to create sets. setsData.length: 3
+workout-session.tsx:680 Final exercise object created: Barbell Curl with sets: (3) [{…}, {…}, {…}]
+workout-session.tsx:625 Parsed sets data for exercise: Barbell Back Squat (3) [{…}, {…}, {…}]
+workout-session.tsx:631 About to create sets. setsData.length: 3
+workout-session.tsx:680 Final exercise object created: Barbell Back Squat with sets: (3) [{…}, {…}, {…}]
+workout-session.tsx:691 Setting workout exercises with 2 exercises
+workout-session.tsx:67 workoutExercises state changed: 2 exercises
+workout-session.tsx:69 First exercise sets: (3) [{…}, {…}, {…}]
+workout-session.tsx:242 Progression suggestion for exercise 45: {weight: 0, reps: 8, reasoning: 'Starting values based on targets', isProgression: false}
+workout-session.tsx:242 Progression suggestion for exercise 72: {weight: 0, reps: 8, reasoning: 'Starting values based on targets', isProgression: false}

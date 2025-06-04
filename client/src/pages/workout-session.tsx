@@ -539,23 +539,23 @@ export default function WorkoutSession() {
               exercises: routine.exercises?.map((routineEx: any) => {
                 console.log('Processing routine exercise:', routineEx);
                 
-                // Parse sets data from routine exercise
+                // Parse sets data from routine exercise notes
                 let setsData = [];
                 try {
-                  if (routineEx.reps && typeof routineEx.reps === 'string') {
-                    const parsed = JSON.parse(routineEx.reps);
+                  if (routineEx.notes && typeof routineEx.notes === 'string') {
+                    const parsed = JSON.parse(routineEx.notes);
                     if (parsed.setsData && Array.isArray(parsed.setsData)) {
                       setsData = parsed.setsData;
                     }
                   }
                 } catch (e) {
-                  console.log('Failed to parse routine exercise reps data:', e);
+                  console.log('Failed to parse routine exercise notes data:', e);
                 }
                 
                 // If no valid setsData found, create default structure
                 if (setsData.length === 0) {
-                  const numSets = routineEx.sets || 3;
-                  const defaultReps = routineEx.reps || "8-12";
+                  const numSets = routineEx.setsTarget || 3;
+                  const defaultReps = `${routineEx.minReps || 8}-${routineEx.maxReps || 12}`;
                   setsData = Array.from({ length: numSets }, (_, i) => ({
                     reps: defaultReps,
                     weight: "",
@@ -565,8 +565,14 @@ export default function WorkoutSession() {
                 
                 // Extract targetRpe from setsData if available
                 let targetRpe = null;
-                if (setsData.length > 0 && setsData[0].rpe) {
-                  targetRpe = setsData[0].rpe;
+                if (setsData.length > 0) {
+                  // Look for the first non-empty RPE value in setsData
+                  for (const setData of setsData) {
+                    if (setData.rpe && setData.rpe.trim() !== '') {
+                      targetRpe = setData.rpe.trim();
+                      break;
+                    }
+                  }
                 }
                 console.log('RPE Debug - exercise:', routineEx.exercise.name, 'targetRpe:', targetRpe, 'setsData:', setsData);
                 
