@@ -671,6 +671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: req.body.name || "Quick Workout",
         userId: getUserId(req),
         templateId: req.body.templateId || null,
+        routineId: req.body.routineId || null,
         slug: slug,
         startTime: req.body.startTime ? new Date(req.body.startTime) : new Date(),
         endTime: req.body.endTime ? new Date(req.body.endTime) : null,
