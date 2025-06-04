@@ -999,6 +999,7 @@ export default function CreateRoutine() {
     console.log('Created routine exercise:', routineExercise);
 
     setSelectedExercises([...selectedExercises, routineExercise]);
+    console.log('Updated selectedExercises:', [...selectedExercises, routineExercise]);
     setSelectedExerciseId("");
     setSets("3");
     setSingleReps("10");
@@ -1048,6 +1049,9 @@ export default function CreateRoutine() {
   };
 
   const handleCreateRoutine = () => {
+    console.log('=== STARTING ROUTINE CREATION ===');
+    console.log('selectedExercises:', selectedExercises);
+    
     if (!routineName.trim()) {
       toast({
         title: "Routine Name Required",
