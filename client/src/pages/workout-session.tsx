@@ -1175,7 +1175,7 @@ export default function WorkoutSession() {
                 credentials: 'include',
                 body: JSON.stringify({
                   setNumber: set.setNumber,
-                  weight: set.weight,
+                  weight: getStorageWeight(set.weight || 0, exercise.exercise.id),
                   reps: set.reps,
                   partialReps: set.partialReps || undefined,
                   rpe: set.rpe || undefined
@@ -1188,7 +1188,7 @@ export default function WorkoutSession() {
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({
-                  weight: set.weight,
+                  weight: getStorageWeight(set.weight || 0, exercise.exercise.id),
                   reps: set.reps,
                   partialReps: set.partialReps || undefined,
                   rpe: set.rpe || undefined,
