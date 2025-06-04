@@ -125,21 +125,21 @@ export class ProgressiveOverloadCalculator {
     const lastWeight = Number(bestSet.weight) || 0;
     const lastReps = Number(bestSet.reps) || 0;
     
-    // Use muscle group-specific rep ranges if no targets provided or if targets are unrealistic
+    // Use template-provided rep ranges first, fallback to muscle group ranges only if no targets
     const muscleGroupRange = this.getMuscleGroupRepRange(exerciseMuscleGroups);
-    const minReps = targets?.minReps && targets.minReps <= muscleGroupRange.maxReps ? targets.minReps : muscleGroupRange.minReps;
-    const maxReps = targets?.maxReps && targets.maxReps <= muscleGroupRange.maxReps ? targets.maxReps : muscleGroupRange.maxReps;
+    const minReps = targets?.minReps || muscleGroupRange.minReps;
+    const maxReps = targets?.maxReps || muscleGroupRange.maxReps;
 
-    // Progressive overload logic
+    // Progressive overload logic - ALWAYS respect template rep ranges
     if (lastReps >= maxReps) {
-      // At upper limit of rep range - increase weight, drop reps to lower range
+      // At upper limit of rep range - increase weight, reset to minimum of template range
       const newWeight = Math.round((lastWeight + weightIncrement) * 4) / 4; // Round to nearest 0.25
-      const newReps = Math.max(minReps, Math.min(minReps + 2, lastReps - 2));
+      const newReps = minReps; // Start at bottom of template range with new weight
       
       return {
         weight: newWeight,
         reps: newReps,
-        reasoning: `Hit upper rep range (${lastReps}/${maxReps}) - increase weight`,
+        reasoning: `Hit upper rep range (${lastReps}/${maxReps}) - increase weight, reset to ${minReps} reps`,
         isProgression: true
       };
     } else if (lastReps >= minReps && lastReps < maxReps) {
@@ -154,13 +154,15 @@ export class ProgressiveOverloadCalculator {
         isProgression: true
       };
     } else {
-      // Below rep range - conservative build up to minimum reps
-      const newReps = Math.min(minReps, lastReps + 1);
+      // Below rep range - reduce weight to stay within template range
+      const weightReduction = weightIncrement * 0.5; // Conservative weight reduction
+      const newWeight = Math.max(5, Math.round((lastWeight - weightReduction) * 4) / 4);
+      const newReps = minReps; // Start at minimum of template range
       
       return {
-        weight: lastWeight,
+        weight: newWeight,
         reps: newReps,
-        reasoning: `Build up to minimum rep range (${minReps})`,
+        reasoning: `Previous ${lastReps} reps below range - reduce weight to ${newWeight}kg x ${minReps} reps`,
         isProgression: true
       };
     }
