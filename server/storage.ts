@@ -436,6 +436,13 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return updatedGoal;
   }
+
+  async getUserWorkoutTemplates(userId: string): Promise<WorkoutTemplate[]> {
+    return await db
+      .select()
+      .from(workoutTemplates)
+      .where(eq(workoutTemplates.userId, userId));
+  }
 }
 
 export const storage = new DatabaseStorage();

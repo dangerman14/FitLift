@@ -1167,14 +1167,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/routines/:id', isAuthenticated, async (req: any, res) => {
     try {
       const userId = getUserId(req);
-      const routineId = parseInt(req.params.id);
-      const routine = await storage.getRoutineById(routineId, userId);
+      const templateId = parseInt(req.params.id);
+      const template = await storage.getWorkoutTemplate(templateId);
       
-      if (!routine) {
+      if (!template || template.userId !== userId) {
         return res.status(404).json({ message: "Routine not found" });
       }
+
+      // Get template exercises with proper rep range data
+      const templateExercises = await storage.getTemplateExercises(templateId);
       
-      res.json(routine);
+      res.json({
+        ...template,
+        exercises: templateExercises
+      });
     } catch (error) {
       console.error("Error fetching routine:", error);
       res.status(500).json({ message: "Failed to fetch routine" });
