@@ -567,6 +567,7 @@ export default function WorkoutSession() {
                 if (setsData.length > 0 && setsData[0].rpe) {
                   targetRpe = setsData[0].rpe;
                 }
+                console.log('RPE Debug - exercise:', routineEx.exercise.name, 'targetRpe:', targetRpe, 'setsData:', setsData);
                 
                 return {
                   exercise: routineEx.exercise,
