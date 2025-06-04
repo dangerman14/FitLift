@@ -1,0 +1,142 @@
+2025-06-04 16:15:55.09
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:15:55.11
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:15:55.13
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:15:55.18
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:15:55.24
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:15:55.35
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:15:55.94
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:15:56.36
+3ba03b69
+User
+> rest-express@1.0.0 start
+2025-06-04 16:15:56.36
+3ba03b69
+User
+> NODE_ENV=production node dist/index.js
+2025-06-04 16:15:56.46
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:15:56.51
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:15:57.63
+3ba03b69
+User
+6:15:57 AM [express] serving on port 5000
+2025-06-04 16:27:04.20
+3ba03b69
+User
+6:27:04 AM [express] GET /api/auth/user 401 in 2ms :: {"message":"Unauthorized"}
+2025-06-04 16:27:05.87
+3ba03b69
+User
+Wed, 04 Jun 2025 06:27:05 GMT express deprecated req.host: Use req.hostname instead at file:/home/runner/workspace/node_modules/openid-client/build/passport.js:165:49
+2025-06-04 16:27:06.63
+3ba03b69
+User
+6:27:06 AM [express] GET /api/login 302 in 759ms
+2025-06-04 16:27:11.35
+3ba03b69
+User
+file:///home/runner/workspace/dist/index.js:900
+2025-06-04 16:27:11.35
+3ba03b69
+User
+await storage.upsertUser({
+2025-06-04 16:27:11.35
+3ba03b69
+User
+^
+2025-06-04 16:27:11.35
+3ba03b69
+User
+2025-06-04 16:27:11.35
+3ba03b69
+User
+TypeError: storage.upsertUser is not a function
+2025-06-04 16:27:11.35
+3ba03b69
+User
+at upsertUser (file:///home/runner/workspace/dist/index.js:900:17)
+2025-06-04 16:27:11.35
+3ba03b69
+User
+at Strategy.verify [as _verify] (file:///home/runner/workspace/dist/index.js:917:11)
+2025-06-04 16:27:11.35
+3ba03b69
+User
+at Strategy.authorizationCodeGrant (file:///home/runner/workspace/node_modules/openid-client/build/passport.js:151:25)
+2025-06-04 16:27:11.35
+3ba03b69
+User
+at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-06-04 16:27:11.35
+3ba03b69
+User
+2025-06-04 16:27:11.35
+3ba03b69
+User
+Node.js v20.18.1
+2025-06-04 16:27:11.36
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:27:11.37
+3ba03b69
+User
+npm notice
+2025-06-04 16:27:11.37
+3ba03b69
+User
+npm notice New major version of npm available! 10.8.2 -> 11.4.1
+2025-06-04 16:27:11.37
+3ba03b69
+User
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.1
+2025-06-04 16:27:11.37
+3ba03b69
+User
+npm notice To update run: npm install -g npm@11.4.1
+2025-06-04 16:27:11.37
+3ba03b69
+User
+npm notice
+2025-06-04 16:27:11.38
+3ba03b69
+System
+command finished with error [npm run start]: exit status 1
+2025-06-04 16:27:11.75
+3ba03b69
+System
+error proxying request error=dial tcp 127.0.0.1:5000: connect: connection refused
+2025-06-04 16:27:11.83
+3ba03b69
+User
+> rest-express@1.0.0 start
+2025-06-04 16:27:11.83
+3ba03b69
+User
+> NODE_ENV=production node dist/index.js

@@ -42,6 +42,7 @@ import { eq, desc, sql, and, inArray, count, max, isNotNull } from "drizzle-orm"
 export interface IStorage {
   // User methods
   getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
   createUser(user: UpsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<UpsertUser>): Promise<User>;
 
@@ -72,36 +73,95 @@ export interface IStorage {
 
   // Workout methods
   getWorkouts(userId: string): Promise<Workout[]>;
-  getWorkout(id: number): Promise<(Workout & { exercises: (WorkoutExercise & { exercise: Exercise; sets: ExerciseSet[] })[] }) | undefined>;
-  getWorkoutBySlug(slug: string): Promise<(Workout & { exercises: (WorkoutExercise & { exercise: Exercise; sets: ExerciseSet[] })[] }) | undefined>;
+  getWorkout(id: number): Promise<Workout | undefined>;
+  getWorkoutBySlug(slug: string): Promise<Workout | undefined>;
   createWorkout(workout: InsertWorkout): Promise<Workout>;
   updateWorkout(id: number, updates: Partial<InsertWorkout>): Promise<Workout>;
+  deleteWorkout(id: number, userId: string): Promise<void>;
 
   // Workout Exercise methods
-  createWorkoutExercise(workoutExercise: InsertWorkoutExercise): Promise<WorkoutExercise>;
   getWorkoutExercises(workoutId: number): Promise<(WorkoutExercise & { exercise: Exercise; sets: ExerciseSet[] })[]>;
+  createWorkoutExercise(workoutExercise: InsertWorkoutExercise): Promise<WorkoutExercise>;
 
   // Exercise Set methods
   createExerciseSet(set: InsertExerciseSet): Promise<ExerciseSet>;
   updateExerciseSet(id: number, updates: Partial<InsertExerciseSet>): Promise<ExerciseSet>;
-  deleteExerciseSet(id: number): Promise<void>;
 
-  // Body tracking methods
+  // Body measurement methods
   getBodyMeasurements(userId: string): Promise<BodyMeasurement[]>;
   createBodyMeasurement(measurement: InsertBodyMeasurement): Promise<BodyMeasurement>;
-  getUserBodyweight(userId: string): Promise<UserBodyweight[]>;
-  createUserBodyweight(bodyweight: InsertUserBodyweight): Promise<UserBodyweight>;
+  updateBodyMeasurement(id: number, updates: Partial<InsertBodyMeasurement>): Promise<BodyMeasurement>;
 
-  // Fitness Goals methods
+  // Bodyweight methods
+  getUserBodyweight(userId: string): Promise<UserBodyweight[]>;
+  createBodyweightEntry(entry: InsertUserBodyweight): Promise<UserBodyweight>;
+  updateUserCurrentBodyweight(userId: string, weight: number): Promise<User>;
+
+  // Fitness goal methods
   getFitnessGoals(userId: string): Promise<FitnessGoal[]>;
   createFitnessGoal(goal: InsertFitnessGoal): Promise<FitnessGoal>;
   updateFitnessGoal(id: number, updates: Partial<InsertFitnessGoal>): Promise<FitnessGoal>;
+
+  // Previous exercise data
+  getPreviousExerciseData(userId: string, exerciseId: number, templateId?: number): Promise<{ weight: number; reps: number; setNumber: number }[]>;
+
+  // Analytics
+  getWorkoutStats(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    totalWorkouts: number;
+    totalVolume: number;
+    avgDuration: number;
+    personalRecords: number;
+  }>;
+  getStrengthProgress(userId: string, exerciseId: number): Promise<{
+    date: Date;
+    maxWeight: number;
+  }[]>;
+  
+  // Chart data
+  getVolumeChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    volume: number;
+  }[]>;
+  getRepsChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    totalReps: number;
+  }[]>;
+  getDurationChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    duration: number;
+  }[]>;
+  getWorkoutFrequencyChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    workoutCount: number;
+  }[]>;
+  getMuscleGroupChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    muscleGroup: string;
+    volume: number;
+    workoutCount: number;
+  }[]>;
 }
 
 export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const [upsertedUser] = await db
+      .insert(users)
+      .values(user)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          profileImageUrl: user.profileImageUrl,
+        }
+      })
+      .returning();
+    return upsertedUser;
   }
 
   async createUser(user: UpsertUser): Promise<User> {
@@ -142,7 +202,6 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (muscleGroups && muscleGroups.length > 0) {
-      // Search in both primary and secondary muscle groups
       const muscleGroupConditions = muscleGroups.map(mg => 
         sql`(${exercises.primaryMuscleGroups}::text LIKE ${'%' + mg + '%'} OR ${exercises.secondaryMuscleGroups}::text LIKE ${'%' + mg + '%'})`
       );
@@ -171,73 +230,37 @@ export class DatabaseStorage implements IStorage {
 
   async getWorkoutTemplates(): Promise<WorkoutTemplate[]> {
     return await db
-      .select({
-        ...workoutTemplates,
-        exerciseCount: sql<number>`COALESCE(${count(templateExercises.id)}, 0)`,
-      })
+      .select()
       .from(workoutTemplates)
-      .leftJoin(templateExercises, eq(workoutTemplates.id, templateExercises.templateId))
       .where(eq(workoutTemplates.isSystemTemplate, true))
-      .groupBy(workoutTemplates.id)
       .orderBy(workoutTemplates.name);
   }
 
   async getUserWorkoutTemplates(userId: string): Promise<WorkoutTemplate[]> {
     return await db
-      .select({
-        ...workoutTemplates,
-        exerciseCount: sql<number>`COALESCE(${count(templateExercises.id)}, 0)`,
-      })
+      .select()
       .from(workoutTemplates)
-      .leftJoin(templateExercises, eq(workoutTemplates.id, templateExercises.templateId))
       .where(and(
         eq(workoutTemplates.userId, userId),
         eq(workoutTemplates.isSystemTemplate, false)
       ))
-      .groupBy(workoutTemplates.id)
       .orderBy(workoutTemplates.name);
   }
 
   async getWorkoutTemplate(id: number): Promise<(WorkoutTemplate & { exercises: (TemplateExercise & { exercise: Exercise })[] }) | undefined> {
     const [template] = await db.select().from(workoutTemplates).where(eq(workoutTemplates.id, id));
-    
     if (!template) return undefined;
 
-    const templateExercisesList = await db
-      .select({
-        ...templateExercises,
-        exercise: exercises,
-      })
-      .from(templateExercises)
-      .innerJoin(exercises, eq(templateExercises.exerciseId, exercises.id))
-      .where(eq(templateExercises.templateId, id))
-      .orderBy(templateExercises.orderIndex);
-
-    return {
-      ...template,
-      exercises: templateExercisesList,
-    };
+    const exercises = await this.getTemplateExercises(id);
+    return { ...template, exercises };
   }
 
   async getWorkoutTemplateBySlug(slug: string): Promise<(WorkoutTemplate & { exercises: (TemplateExercise & { exercise: Exercise })[] }) | undefined> {
     const [template] = await db.select().from(workoutTemplates).where(eq(workoutTemplates.slug, slug));
-    
     if (!template) return undefined;
 
-    const templateExercisesList = await db
-      .select({
-        ...templateExercises,
-        exercise: exercises,
-      })
-      .from(templateExercises)
-      .innerJoin(exercises, eq(templateExercises.exerciseId, exercises.id))
-      .where(eq(templateExercises.templateId, template.id))
-      .orderBy(templateExercises.orderIndex);
-
-    return {
-      ...template,
-      exercises: templateExercisesList,
-    };
+    const exercises = await this.getTemplateExercises(template.id);
+    return { ...template, exercises };
   }
 
   async createWorkoutTemplate(template: InsertWorkoutTemplate): Promise<WorkoutTemplate> {
@@ -253,7 +276,21 @@ export class DatabaseStorage implements IStorage {
   async getTemplateExercises(templateId: number): Promise<(TemplateExercise & { exercise: Exercise })[]> {
     return await db
       .select({
-        ...templateExercises,
+        id: templateExercises.id,
+        templateId: templateExercises.templateId,
+        exerciseId: templateExercises.exerciseId,
+        orderIndex: templateExercises.orderIndex,
+        dayOfWeek: templateExercises.dayOfWeek,
+        setsTarget: templateExercises.setsTarget,
+        minReps: templateExercises.minReps,
+        maxReps: templateExercises.maxReps,
+        defaultRpe: templateExercises.defaultRpe,
+        weightTarget: templateExercises.weightTarget,
+        restDuration: templateExercises.restDuration,
+        supersetId: templateExercises.supersetId,
+        notes: templateExercises.notes,
+        createdAt: templateExercises.createdAt,
+        updatedAt: templateExercises.updatedAt,
         exercise: exercises,
       })
       .from(templateExercises)
@@ -272,55 +309,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getWorkouts(userId: string): Promise<Workout[]> {
-    return await db
-      .select()
-      .from(workouts)
-      .where(eq(workouts.userId, userId))
-      .orderBy(desc(workouts.startTime));
+    return await db.select().from(workouts).where(eq(workouts.userId, userId)).orderBy(desc(workouts.createdAt));
   }
 
-  async getWorkout(id: number): Promise<(Workout & { exercises: (WorkoutExercise & { exercise: Exercise; sets: ExerciseSet[] })[] }) | undefined> {
+  async getWorkout(id: number): Promise<Workout | undefined> {
     const [workout] = await db.select().from(workouts).where(eq(workouts.id, id));
-    
-    if (!workout) return undefined;
-
-    const workoutExercisesList = await db
-      .select({
-        ...workoutExercises,
-        exercise: exercises,
-      })
-      .from(workoutExercises)
-      .innerJoin(exercises, eq(workoutExercises.exerciseId, exercises.id))
-      .where(eq(workoutExercises.workoutId, id))
-      .orderBy(workoutExercises.orderIndex);
-
-    const exercisesWithSets = await Promise.all(
-      workoutExercisesList.map(async (we) => {
-        const sets = await db
-          .select()
-          .from(exerciseSets)
-          .where(eq(exerciseSets.workoutExerciseId, we.id))
-          .orderBy(exerciseSets.setNumber);
-        
-        return {
-          ...we,
-          sets,
-        };
-      })
-    );
-
-    return {
-      ...workout,
-      exercises: exercisesWithSets,
-    };
+    return workout || undefined;
   }
 
-  async getWorkoutBySlug(slug: string): Promise<(Workout & { exercises: (WorkoutExercise & { exercise: Exercise; sets: ExerciseSet[] })[] }) | undefined> {
+  async getWorkoutBySlug(slug: string): Promise<Workout | undefined> {
     const [workout] = await db.select().from(workouts).where(eq(workouts.slug, slug));
-    
-    if (!workout) return undefined;
-
-    return this.getWorkout(workout.id);
+    return workout || undefined;
   }
 
   async createWorkout(workout: InsertWorkout): Promise<Workout> {
@@ -337,15 +336,20 @@ export class DatabaseStorage implements IStorage {
     return updatedWorkout;
   }
 
-  async createWorkoutExercise(workoutExercise: InsertWorkoutExercise): Promise<WorkoutExercise> {
-    const [newWorkoutExercise] = await db.insert(workoutExercises).values(workoutExercise).returning();
-    return newWorkoutExercise;
+  async deleteWorkout(id: number, userId: string): Promise<void> {
+    await db.delete(workouts).where(and(eq(workouts.id, id), eq(workouts.userId, userId)));
   }
 
   async getWorkoutExercises(workoutId: number): Promise<(WorkoutExercise & { exercise: Exercise; sets: ExerciseSet[] })[]> {
-    const workoutExercisesList = await db
+    const workoutExercisesData = await db
       .select({
-        ...workoutExercises,
+        id: workoutExercises.id,
+        workoutId: workoutExercises.workoutId,
+        exerciseId: workoutExercises.exerciseId,
+        orderIndex: workoutExercises.orderIndex,
+        notes: workoutExercises.notes,
+        createdAt: workoutExercises.createdAt,
+        updatedAt: workoutExercises.updatedAt,
         exercise: exercises,
       })
       .from(workoutExercises)
@@ -353,22 +357,26 @@ export class DatabaseStorage implements IStorage {
       .where(eq(workoutExercises.workoutId, workoutId))
       .orderBy(workoutExercises.orderIndex);
 
-    const exercisesWithSets = await Promise.all(
-      workoutExercisesList.map(async (we) => {
-        const sets = await db
-          .select()
-          .from(exerciseSets)
-          .where(eq(exerciseSets.workoutExerciseId, we.id))
-          .orderBy(exerciseSets.setNumber);
-        
-        return {
-          ...we,
-          sets,
-        };
-      })
-    );
+    const result = [];
+    for (const workoutExercise of workoutExercisesData) {
+      const sets = await db
+        .select()
+        .from(exerciseSets)
+        .where(eq(exerciseSets.workoutExerciseId, workoutExercise.id))
+        .orderBy(exerciseSets.setNumber);
 
-    return exercisesWithSets;
+      result.push({
+        ...workoutExercise,
+        sets,
+      });
+    }
+
+    return result;
+  }
+
+  async createWorkoutExercise(workoutExercise: InsertWorkoutExercise): Promise<WorkoutExercise> {
+    const [newWorkoutExercise] = await db.insert(workoutExercises).values(workoutExercise).returning();
+    return newWorkoutExercise;
   }
 
   async createExerciseSet(set: InsertExerciseSet): Promise<ExerciseSet> {
@@ -385,16 +393,8 @@ export class DatabaseStorage implements IStorage {
     return updatedSet;
   }
 
-  async deleteExerciseSet(id: number): Promise<void> {
-    await db.delete(exerciseSets).where(eq(exerciseSets.id, id));
-  }
-
   async getBodyMeasurements(userId: string): Promise<BodyMeasurement[]> {
-    return await db
-      .select()
-      .from(bodyMeasurements)
-      .where(eq(bodyMeasurements.userId, userId))
-      .orderBy(desc(bodyMeasurements.date));
+    return await db.select().from(bodyMeasurements).where(eq(bodyMeasurements.userId, userId)).orderBy(desc(bodyMeasurements.date));
   }
 
   async createBodyMeasurement(measurement: InsertBodyMeasurement): Promise<BodyMeasurement> {
@@ -402,25 +402,35 @@ export class DatabaseStorage implements IStorage {
     return newMeasurement;
   }
 
-  async getUserBodyweight(userId: string): Promise<UserBodyweight[]> {
-    return await db
-      .select()
-      .from(userBodyweight)
-      .where(eq(userBodyweight.userId, userId))
-      .orderBy(desc(userBodyweight.measurementDate));
+  async updateBodyMeasurement(id: number, updates: Partial<InsertBodyMeasurement>): Promise<BodyMeasurement> {
+    const [updatedMeasurement] = await db
+      .update(bodyMeasurements)
+      .set(updates)
+      .where(eq(bodyMeasurements.id, id))
+      .returning();
+    return updatedMeasurement;
   }
 
-  async createUserBodyweight(bodyweight: InsertUserBodyweight): Promise<UserBodyweight> {
-    const [newBodyweight] = await db.insert(userBodyweight).values(bodyweight).returning();
-    return newBodyweight;
+  async getUserBodyweight(userId: string): Promise<UserBodyweight[]> {
+    return await db.select().from(userBodyweight).where(eq(userBodyweight.userId, userId)).orderBy(desc(userBodyweight.measurementDate));
+  }
+
+  async createBodyweightEntry(entry: InsertUserBodyweight): Promise<UserBodyweight> {
+    const [newEntry] = await db.insert(userBodyweight).values(entry).returning();
+    return newEntry;
+  }
+
+  async updateUserCurrentBodyweight(userId: string, weight: number): Promise<User> {
+    const [updatedUser] = await db
+      .update(users)
+      .set({ currentBodyweight: weight.toString() })
+      .where(eq(users.id, userId))
+      .returning();
+    return updatedUser;
   }
 
   async getFitnessGoals(userId: string): Promise<FitnessGoal[]> {
-    return await db
-      .select()
-      .from(fitnessGoals)
-      .where(eq(fitnessGoals.userId, userId))
-      .orderBy(desc(fitnessGoals.createdAt));
+    return await db.select().from(fitnessGoals).where(eq(fitnessGoals.userId, userId)).orderBy(desc(fitnessGoals.createdAt));
   }
 
   async createFitnessGoal(goal: InsertFitnessGoal): Promise<FitnessGoal> {
@@ -437,118 +447,124 @@ export class DatabaseStorage implements IStorage {
     return updatedGoal;
   }
 
-  async getUserWorkoutTemplates(userId: string): Promise<WorkoutTemplate[]> {
-    return await db
-      .select()
-      .from(workoutTemplates)
-      .where(eq(workoutTemplates.userId, userId));
-  }
-
   async getPreviousExerciseData(userId: string, exerciseId: number, templateId?: number): Promise<{ weight: number; reps: number; setNumber: number }[]> {
     const query = db
       .select({
         weight: sql<number>`CAST(${exerciseSets.weight} AS DECIMAL)`,
         reps: exerciseSets.reps,
-        setNumber: exerciseSets.setNumber
+        setNumber: exerciseSets.setNumber,
       })
       .from(exerciseSets)
       .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
       .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
-      .where(
-        and(
-          eq(workouts.userId, userId),
-          eq(workoutExercises.exerciseId, exerciseId),
-          isNotNull(exerciseSets.weight),
-          isNotNull(exerciseSets.reps)
-        )
-      )
-      .orderBy(desc(workouts.createdAt), desc(exerciseSets.setNumber))
-      .limit(10);
-
-    return await query;
-  }
-
-  async getStrengthProgress(userId: string, exerciseId: number): Promise<{ date: Date; maxWeight: number }[]> {
-    const result = await db
-      .select({
-        date: workouts.createdAt,
-        maxWeight: sql<number>`MAX(CAST(${exerciseSets.weight} AS DECIMAL))`
-      })
-      .from(exerciseSets)
-      .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
-      .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
-      .where(
-        and(
-          eq(workouts.userId, userId),
-          eq(workoutExercises.exerciseId, exerciseId),
-          isNotNull(exerciseSets.weight)
-        )
-      )
-      .groupBy(workouts.createdAt)
-      .orderBy(workouts.createdAt)
+      .where(and(
+        eq(workouts.userId, userId),
+        eq(workoutExercises.exerciseId, exerciseId),
+        isNotNull(exerciseSets.weight),
+        isNotNull(exerciseSets.reps)
+      ))
+      .orderBy(desc(workouts.createdAt))
       .limit(20);
 
-    return result.map(row => ({
-      date: row.date!,
-      maxWeight: row.maxWeight
+    const results = await query;
+    return results.filter(r => r.reps !== null).map(r => ({
+      ...r,
+      reps: r.reps!
     }));
   }
 
-  async checkPersonalRecords(userId: string, exerciseId: number, weight: number, reps: number): Promise<{
-    isHeaviestWeight: boolean;
-    isBest1RM: boolean;
-    isVolumeRecord: boolean;
-    previousRecords: {
-      heaviestWeight?: number;
-      best1RM?: number;
-      bestVolume?: number;
-    };
+  async getWorkoutStats(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    totalWorkouts: number;
+    totalVolume: number;
+    avgDuration: number;
+    personalRecords: number;
   }> {
-    // Get previous records for this exercise
-    const previousSets = await db
+    const conditions = [eq(workouts.userId, userId)];
+    
+    if (startDate) {
+      conditions.push(sql`${workouts.createdAt} >= ${startDate}`);
+    }
+    
+    if (endDate) {
+      conditions.push(sql`${workouts.createdAt} <= ${endDate}`);
+    }
+
+    const [stats] = await db
       .select({
-        weight: sql<number>`CAST(${exerciseSets.weight} AS DECIMAL)`,
-        reps: exerciseSets.reps
+        totalWorkouts: count(workouts.id),
+        avgDuration: sql<number>`COALESCE(AVG(${workouts.duration}), 0)`,
+      })
+      .from(workouts)
+      .where(and(...conditions));
+
+    return {
+      totalWorkouts: stats.totalWorkouts,
+      totalVolume: 0, // Would need complex calculation
+      avgDuration: stats.avgDuration,
+      personalRecords: 0, // Would need complex calculation
+    };
+  }
+
+  async getStrengthProgress(userId: string, exerciseId: number): Promise<{
+    date: Date;
+    maxWeight: number;
+  }[]> {
+    const results = await db
+      .select({
+        date: workouts.createdAt,
+        maxWeight: sql<number>`MAX(CAST(${exerciseSets.weight} AS DECIMAL))`,
       })
       .from(exerciseSets)
       .innerJoin(workoutExercises, eq(exerciseSets.workoutExerciseId, workoutExercises.id))
       .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
-      .where(
-        and(
-          eq(workouts.userId, userId),
-          eq(workoutExercises.exerciseId, exerciseId),
-          isNotNull(exerciseSets.weight),
-          isNotNull(exerciseSets.reps)
-        )
-      );
+      .where(and(
+        eq(workouts.userId, userId),
+        eq(workoutExercises.exerciseId, exerciseId),
+        isNotNull(exerciseSets.weight)
+      ))
+      .groupBy(workouts.createdAt)
+      .orderBy(workouts.createdAt);
 
-    let heaviestWeight = 0;
-    let best1RM = 0;
-    let bestVolume = 0;
+    return results.map(r => ({
+      date: r.date!,
+      maxWeight: r.maxWeight,
+    }));
+  }
 
-    previousSets.forEach(set => {
-      if (set.weight && set.reps) {
-        heaviestWeight = Math.max(heaviestWeight, set.weight);
-        // Calculate 1RM using Brzycki formula: weight / (1.0278 - 0.0278 * reps)
-        const estimated1RM = set.weight / (1.0278 - 0.0278 * set.reps);
-        best1RM = Math.max(best1RM, estimated1RM);
-        bestVolume = Math.max(bestVolume, set.weight * set.reps);
-      }
-    });
+  async getVolumeChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    volume: number;
+  }[]> {
+    return [];
+  }
 
-    const current1RM = weight / (1.0278 - 0.0278 * reps);
-    const currentVolume = weight * reps;
+  async getRepsChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    totalReps: number;
+  }[]> {
+    return [];
+  }
 
-    return {
-      isHeaviestWeight: weight > heaviestWeight,
-      isBest1RM: current1RM > best1RM,
-      isVolumeRecord: currentVolume > bestVolume,
-      previousRecords: {
-        heaviestWeight: heaviestWeight || undefined,
-        best1RM: best1RM || undefined,
-        bestVolume: bestVolume || undefined
-      }
-    };
+  async getDurationChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    duration: number;
+  }[]> {
+    return [];
+  }
+
+  async getWorkoutFrequencyChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    date: string;
+    workoutCount: number;
+  }[]> {
+    return [];
+  }
+
+  async getMuscleGroupChart(userId: string, startDate?: Date, endDate?: Date): Promise<{
+    muscleGroup: string;
+    volume: number;
+    workoutCount: number;
+  }[]> {
+    return [];
   }
 }
 
