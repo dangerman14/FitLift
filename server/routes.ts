@@ -12,7 +12,7 @@ import {
   insertFitnessGoalSchema,
   insertBodyMeasurementSchema,
   insertCustomExerciseSchema,
-  insertRoutineFolderSchema,
+  insertTemplateFolderSchema,
 } from "@shared/schema";
 import { z } from "zod";
 
