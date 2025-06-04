@@ -93,7 +93,7 @@ export class ProgressiveOverloadCalculator {
     // Progressive overload logic
     if (lastReps >= maxReps) {
       // At upper limit of rep range - increase weight, drop reps to lower range
-      const newWeight = this.formatWeight(lastWeight + weightIncrement);
+      const newWeight = lastWeight + weightIncrement;
       const newReps = Math.max(minReps, Math.min(minReps + 2, lastReps - 2));
       
       return {
@@ -108,7 +108,7 @@ export class ProgressiveOverloadCalculator {
       const newReps = Math.min(maxReps, lastReps + repsIncrease);
       
       return {
-        weight: this.formatWeight(lastWeight),
+        weight: lastWeight,
         reps: newReps,
         reasoning: `Add ${repsIncrease} rep within range`,
         isProgression: true
@@ -118,7 +118,7 @@ export class ProgressiveOverloadCalculator {
       const newReps = Math.min(minReps, lastReps + 1);
       
       return {
-        weight: this.formatWeight(lastWeight),
+        weight: lastWeight,
         reps: newReps,
         reasoning: `Build up to minimum rep range (${minReps})`,
         isProgression: true
@@ -213,7 +213,15 @@ export class ProgressiveOverloadCalculator {
    */
   static formatSuggestion(suggestion: ProgressionSuggestion, weightUnit: string = 'kg'): string {
     if (suggestion.weight > 0) {
-      const cleanWeight = this.formatWeight(suggestion.weight);
+      // Clean up weight display - remove unnecessary decimals
+      let cleanWeight = suggestion.weight;
+      if (cleanWeight % 1 === 0) {
+        cleanWeight = Math.round(cleanWeight);
+      } else if (Math.abs(cleanWeight - Math.round(cleanWeight * 4) / 4) < 0.01) {
+        cleanWeight = Math.round(cleanWeight * 4) / 4;
+      } else {
+        cleanWeight = Math.round(cleanWeight * 10) / 10;
+      }
       return `${cleanWeight}${weightUnit} × ${suggestion.reps}`;
     } else {
       return `${suggestion.reps} reps`;
