@@ -1538,7 +1538,7 @@ export default function CreateRoutine() {
               </div>
               
               <Button 
-                onClick={addExerciseToRoutine}
+                onClick={() => addExerciseToRoutine()}
                 className="w-full"
                 variant="outline"
               >

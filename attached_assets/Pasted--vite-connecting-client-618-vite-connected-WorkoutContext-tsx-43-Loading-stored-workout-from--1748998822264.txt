@@ -1,0 +1,77 @@
+[vite] connecting...
+client:618 [vite] connected.
+WorkoutContext.tsx:43 Loading stored workout from localStorage: null
+main.tsx:10 SW registered:  ServiceWorkerRegistration
+create-routine.tsx:950 Mobile exercise selected: SyntheticBaseEvent {_reactName: 'onClick', _targetInst: null, type: 'click', nativeEvent: PointerEvent, target: button.inline-flex.items-center.justify-center.gap-2.whitespace-nowrap.rounded-md.text-sm.font-medi…, …}
+create-routine.tsx:978 Adding exercise to routine: {exerciseId: undefined, exerciseName: undefined, fullExercise: SyntheticBaseEvent}
+create-routine.tsx:999 Created routine exercise: {exerciseId: undefined, exerciseName: undefined, sets: Array(3), restDuration: 120, notes: ''}
+create-routine.tsx:1002 Updated selectedExercises: [{…}]
+create-routine.tsx:1052 === STARTING ROUTINE CREATION ===
+create-routine.tsx:1053 selectedExercises: [{…}]
+create-routine.tsx:1054 selectedExercises with exerciseId check: [{…}]
+create-routine.tsx:1099 Exercise data for backend: {exerciseId: undefined, setsTarget: 3, repsTarget: 8, weightTarget: null, restDuration: 120, …}
+chunk-RPCDYKBN.js?v=2306b7ba:18625 [Violation] 'setTimeout' handler took 57ms
+queryClient.ts:15 
+            
+            
+           POST https://f2c241fc-d065-49c8-84c9-bc22cf9033fe-00-3ncrxvcvp6vvd.spock.replit.dev/api/routines 500 (Internal Server Error)
+apiRequest @ queryClient.ts:15
+mutationFn @ create-routine.tsx:910
+fn @ @tanstack_react-query.js?v=2306b7ba:1189
+run @ @tanstack_react-query.js?v=2306b7ba:494
+start @ @tanstack_react-query.js?v=2306b7ba:536
+execute @ @tanstack_react-query.js?v=2306b7ba:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=2306b7ba:2630
+(anonymous) @ @tanstack_react-query.js?v=2306b7ba:3295
+handleCreateRoutine @ create-routine.tsx:1110
+onClick @ create-routine.tsx:2283
+callCallback2 @ chunk-RPCDYKBN.js?v=2306b7ba:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=2306b7ba:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=2306b7ba:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=2306b7ba:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=2306b7ba:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=2306b7ba:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=2306b7ba:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=2306b7ba:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=2306b7ba:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=2306b7ba:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=2306b7ba:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=2306b7ba:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=2306b7ba:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=2306b7ba:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=2306b7ba:5449Understand this error
+create-routine.tsx:914 Mutation error: Error: 500: {"message":"Failed to create routine"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async apiRequest (queryClient.ts:22:3)
+    at async Object.mutationFn (create-routine.tsx:910:28)
+mutationFn @ create-routine.tsx:914
+await in mutationFn
+fn @ @tanstack_react-query.js?v=2306b7ba:1189
+run @ @tanstack_react-query.js?v=2306b7ba:494
+start @ @tanstack_react-query.js?v=2306b7ba:536
+execute @ @tanstack_react-query.js?v=2306b7ba:1225
+await in execute
+mutate @ @tanstack_react-query.js?v=2306b7ba:2630
+(anonymous) @ @tanstack_react-query.js?v=2306b7ba:3295
+handleCreateRoutine @ create-routine.tsx:1110
+onClick @ create-routine.tsx:2283
+callCallback2 @ chunk-RPCDYKBN.js?v=2306b7ba:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=2306b7ba:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=2306b7ba:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=2306b7ba:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=2306b7ba:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=2306b7ba:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=2306b7ba:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=2306b7ba:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=2306b7ba:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=2306b7ba:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=2306b7ba:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=2306b7ba:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=2306b7ba:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=2306b7ba:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=2306b7ba:5449Understand this error
+create-routine.tsx:935 Save routine error: Error: 500: {"message":"Failed to create routine"}
+    at throwIfResNotOk (queryClient.ts:6:11)
+    at async apiRequest (queryClient.ts:22:3)
+    at async Object.mutationFn (create-routine.tsx:910:28)
