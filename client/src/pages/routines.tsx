@@ -44,9 +44,9 @@ export default function Routines() {
   const [showWorkoutInProgressModal, setShowWorkoutInProgressModal] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
-  // Fetch routines using workout templates since that's where we're storing them
+  // Fetch routines from the correct API endpoint
   const { data: routines = [], isLoading } = useQuery({
-    queryKey: ["/api/workout-templates"],
+    queryKey: ["/api/routines"],
   });
 
   // Fetch folders
