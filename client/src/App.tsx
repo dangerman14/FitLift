@@ -62,7 +62,7 @@ function Router() {
                 <Route path="/exercises" component={Exercises} />
                 <Route path="/exercise/:exerciseId" component={ExerciseDetails} />
                 <Route path="/routines" component={Routines} />
-                <Route path="/routine/:slug" component={RoutineDetails} />
+                <Route path="/routine/:id" component={RoutineDetails} />
                 <Route path="/create-routine" component={CreateRoutine} />
 
                 <Route path="/profile" component={Profile} />

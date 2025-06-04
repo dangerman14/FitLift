@@ -7,14 +7,14 @@ import { ArrowLeft, Edit, Clock, Hash, Weight, Plus } from "lucide-react";
 import { Link } from "wouter";
 
 export default function RoutineDetails() {
-  const { slug } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   
-  console.log('RoutineDetails - Slug from params:', slug);
+  console.log('RoutineDetails - ID from params:', id);
   
   const { data: routineData, isLoading: routineLoading } = useQuery({
-    queryKey: [`/api/workout-templates/slug/${slug}`],
-    enabled: !!slug,
+    queryKey: [`/api/routines/${id}`],
+    enabled: !!id,
   });
 
   // Handle the case where the API returns an array instead of a single object
