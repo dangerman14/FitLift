@@ -40,6 +40,10 @@ export default function Workouts() {
     queryKey: ["/api/workout-templates"],
   });
 
+  const { data: customRoutines, isLoading: routinesLoading } = useQuery({
+    queryKey: ["/api/routines"],
+  });
+
   const { data: workoutHistory, isLoading: historyLoading } = useQuery({
     queryKey: ["/api/workouts"],
   });
@@ -66,7 +70,22 @@ export default function Workouts() {
 
   const categories = ["All", "Push", "Pull", "Legs", "Full Body"];
 
-  const filteredTemplates = (workoutTemplates || []).filter((template: any) => {
+  // Combine workout templates and custom routines
+  const allTemplates = [
+    ...(workoutTemplates || []).map((template: any) => ({
+      ...template,
+      type: 'template',
+      exerciseCount: template.exerciseCount || 0
+    })),
+    ...(customRoutines || []).map((routine: any) => ({
+      ...routine,
+      type: 'routine',
+      exerciseCount: routine.totalExercises || 0,
+      description: routine.description || "Custom routine"
+    }))
+  ];
+
+  const filteredTemplates = allTemplates.filter((template: any) => {
     if (selectedCategory === "All") return true;
     return template.targetMuscleGroups?.includes(selectedCategory.toLowerCase());
   });
@@ -79,7 +98,11 @@ export default function Workouts() {
       setShowWorkoutInProgressModal(true);
     } else {
       console.log('No active workout in workouts page, proceeding with navigation');
-      window.location.href = `/workout-session?template=${template.id}`;
+      if (template.type === 'routine') {
+        window.location.href = `/workout-session?routine=${template.id}`;
+      } else {
+        window.location.href = `/workout-session?template=${template.id}`;
+      }
     }
   };
 
@@ -92,7 +115,13 @@ export default function Workouts() {
     setActiveWorkout(null);
     setShowWorkoutInProgressModal(false);
     if (selectedTemplateId) {
-      window.location.href = `/workout-session?template=${selectedTemplateId}`;
+      // Find the selected template to determine type
+      const selectedTemplate = allTemplates.find(t => t.id === selectedTemplateId);
+      if (selectedTemplate?.type === 'routine') {
+        window.location.href = `/workout-session?routine=${selectedTemplateId}`;
+      } else {
+        window.location.href = `/workout-session?template=${selectedTemplateId}`;
+      }
     }
   };
 
@@ -107,7 +136,7 @@ export default function Workouts() {
     }
   };
 
-  if (isLoading || historyLoading) {
+  if (isLoading || historyLoading || routinesLoading) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
@@ -225,9 +254,14 @@ export default function Workouts() {
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-lg font-medium text-neutral-900 mb-1">
-                      {template.name}
-                    </h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-lg font-medium text-neutral-900">
+                        {template.name}
+                      </h3>
+                      <Badge variant={template.type === 'routine' ? 'default' : 'secondary'} className="text-xs">
+                        {template.type === 'routine' ? 'Custom' : 'Template'}
+                      </Badge>
+                    </div>
                     <p className="text-sm text-neutral-600">
                       {template.description || "No description"}
                     </p>
